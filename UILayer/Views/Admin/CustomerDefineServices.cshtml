@@ -1,0 +1,336 @@
+﻿@model EntityLayer.DTOs.CustomerDefineServiceDTO
+
+@{
+    ViewBag.Title = "Müşteri Hizmet Tanımla";
+    Layout = "_Layout";
+}
+<link rel="stylesheet" href="../../plugins/daterangepicker/daterangepicker.css">
+@section Styles{
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+   
+   
+}
+@section Scripts{
+    
+     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+     <script src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+         <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap4.min.js"></script>
+
+     <script>
+            $(document).ready(function () {
+                $('#CustomerDataTable').DataTable();
+            });
+            $(document).ready(function () {
+                                 $('#customerServiceDataTable').DataTable();
+                             });
+        </script>
+     
+   
+    <script>
+     $(function () {
+         var PlaceHolderElement = $('#PlaceHolderHere');
+         $('button[data-toggle="ajax-modal"]').click(function (event)
+         {
+            var url = $(this).data('url');
+            $.get(url).done(function (data) {
+               PlaceHolderElement.html(data);
+               PlaceHolderElement.find('.modal').modal('show');
+                }
+                )
+                
+         })
+         PlaceHolderElement.on('click', '[data-save="modal"]', function (event) {
+             var form = $(this).parents('.modal').find('form');
+             var actionUrl = form.attr('action');
+             var sendData = form.serialize();
+             $.post(actionUrl,sendData).done(function(data){
+             PlaceHolderElement.find('.modal').modal('hide');    
+             })
+         })
+     })
+    </script>
+  <script>
+  $(function() {
+    $('input[name="DateRange"]').daterangepicker({
+      singleDatePicker: true,
+      showDropdowns: true,
+      locale: {
+            format: 'DD/MM/YYYY'
+          }
+    }, );
+  });
+  </script>
+   
+    
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Müşteri Hizmet Tanımla</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Admin/">Admin</a></li>
+                    <li class="breadcrumb-item active">CustomerDefineServices</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section>
+    <div class="card card-primary card-tabs" style="margin:15px";>
+    <div class="card-header p-0 pt-1 border-bottom-0">
+    <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+    <li class="nav-item">
+    <a class="nav-link active" id="custom-tabs-three-home-tab" data-toggle="pill" href="#custom-tabs-three-home" role="tab" aria-controls="custom-tabs-three-home" aria-selected="true">Müşteri Hizmet Tanımla</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" id="custom-tabs-three-profile-tab" data-toggle="pill" href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile" aria-selected="false">Müşteri Hizmet Listesi</a>
+    </li>
+    </ul>
+    </div>
+    <div class="card-body">
+    <div class="tab-content" id="custom-tabs-three-tabContent">
+    <div class="tab-pane fade active show" id="custom-tabs-three-home" role="tabpanel" aria-labelledby="custom-tabs-three-home-tab">
+    <form asp-action="CustomerDefineServices" asp-controller="Admin">
+    <section>
+        <div id="accordion" style="margin: 20px;">
+            <div class="card shadow mt-5">
+                <div class="card-header bg-dark">
+                    <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                        Müşteri Listesi
+                    </a>
+                </div>
+                <div id="collapseCompanyList" class="collapse show">
+                    <div class="card-body">
+                    <div>
+                                                        
+                                                        
+                                                                            <label>Hizmet Bitiş Tarihi Seç: </label>
+                                                                            <input type="text" name="DateRange" asp-for="DateRange" id="DateRange" value="24/03/2022" />
+                                                        
+                       </div>
+                        <div class="row table-responsive-sm">
+                            <div class="col-md-12 ">
+                                <table id="CustomerDataTable" class="display" style="width:100%">
+                                    <thead>
+                                    <tr>
+                                        <th>Müşteri ID</th>
+                                        <th>Müşteri Adı</th>
+                                        <th>Müşteri Maili</th>
+                                        <th>Müşteri Ayarları</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var item in Model.CustomerList)
+                                    {
+                                        <tr>
+                                            <td>@item.CustomerID</td>
+                                            <td>@item.CustomerName</td>
+                                            <td>@item.CustomerMail</td>
+                                            <td>
+    
+                                                <button type="button" id="customerData" onclick="changeLabelText('@item.CustomerName','@item.CustomerID')" value=@item.CustomerName class="btn btn-warning btn-sm">SEÇ</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section>
+        <div id="accordion" style="margin: 20px;">
+           
+                
+                           
+                              
+                <div class="row">
+                   
+                     
+                    <div class="col-md-6">
+    
+                        <div class="card shadow mt-5">
+                            <div class="card-header bg-dark">
+                                <a href="#collapseCompanyCreate" class="card-link p-1">
+                                    Hizmetler
+                                </a>
+                            </div>
+                            <div id="collapseCompanyCreate">
+    
+                                <div class="card-body shadow">
+                                    <div class="row">
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-md-3 col-form-label">Hizmetler:</label>
+    
+    
+                                        <div class="col-sm-4">
+                                            @foreach (var item in Model.ServiceList)
+                                            {
+                                                <div class="form-check">
+    
+                                                    <input class="form-check-input" id="ServiceId" type="checkbox" name="ServiceId" value="@item.ID"/>
+                                                    <label class="form-check-label">@item.Name</label>
+                                                </div>
+    
+                                            }
+                                        </div>
+                                    </div>
+    
+    
+    
+    
+    
+                                </div>
+    
+                            </div>
+                        </div>
+    
+    
+    
+                    </div>
+                    <div class="col-md-6">
+    
+                        <div class="card shadow mt-5">
+                            <div class="card-header bg-dark">
+                                <a href="#collapseCompanyCreate" class="card-link p-1">
+                                    Paketler
+                                </a>
+                            </div>
+                            <div id="collapseCompanyCreate">
+    
+                                <div class="card-body shadow">
+                                    <div class="row">
+                                    </div>
+    
+                                    <div class="form-group row">
+                                        <label class="col-md-3 col-form-label">Paketler:</label>
+    
+    
+                                        <div class="col-sm-4">
+                                            @foreach (var item in Model.PackageList)
+                                            {
+                                                <div class="form-check">
+    
+                                                    <input class="form-check-input" id="PackageId" type="checkbox" name="PackageId" value="@item.ID"/>
+                                                    <label class="form-check-label">@item.Name</label>
+                                                </div>
+    
+                                            }
+                                        </div>
+                                    </div>
+    
+    
+    
+    
+                                </div>
+    
+                            </div>
+                        </div>
+    
+    
+    
+                    </div>
+                </div>
+                
+               
+               
+    
+                <div class="form-group row text-right">
+                    <div class="col-sm-10 offset-sm-2 align-content-center">
+    
+    
+                        <label id="lblEmp" class="bg-warning">Henüz bir müşteri seçmediniz, işlem yapabilmek için lütfen bir müşteri seçiniz</label>
+    
+    
+                        @Html.HiddenFor(m => m.selectedCustomerID)
+                        <button type="submit" class="btn btn-success">Hizmet Tanımla</button>
+    
+                    </div>
+                </div>
+           
+    
+        </div>
+    </section>
+     </form>
+    </div>
+    <div class="tab-pane fade" id="custom-tabs-three-profile" role="tabpanel" aria-labelledby="custom-tabs-three-profile-tab">
+      <div id="accordion" style="margin: 20px;">
+                <div class="card shadow mt-5">
+                    <div class="card-header bg-dark">
+                        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                            Müşteri Hizmet Listesi
+                        </a>
+                    </div>
+                    <div id="collapseCompanyList" class="collapse show">
+                        <div class="card-body">
+                            <div class="row table-responsive-sm">
+                                <div class="col-md-12 ">
+                                    <table id="customerServiceDataTable" class="display" style="width:100%">
+                                        <thead>
+                                        <tr>
+                                            <th>Müşteri ID</th>
+                                            <th>Müşteri Adı</th>
+                                            <th>Müşteri Maili</th>
+                                            <th>Müşteriye Tanımlı Hizmetler</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach (var item in Model.CustomerDefinedServiceList)
+                                        {
+                                            <tr>
+                                                <td>@item.CustomerID</td>
+                                                <td>@item.CustomerName</td>
+                                                <td>@item.CustomerMail</td>
+                                                @if (item.ServiceNames == "")
+                                                {
+                                                    <td class="bg-warning">Müşteriye bir hizmet tanımlı değil</td>
+                                                }
+                                                else
+                                                {
+                                                    <td>@item.ServiceNames</td>
+                                                }
+                                                
+                                                
+                                            </tr>
+                                        }
+                                        </tbody>
+                                    </table>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    
+    </div>
+    </div>
+    
+    </div>
+</section>
+
+
+<script>
+function changeLabelText(name, id) {
+            $('#selectedCustomerID').val(id);
+            document.getElementById('lblEmp').innerHTML
+                = 'Seçilen Firma: ' + name;
+        }
+</script>
+

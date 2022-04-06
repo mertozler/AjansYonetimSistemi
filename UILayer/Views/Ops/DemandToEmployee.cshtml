@@ -1,0 +1,196 @@
+﻿@model EntityLayer.DTOs.DemandToEmployeeDTO
+
+
+@{
+    ViewBag.Title = "Personele Talep Aç";
+    Layout = "_Layout";
+}
+@section Styles{
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+}
+@section Scripts{
+    <script src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#employeeListDataTable').DataTable();
+        });
+         $(document).ready(function () {
+                    $('#demandList').DataTable();
+                });
+    </script>
+    <script>
+     $(function () {
+         var PlaceHolderElement = $('#PlaceHolderHere');
+         $('button[data-toggle="ajax-modal"]').click(function (event)
+         {
+            var url = $(this).data('url');
+            $.get(url).done(function (data) {
+               PlaceHolderElement.html(data);
+               PlaceHolderElement.find('.modal').modal('show');
+                }
+                )
+                
+         })
+         PlaceHolderElement.on('click', '[data-save="modal"]', function (event) {
+             var form = $(this).parents('.modal').find('form');
+             var actionUrl = form.attr('action');
+             var sendData = form.serialize();
+             $.post(actionUrl,sendData).done(function(data){
+             PlaceHolderElement.find('.modal').modal('hide');    
+             })
+         })
+     })
+    </script>
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Personele Talep Aç</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Ops/">Ops</a></li>
+                    <li class="breadcrumb-item active">DemandToEmployee</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                    Personele Talep Aç
+                </a>
+            </div>
+            <div id="collapseCompanyCreate">
+                <form asp-controller="Ops" asp-action="DemandToEmployee"  enctype="multipart/form-data" method="post">
+                    <div class="card-body shadow">
+                
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">Personel Seç:</label>
+                            <div class="col-sm-4">
+                                <select class="form-control select2 select2-hidden-accessible" name="ReceiverID" asp-for="ReceiverID" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
+                                    @foreach (var item in Model.EmployeeList)
+                                    {
+                                        <option class="form-control" value="@item.Id">@item.NameSurname</option>
+                                    }
+                                
+                                </select>
+                                <span asp-validation-for="ReceiverID" class="text-danger"></span>
+                            </div>
+
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="Title" class="col-sm-1 col-form-label">Başlık:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="Title" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group row">
+                            <label asp-for="Content" class="col-sm-1 col-form-label">İçerik:</label>
+                            <div class="col-sm-4">
+                                <textarea class="form-control" id="Content" name="Content"  asp-for="Content" rows="2" cols="50">
+                            </textarea>
+                                
+                                <span asp-validation-for="Content" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">Dosya yükleyiniz:</label>
+                            <div class="col-sm-4">
+                                <input type="file" name="DemandFiles" id="DemandFiles" asp-for="DemandFiles" multiple/>
+                            </div>
+                        </div>
+                                                
+                        <input type="hidden" asp-for="CreatorID" value="@Model.CreatorID"/>
+
+                        <div class="form-group row">
+                            <div class="col-sm-10 offset-sm-2">
+                                <button type="submit" class="btn btn-success">Talep Gönder</button>
+                            </div>
+                        </div>
+                
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+<div id="accordion" style="margin: 20px;">
+<div class="card shadow mt-5">
+    <div class="card-header bg-dark">
+        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            Talepler
+        </a>
+    </div>
+    <div id="collapseCompanyList" class="collapse show">
+        <div class="card-body">
+            <div class="row table-responsive-sm">
+                <div class="col-md-12 ">
+                    <table id="employeeListDataTable" class="display" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>Talep ID</th>
+                            <th>Talep Başlığı</th>
+                            <th>Talep Alıcısı</th>
+                            <th>Talep Oluşturan</th>
+                            <th>Talep Durumu</th>
+                            <th>Talep Ayarları</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model.DemandListInbox)
+                        {
+                            <tr>
+                                <td>@item.ID</td>
+                                <td>@item.Title</td>
+                                <td>@item.ReceiverName</td>
+                                <td>@item.SenderName</td>
+                                @if (item.Status == true)
+                                                                        {
+                                                                            <td><i class="fas fa-circle" style="color:green;"></i></td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td><i class="fas fa-circle" style="color:red;"></i></td>
+                                                                        }
+                                         <td>
+                                                                                    @if (item.productId != null)
+                                                                                                                                                                         {
+                                                                                                                                                                             <a href="@Url.Action("CustomerProductsDetail", "Ops", new {CustomerProductsID = item.productId})" class="btn btn-warning btn-sm"><i class="fab fa-readme"></i></a>
+                                                                                                                                                                  
+                                                                                                                                                                         }
+                                                                                                                                                                         else
+                                                                                                                                                                         {
+                                                                                                                                                                             
+                                                                                                                                                                          <a href="@Url.Action("DemandInbox", "Ops", new {id = item.ID})" class="btn btn-warning btn-sm"><i class="fab fa-readme"></i></a>
+                                                                                                                             
+                                                                                                                                                                         }  </td>    
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                            
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>

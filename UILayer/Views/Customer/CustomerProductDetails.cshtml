@@ -1,0 +1,315 @@
+﻿@model EntityLayer.DTOs.CustomerProductDetailForCustomerDTO
+@using FileInfo = System.IO.FileInfo;
+@{
+    ViewBag.Title = "Ürün Detayları";
+    Layout = "_Layout";
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Ürün Detayları</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Customer/">Customer</a></li>
+                    <li class="breadcrumb-item active">CustomerProductDetails</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+
+
+	<div class="card" style="margin:20px;">
+				
+				
+		<div class="py-2 px-4 border-bottom d-none d-lg-block">
+			<div class="d-flex align-items-center py-1">
+				<div class="flex-grow-1 pl-3">
+								
+					<strong>@Model.ProductTitle</strong>
+					<div class="text-muted small"><em>@Model.EmployeeName</em></div>
+								
+								
+				</div>
+				<div>
+					<button class="btn btn-light border btn-lg px-3">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal feather-lg"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="position-relative">
+			<div class="chat-messages p-4" style="height: 600px; overflow-y: scroll; padding: 15px;">
+							
+				<div class="chat-message-left pb-4">
+					<div>
+						<img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
+						<div class="text-muted small text-nowrap mt-2">@(((DateTime) Model.ProductDate).ToString("dd.MM.yyyy HH:mm"))</div>
+					</div>
+					<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3" style="max-width:600px;">
+						<div class="font-weight-bold mb-1">@Model.EmployeeName</div>
+						
+						@{
+                        								FileInfo fi = new FileInfo(@Model.ProductFilePath);
+                        								string fileExtension = fi.Extension;
+                        								
+						}
+						@if (@Model.ProductFilePath != null)
+						{
+							if (fileExtension == ".jpeg" || fileExtension == ".jpg" || fileExtension == ".gif" || fileExtension == ".tiff" || fileExtension == ".png" || fileExtension == ".PNG")
+							{
+								<a href="~/CustomerProductsFile/@Model.ProductFilePath" target="_blank">
+									<img src="~/CustomerProductsFile/@Model.ProductFilePath" class="img-fluid" alt="@Model.ProductFilePath">
+									<p><small>@Model.ProductTitle-Revize-Raporu.v1</small></p>
+								</a>
+							}
+							if (fileExtension == ".docx" || fileExtension == ".doc" || fileExtension == ".pdf" || fileExtension == ".xls" || fileExtension == ".xlsx" || fileExtension == ".ppt" || fileExtension == ".pptx" || fileExtension == ".txt")
+							{
+								<a href="~/CustomerProductsFile/@Model.ProductFilePath" download><span class="badge bg-danger">Raporu İndir</span></a>
+								<p><small>@Model.ProductTitle-Revize-Raporu.v1</small></p>
+							}
+						}
+						
+						<div class="font-weight-normal mb-1">@Model.ProductContent</div>
+	                                                            
+					</div>
+				</div>
+				@if (Model.RevisedRequest != null)
+				{
+					<div class="chat-message-right pb-4">
+						<div>
+							<img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+							<div class="text-muted small text-nowrap mt-2">@(((DateTime) Model.RevisedRequest.DemandDate).ToString("dd.MM.yyyy HH:mm"))</div>
+						</div>
+						<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3" style="width:600px;">
+							<div class="font-weight-bold mb-1">@Model.RevisedRequest.CreatorName</div>
+							<div class="font-weight-normal mb-1">@Model.RevisedRequest.DemandContent</div>
+
+						</div>
+					</div>
+				}
+							
+				@foreach (var item in Model.DemandAnswerList)
+				{
+					if (item.AnswerType == 0)
+					{
+						<div class="chat-message-left pb-4">
+							<div>
+								<img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
+								<div class="text-muted small text-nowrap mt-2">@(((DateTime) item.DemandAnswerDate).ToString("dd.MM.yyyy HH:mm"))</div>
+							</div>
+							<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3" style="max-width:600px;">
+								<div class="font-weight-bold mb-1">@item.ReceiverName</div>
+								
+								
+								@if (item.FilePath != null)
+                                 {
+	                                 FileInfo file = new FileInfo(@item.FilePath);
+	                                 string fileExt = file.Extension;
+	                                 if (fileExt == ".jpeg" || fileExt == ".jpg" || fileExt == ".gif" || fileExt == ".tiff" || fileExt == ".png" || fileExt == ".PNG")
+	                                 {
+		                                 <a href="~/DemandFiles/@item.FilePath" target="_blank">
+			                                 <img src="~/DemandFiles/@item.FilePath" class="img-fluid" alt="@item.FilePath">
+		                                 </a>
+		                                 <p><small>@item.FileName</small></p>
+	                                 }
+	                                 if (fileExt == ".docx" || fileExt == ".doc" || fileExt == ".pdf" || fileExt == ".xls" || fileExt == ".xlsx" || fileExt == ".ppt" || fileExt == ".pptx" || fileExt == ".txt")
+	                                 {
+		                                 <a href="~/DemandFiles/@item.FilePath" download><span class="badge bg-danger">Raporu İndir</span></a>
+		                                 <p><small>@item.FileName</small></p>
+	                                 }
+								 
+                                 }
+								<div class="font-weight-normal mb-1">@item.Message</div>
+	                                                            
+							</div>
+						</div>
+					}
+					else
+					{
+						<div class="chat-message-right pb-4">
+							<div>
+								<img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+								<div class="text-muted small text-nowrap mt-2">@(((DateTime) item.DemandAnswerDate).ToString("dd.MM.yyyy HH:mm"))</div>
+							</div>
+							<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3" style="width:600px;">
+								<div class="font-weight-bold mb-1">@item.ReceiverName</div>
+								<div class="font-weight-normal mb-1">@item.Message</div>
+
+							</div>
+						</div>
+					}
+				}
+							
+
+
+								                            
+			</div>
+		</div>
+
+		<div class="flex-grow-0 py-3 px-4 border-top">
+			<form asp-controller="Customer" asp-action="CustomerProductDetails" method="post">
+				<div class="input-group">
+						
+					<input type="text" class="form-control" name="CustomerRequestContent" asp-for="CustomerRequestContent" id="CustomerRequestContent" placeholder="Eğer revize talep ediyorsanız, açıklama yazınız...">
+					<button class="btn btn-primary">Revize Talep Et</button>
+						 
+				</div>
+				<input type="hidden" asp-for="CustomerProductsID" value="@Model.CustomerProductsID">	
+			</form>
+		</div>
+
+	</div>
+	
+<div id="myModal" class="modal">
+
+  <!-- The Close Button -->
+  <span class="close" onclick="document.getElementById('myModal').style.display='none'">&times;</span>
+
+  <!-- Modal Content (The Image) -->
+  <img class="modal-content" id="img01">
+
+  <!-- Modal Caption (Image Text) -->
+  <div id="caption"></div>
+</div>
+</section>
+
+<section>
+	  <br />
+    
+	  @if (Model.DemandFileList != null)
+	  {
+		  <div class="card-body">
+			  <div class="card-header">
+                         
+				  <h3 class="card-title">Dosyalar</h3>
+                       
+			  </div>
+			  <table class="table table-bordered">
+				  <thead>
+				  <tr>
+					  <th>Dosya Adı</th>
+					  <th>Dosya Gönderilme Tarihi</th>
+					  <th>Dosyayı İndir</th>
+				  </tr>
+				  </thead>
+				  <tbody>
+                        
+				  @foreach(var item in Model.DemandFileList)
+				  {
+					  @if (item.FilePath != null)
+					  {
+						  <tr>
+							  <td>@item.FileName</td>
+							  <td>@(((DateTime) item.FileDate).ToString("dd.MM.yyyy HH:mm"))</td>
+							  <td>
+								  <a href="~/DemandFiles/@item.FilePath" download><span class="badge bg-danger">Dosyayı İndir</span></a>
+
+							  </td>
+						  </tr>
+					  }
+
+				  }
+				  </tbody>
+			  </table>
+		  </div>
+	  }
+	  
+	  
+</section>
+
+
+<style>
+	
+  .image-upload > input
+  {
+      display: none;
+  }
+  
+  .image-upload img
+  {
+      width: 25px;
+      
+      border: medium none;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            font-size: 17px;
+            height: 35px;
+            position: absolute;
+            right: 0;
+            top: 4px;
+            
+            margin-right:80px;
+            z-index: 999;
+  }
+
+
+    .chat-online {
+        color: #34ce57
+    }
+    
+    
+    .chat-offline {
+        color: #e4606d
+    }
+   
+    
+    .chat-messages {
+        display: flex;
+        flex-direction: column;
+        max-height: 800px;
+        overflow-y: scroll
+    }
+    
+    .msg_send_btn {
+      background: #05728f none repeat scroll 0 0;
+      border: medium none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      font-size: 17px;
+      height: 33px;
+      position: absolute;
+      right: 0;
+      top: 11px;
+      width: 33px;
+      margin-right:80px;
+      z-index: 999;
+    }
+    
+   
+    
+    .chat-message-left,
+    .chat-message-right {
+        display: flex;
+        flex-shrink: 0
+    }
+    
+    .chat-message-left {
+        margin-right: auto
+    }
+    
+    .chat-message-right {
+        flex-direction: row-reverse;
+        margin-left: auto
+    }
+    .py-3 {
+        padding-top: 1rem!important;
+        padding-bottom: 1rem!important;
+    }
+    .px-4 {
+        padding-right: 1.5rem!important;
+        padding-left: 1.5rem!important;
+    }
+    .flex-grow-0 {
+        flex-grow: 0!important;
+    }
+    .border-top {
+        border-top: 1px solid #dee2e6!important;
+    }
+</style>

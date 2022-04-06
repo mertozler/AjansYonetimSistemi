@@ -1,0 +1,105 @@
+﻿@model EntityLayer.DTOs.CustomerServicePlanCreateDTO
+
+@{
+    ViewBag.Title = "Hizmet Planla";
+    Layout = "_Layout";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Yeni Hizmet Planla</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                     <li class="breadcrumb-item"><a href="/Marketing/">Marketing</a></li>
+                    <li class="breadcrumb-item active">CustomerServicePlanCreate</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                   Yeni Hizmet Planla
+                </a>
+            </div>
+            <div id="collapseCompanyCreate">
+                <form asp-controller="Marketing" asp-action="CustomerServicePlanCreate" method="post">
+                    <div class="card-body shadow">
+                
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">Ürün Tipi Seç:</label>
+                            <div class="col-sm-4">
+                                <select class="form-control select2 select2-hidden-accessible" name="ProductType" asp-for="ProductType" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
+                                                                                    
+                                    <option class="form-control" value="[Marketing]">Marketing</option>
+                                    <option class="form-control" value="[Designer]">Designer</option>
+                                    <option class="form-control" value="[Ops]">Ops</option>
+                                                                                    
+                                                                                
+                                </select>
+                                <span asp-validation-for="ProductType" class="text-danger"></span>
+                            </div>
+                        </div>
+                          <div class="form-group row">
+                                                    <label asp-for="SelectedServiceID" class="col-sm-1 col-form-label">Hizmet Seçin:</label>
+                                                    <div class="col-sm-4">
+                                                        <select name="SelectedServiceID" id="SelectedServiceID" class="custom-select">
+                                                            @foreach (var service in Model.ServiceList)
+                                                            {
+                                                                <option value=@null disabled selected hidden>Hizmet Seçin</option>
+                                                                <option value=@service.ServiceID id="Role">@service.ServiceName</option>
+                                                            }
+                                                           
+                                                        </select>
+                                                        <span asp-validation-for="SelectedServiceID" class="text-danger"></span>
+                                                    </div>
+                                                </div>
+                        <div class="form-group row">
+                            <label asp-for="title" class="col-sm-1 col-form-label">Başlık:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="title" />
+                                <span asp-validation-for="title" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="start" class="col-sm-1 col-form-label">Başlangıç Tarihi:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="start" />
+                                <span asp-validation-for="start" class="text-danger"></span>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group row">
+                            <label asp-for="end" class="col-sm-1 col-form-label">Bitiş Tarihi:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="end" />
+                                <span asp-validation-for="end" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" asp-for="CustomerID" value="@Model.CustomerID"/>
+
+                        <div class="form-group row">
+                            <div class="col-sm-10 offset-sm-2">
+                                <button type="submit" class="btn btn-success">Plan Yarat</button>
+                            </div>
+                        </div>
+                
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

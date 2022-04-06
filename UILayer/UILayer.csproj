@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>Project</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BusinessLayer\BusinessLayer.csproj" />
+      <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
+      <ProjectReference Include="..\EntityLayer\EntityLayer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
+      <PackageReference Include="AutoMapper" Version="11.0.1" />
+      <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+      <PackageReference Include="fullcalendar" Version="3.9.0" />
+      <PackageReference Include="Hangfire" Version="1.8.0-beta4" />
+      <PackageReference Include="Identity" Version="1.0.3" />
+      <PackageReference Include="jquery.datatables" Version="1.10.15" />
+      <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Home\Privacy.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Admin\DefineEmployee.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Admin\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Customer\CustomerCalendar.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Customer\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\CustomerProductsFile" />
+    </ItemGroup>
+
+</Project>

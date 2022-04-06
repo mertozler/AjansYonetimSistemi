@@ -1,0 +1,150 @@
+﻿@model EntityLayer.DTOs.CustomerCardDTO
+
+@{
+    ViewBag.Title = "Müşteri Kartı";
+    Layout = "_Layout";
+}
+@section Styles{
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+   
+   
+}
+@section Scripts{
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+    <script src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+            $(document).ready(function () {
+                $('#CustomerDataTable').DataTable();
+            });
+            $(document).ready(function () {
+                                 $('#customerServiceDataTable').DataTable();
+                             });
+        </script>
+
+
+    <script>
+     $(function () {
+         var PlaceHolderElement = $('#PlaceHolderHere');
+         $('button[data-toggle="ajax-modal"]').click(function (event)
+         {
+            var url = $(this).data('url');
+            $.get(url).done(function (data) {
+               PlaceHolderElement.html(data);
+               PlaceHolderElement.find('.modal').modal('show');
+                }
+                )
+                
+         })
+         PlaceHolderElement.on('click', '[data-save="modal"]', function (event) {
+             var form = $(this).parents('.modal').find('form');
+             var actionUrl = form.attr('action');
+             var sendData = form.serialize();
+             $.post(actionUrl,sendData).done(function(data){
+             PlaceHolderElement.find('.modal').modal('hide');    
+             })
+         })
+     })
+    </script>
+
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Müşteri Kartı</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Admin/">Admin</a></li>
+                    <li class="breadcrumb-item active">CustomerCard</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+                    <div class="card-header bg-dark">
+                        <a href="#collapseCompanyCreate" class="card-link p-1">
+                            Müşteri Bilgileri
+                        </a>
+                    </div>
+            <div id="collapseCompanyCreate">
+                <div class="card-body shadow">
+                    <div class="form-group">
+                        <label asp-for="CustomerID">Müşteri ID</label>
+                        <input asp-for="CustomerID" class="form-control" readonly/>
+                        <span asp-validation-for="CustomerID"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CustomerName">Müşteri İsmi</label>
+                        <input asp-for="CustomerName" class="form-control" readonly/>
+                        <span asp-validation-for="CustomerName"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CustomerMail">Müşteri Maili</label>
+                        <input asp-for="CustomerMail" class="form-control" readonly/>
+                        <span asp-validation-for="CustomerMail"></span>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+    </div>
+</section>
+
+
+
+<section>
+        <div id="accordion" style="margin: 20px;">
+            <div class="card shadow mt-5">
+                <div class="card-header bg-dark">
+                    <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                        Müşterinin Satın Aldığı Hizmetler
+                    </a>
+                </div>
+                <div id="collapseCompanyList" class="collapse show">
+                    <div class="card-body">
+                        <div class="row table-responsive-sm">
+                            <div class="col-md-12 ">
+                                <table id="CustomerDataTable" class="display" style="width:100%">
+                                    <thead>
+                                    <tr>
+                                        <th>Hizmet ID</th>
+                                        <th>Hizmet Adı</th>
+                                        <th>Hizmet Açıklaması</th>
+                                        <th>Satın Alma Tarihi</th>
+                                        <th>Bitiş Tarihi</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var item in Model.CustomerDefinedServiceList)
+                                    {
+                                        <tr>
+                                            <td>@item.ServiceId</td>
+                                            <td>@item.ServiceName</td>
+                                            <td>@item.ServiceDescription</td>
+                                            <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
+                                          
+                                            <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>

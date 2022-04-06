@@ -1,0 +1,254 @@
+﻿@model EntityLayer.DTOs.DemandDetailsDTO
+
+@{
+    ViewBag.Title = "Talep Detayları";
+    Layout = "_Layout";
+}
+@using FileInfo = System.IO.FileInfo;
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Talep Detayları</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Marketing/">Marketing</a></li>
+                    <li class="breadcrumb-item active">DemandDetails</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+
+
+		<div class="card" style="margin:20px;">
+				
+				
+					<div class="py-2 px-4 border-bottom d-none d-lg-block">
+						<div class="d-flex align-items-center py-1">
+							<div class="flex-grow-1 pl-3">
+								@foreach (var item in Model.DemandDetailList)
+								{
+									<strong>@item.DemandTitle</strong>
+									<div class="text-muted small"><em>@item.DemandReceiverName</em></div>
+								}
+								
+							</div>
+							<div>
+								<button class="btn btn-light border btn-lg px-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal feather-lg"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></button>
+							</div>
+						</div>
+					</div>
+
+					<div class="position-relative">
+						<div class="chat-messages p-4"  style="height: 600px; overflow-y: scroll; padding: 15px;">
+							@foreach (var item in Model.DemandDetailList)
+							{
+								<div class="chat-message-right pb-4">
+									<div>
+										<img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+										<div class="text-muted small text-nowrap mt-2">@(((DateTime) item.DemandCreateTime).ToString("dd.MM.yyyy HH:mm"))</div>
+									</div>
+									<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3" style="width:600px;">
+										<div class="font-weight-bold mb-1">@item.DemandCreatorName</div>
+										@{
+                                        								FileInfo fi = new FileInfo(@item.DemandFilePath);
+                                        								string fileExtension = fi.Extension;
+                                        								
+                                        							}
+                                        							
+                                        							@if (fileExtension == ".jpeg" || fileExtension == ".jpg" || fileExtension == ".gif" || fileExtension == ".tiff" || fileExtension == ".png" || fileExtension == ".PNG")
+                                        							{
+                                        								<a href="~/DemandFiles/@item.DemandFilePath" target="_blank">
+                                        									<img src="~/DemandFiles/@item.DemandFilePath" class="img-fluid" alt="@item.DemandFilePath">
+                                        									<p><small>@item.DemandFilePath-Tasarım.v1</small></p>
+                                        								</a>
+                                        							}
+                                        							@if (fileExtension == ".docx" || fileExtension == ".doc" || fileExtension == ".pdf" || fileExtension == ".xls" || fileExtension == ".xlsx" || fileExtension == ".ppt" || fileExtension == ".pptx" || fileExtension == ".txt")
+                                        							{
+                                        								 <a href="~/DemandFiles/@item.DemandFilePath" download><span class="badge bg-danger">Raporu İndir</span></a>
+                                        							}
+										<div class="font-weight-normal mb-1">@item.DemandContent</div>
+										
+									</div>
+								</div>
+							}
+							
+
+							
+                            				@if (Model.EmployeeDemandAnswers != null)
+                            				{
+                            					@foreach (var item in Model.EmployeeDemandAnswers)
+                            					{
+                            						if (item.AnswerType == 2)
+                            						{
+                            							<div class="chat-message-right pb-4">
+                            								<div>
+                            									<img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+                            									<div class="text-muted small text-nowrap mt-2">@(((DateTime) item.DemandAnswerDate).ToString("dd.MM.yyyy HH:mm"))</div>
+                            								</div>
+                            								<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3" style="width:600px;">
+                            									<div class="font-weight-bold mb-1">@item.SenderName</div>
+                            									@if (item.FilePath != null)
+                                                                									{
+                                                                										FileInfo file = new FileInfo(@item.FilePath);
+                                                                										string fileExt = file.Extension;
+                                                                										if (fileExt == ".jpeg" || fileExt == ".jpg" || fileExt == ".gif" || fileExt == ".tiff" || fileExt == ".png" || fileExt == ".PNG")
+                                                                										{
+                                                                											<a href="~/DemandFiles/@item.FilePath" target="_blank">
+                                                                												<img src="~/DemandFiles/@item.FilePath" class="img-fluid" alt="@item.FilePath">
+                                                                											</a>
+                                                                											<p><small>@item.FileName</small></p>
+                                                                										}
+                                                                										if (fileExt == ".docx" || fileExt == ".doc" || fileExt == ".pdf" || fileExt == ".xls" || fileExt == ".xlsx" || fileExt == ".ppt" || fileExt == ".pptx" || fileExt == ".txt")
+                                                                										{
+                                                                											<a href="~/DemandFiles/@item.FilePath" download><span class="badge bg-danger">Raporu İndir</span></a>
+                                                                											<p><small>@item.FileName</small></p>
+                                                                										}
+                                                                										
+                                                                									}
+                            									<div class="font-weight-normal mb-1">@item.Message</div>
+                            										
+                            								</div>
+                            							</div>
+                            						}
+                            						else
+                            						{
+                            							<div class="chat-message-left pb-4">
+                            								<div>
+                            									<img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
+                            									<div class="text-muted small text-nowrap mt-2">@(((DateTime) item.DemandAnswerDate).ToString("dd.MM.yyyy HH:mm"))</div>
+                            								</div>
+                            								<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
+	                                                            <div class="font-weight-bold mb-1">@item.SenderName</div>
+	                                                            @if (item.FilePath != null)
+                                                                                                                                									{
+                                                                                                                                										FileInfo file = new FileInfo(@item.FilePath);
+                                                                                                                                										string fileExt = file.Extension;
+                                                                                                                                										if (fileExt == ".jpeg" || fileExt == ".jpg" || fileExt == ".gif" || fileExt == ".tiff" || fileExt == ".png" || fileExt == ".PNG")
+                                                                                                                                										{
+                                                                                                                                											<a href="~/DemandFiles/@item.FilePath" target="_blank">
+                                                                                                                                												<img src="~/DemandFiles/@item.FilePath" class="img-fluid" alt="@item.FilePath">
+                                                                                                                                											</a>
+                                                                                                                                											<p><small>@item.FileName</small></p>
+                                                                                                                                										}
+                                                                                                                                										if (fileExt == ".docx" || fileExt == ".doc" || fileExt == ".pdf" || fileExt == ".xls" || fileExt == ".xlsx" || fileExt == ".ppt" || fileExt == ".pptx" || fileExt == ".txt")
+                                                                                                                                										{
+                                                                                                                                											<a href="~/DemandFiles/@item.FilePath" download><span class="badge bg-danger">Raporu İndir</span></a>
+                                                                                                                                											<p><small>@item.FileName</small></p>
+                                                                                                                                										}
+                                                                                                                                										
+                                                                                                                                									}
+                            									@item.Message 
+                            								</div>
+                            							</div>
+                            						}
+                            					}
+                            				}
+                            				
+
+						</div>
+					</div>
+					
+					
+
+	<form asp-controller="Marketing" asp-action="DemandDetails" enctype="multipart/form-data" method="post">
+		<div class="flex-grow-0 py-3 px-4 border-top">
+			<div class="input-group">
+				<div class="image-upload">
+                                					<label for="DemandFile">
+                                						<i class="fas fa-paperclip" style="height: 35px;
+                                                                                                                                   position: absolute;
+                                                                                                                                   right: 0;
+                                                                                                                                   top: 8px;
+                                                                                                                                   
+                                                                                                                                   margin-right:80px;
+                                                                                                                                   z-index: 999;"></i>
+                                					</label>
+                                					<input type="file" name="DemandFile" id="DemandFile" asp-for="DemandFile"/>
+                                				</div>
+				<input type="hidden" asp-for="DemandID"/>
+				<input type="text" class="form-control" asp-for="DemandAnswer" placeholder="Cevap Yaz">
+				<button class="btn btn-primary" type="submit">Gönder</button>
+
+			</div>
+
+		</div>
+	</form>
+
+
+				</div>
+</section>
+
+
+<style>
+	
+    .image-upload > input
+      {
+          display: none;
+      }
+      
+      .image-upload img
+      {
+          width: 25px;
+          
+          border: medium none;
+                border-radius: 50%;
+                color: #fff;
+                cursor: pointer;
+                font-size: 17px;
+                height: 35px;
+                position: absolute;
+                right: 0;
+                top: 4px;
+                
+                margin-right:80px;
+                z-index: 999;
+      }
+    .chat-online {
+        color: #34ce57
+    }
+    
+    .chat-offline {
+        color: #e4606d
+    }
+    
+    .chat-messages {
+        display: flex;
+        flex-direction: column;
+        max-height: 800px;
+        overflow-y: scroll
+    }
+    
+    .chat-message-left,
+    .chat-message-right {
+        display: flex;
+        flex-shrink: 0
+    }
+    
+    .chat-message-left {
+        margin-right: auto
+    }
+    
+    .chat-message-right {
+        flex-direction: row-reverse;
+        margin-left: auto
+    }
+    .py-3 {
+        padding-top: 1rem!important;
+        padding-bottom: 1rem!important;
+    }
+    .px-4 {
+        padding-right: 1.5rem!important;
+        padding-left: 1.5rem!important;
+    }
+    .flex-grow-0 {
+        flex-grow: 0!important;
+    }
+    .border-top {
+        border-top: 1px solid #dee2e6!important;
+    }
+</style>

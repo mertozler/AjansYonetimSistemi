@@ -1,0 +1,46 @@
+﻿@model EntityLayer.DTOs.EditEmployeeDTO
+
+<div class="modal fade" id="editService">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="editEmployeeLabel">Personeli Güncelle</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>X</span>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <form action="EditEmployee">
+                    <div class="form-group">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control" readonly/>
+                        <span asp-validation-for="Email"></span>
+                    </div>
+                    
+                      <div class="form-group">
+                          <label asp-for="Role" class="col-sm-1 col-form-label"></label>
+                          <select name="Role" asp-for="Role" id="Role" class="custom-select">
+                                                         <option value="designer" id="Role">Designer</option>
+                                                         <option value="marketing" id="Role">Marketing</option>
+                                                         <option value="ops" id="Role">Ops</option>
+                                                     </select>
+                          <span asp-validation-for="Role" class="text-danger"></span>
+                          <input type="hidden" asp-for="EmployeeID" />
+                      </div>
+                    
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-success" data-save="modal">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>

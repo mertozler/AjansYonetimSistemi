@@ -1,0 +1,95 @@
+﻿@model EntityLayer.DTOs.CustomerPlanningServiceForADayDTO
+
+@{
+    ViewBag.Title = "Müşteri İçin Ürün Üret";
+    Layout = "_Layout";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Müşteri için Ürün Üret</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Designer/">Designer</a></li>
+                    <li class="breadcrumb-item active">CustomerProductsCreate</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                   Müşteri için Ürün Üret
+                </a>
+            </div>
+            <div id="collapseCompanyCreate">
+                <form asp-controller="Designer" asp-action="CustomerPlanningServiceForADay" enctype="multipart/form-data" method="post">
+                    <div class="card-body shadow">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="title" class="col-sm-1 col-form-label">Başlık:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="title" readonly/>
+                                <span asp-validation-for="title" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="start" class="col-sm-1 col-form-label">Başlangıç Tarihi:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="start" readonly/>
+                                <span asp-validation-for="start" class="text-danger"></span>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group row">
+                            <label asp-for="end" class="col-sm-1 col-form-label">Bitiş Tarihi:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="end" readonly/>
+                                <span asp-validation-for="end" class="text-danger"></span>
+                            </div>
+                        </div>
+                    
+                         <div class="form-group row">
+                                                                           <label asp-for="Content" class="col-sm-1 col-form-label">İçerik:</label>
+                                                                           <div class="col-sm-4">
+                                                                               <textarea class="form-control" id="Content" name="Content"  asp-for="Content" rows="2" cols="50">
+                                                                           </textarea>
+                                                                               
+                                                                               <span asp-validation-for="Content" class="text-danger"></span>
+                                                                           </div>
+                                                                       </div>
+                        
+                        <div class="form-group row">
+                           <label class="col-sm-1 col-form-label">Dosya yükleyiniz:</label>
+                            <div class="col-sm-4">
+                                <input type="file" name="CustomerProductFiles" id="CustomerProductFiles" asp-for="CustomerProductFiles" multiple/>
+                            </div>
+                                                </div>
+                        
+                        <input type="hidden" asp-for="CustomerID" value="@Model.CustomerID"/>
+                         <input type="hidden" asp-for="CustomerProductsID" value="@Model.CustomerProductsID"/>
+
+                        <div class="form-group row">
+                            <div class="col-sm-10 offset-sm-2">
+                                <button type="submit" class="btn btn-success">Ürün Üret</button>
+                                 <a href="@Url.Action("CustomerServicePlanEdit","Designer",new {EventId =Model.CustomerProductsID})" class="btn btn-warning">Planı Düzenle</a>
+                            </div>
+                        </div>
+                
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

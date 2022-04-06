@@ -1,0 +1,12 @@
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\bin\Debug\net5.0\BackgroundJobs.deps.json
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\bin\Debug\net5.0\BackgroundJobs.dll
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\bin\Debug\net5.0\ref\BackgroundJobs.dll
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\bin\Debug\net5.0\BackgroundJobs.pdb
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.csproj.AssemblyReference.cache
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.GeneratedMSBuildEditorConfig.editorconfig
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.AssemblyInfoInputs.cache
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.AssemblyInfo.cs
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.csproj.CoreCompileInputs.cache
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.dll
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\ref\BackgroundJobs.dll
+D:\MERT\Coding\.NET CORE\Github\Project\Project\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.pdb

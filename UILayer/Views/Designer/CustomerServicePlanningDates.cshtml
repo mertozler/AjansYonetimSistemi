@@ -1,0 +1,108 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Hizmet Takvimi";
+    Layout = "_Layout";
+}
+
+    <title>title</title>
+    
+    <link href='~/fullcalendar/lib/main.css' rel='stylesheet' />
+    <script src='~/fullcalendar/lib/main.js'></script>
+<script src='~/fullcalendar/lib/locales-all.js'></script>
+    <script src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src='~/js/bootbox.js'></script>
+    <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+<script>
+    
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+          get: (searchParams, prop) => searchParams.get(prop),
+        });
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            customButtons: {
+                addNewPlan: {
+                  text: 'Yeni Plan Oluştur',
+                  click: function() {
+                    window.location.assign("/Designer/CustomerServicePlanCreate?CustomerID="+params.CustomerID+"&StartDate=")
+                  }
+                }
+              },
+          headerToolbar: {
+            left: 'prev,next today addNewPlan',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+          },
+          firstDay:1,
+          buttonText: {
+              today: "bugün",
+               month:    'aylık',
+                week:     'haftalık',
+                day:      'günlük',
+                list:     'liste',
+              },
+              eventDidMount: function(info) {
+                                    $(info.el).tooltip({ 
+                                      title: info.event.extendedProps.description,
+                                      placement: "top",
+                                      trigger: "hover",
+                                      container: "body"
+                                    });
+                                  },
+          timeZone: 'local',
+          initialDate: new Date().toISOString().slice(0, 10),
+          locales:"tr",
+          navLinks: true, // can click day/week names to navigate views
+          selectable: true,
+          selectMirror: true,
+          select: function(arg) {
+           window.location.assign("/Designer/CustomerServicePlanCreate?CustomerID="+params.CustomerID+"&StartDate="+arg.start)
+            calendar.unselect()
+          },
+          eventClick: function(arg) {
+            window.location.assign("/Designer/CustomerPlanningServiceForADay?EventID="+ arg.event.id);
+          },
+          editable: true,
+          dayMaxEvents: true, // allow "more" link when too many events
+          events: "/Designer/GetAllEvents/?CustomerID="+params.CustomerID
+      });
+        calendar.render();
+      });
+    
+    </script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Müşteri Hizmet Tanımla</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Designer/">Designer</a></li>
+                    <li class="breadcrumb-item active">CustomerServicePlanningDates</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                    Hizmet Planla
+                </a>
+            </div>
+            <div id="collapseCompanyCreate">
+                 <div class="container">
+                    <div id='calendar'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="~/bootstrap/js/bootstrap.js"> </script>
+

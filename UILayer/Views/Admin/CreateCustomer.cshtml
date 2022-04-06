@@ -1,0 +1,166 @@
+﻿@model EntityLayer.DTOs.CustomerCreateAndListDTO
+
+@{
+    ViewBag.Title = "Müşteri Oluştur";
+    Layout = "_Layout";
+}
+@section Styles{
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+}
+@section Scripts{
+    <script src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#employeeListDataTable').DataTable();
+        });
+    </script>
+    <script>
+     $(function () {
+         var PlaceHolderElement = $('#PlaceHolderHere');
+         $('button[data-toggle="ajax-modal"]').click(function (event)
+         {
+            var url = $(this).data('url');
+            $.get(url).done(function (data) {
+               PlaceHolderElement.html(data);
+               PlaceHolderElement.find('.modal').modal('show');
+                }
+                )
+                
+         })
+         PlaceHolderElement.on('click', '[data-save="modal"]', function (event) {
+             var form = $(this).parents('.modal').find('form');
+             var actionUrl = form.attr('action');
+             var sendData = form.serialize();
+             $.post(actionUrl,sendData).done(function(data){
+             PlaceHolderElement.find('.modal').modal('hide');    
+             })
+         })
+     })
+    </script>
+}
+<div id="PlaceHolderHere"></div>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Müşteri Tanımla</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Admin/">Admin</a></li>
+                    <li class="breadcrumb-item active">CreateCustomer</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                    Müşteri Tanımla
+                </a>
+            </div>
+            <div id="collapseCompanyCreate">
+                <form asp-controller="Admin" asp-action="CreateCustomer" method="post">
+                    <div class="card-body shadow">
+                
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="Name" class="col-sm-1 col-form-label">İsim:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="Name" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="Email" class="col-sm-1 col-form-label">Mail:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="Email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group row">
+                            <label asp-for="Password" class="col-sm-1 col-form-label">Şifre:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="Password" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group row">
+                            <label asp-for="ConfirmPassword" class="col-sm-1 col-form-label">Şifreyi Onayla:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="ConfirmPassword" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+                
+
+                        <div class="form-group row">
+                            <div class="col-sm-10 offset-sm-2">
+                                <button type="submit" class="btn btn-success">Müşteri Kaydet</button>
+                            </div>
+                        </div>
+                
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+<div id="accordion" style="margin: 20px;">
+<div class="card shadow mt-5">
+    <div class="card-header bg-dark">
+        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            Müşteri Listesi
+        </a>
+    </div>
+    <div id="collapseCompanyList" class="collapse show">
+        <div class="card-body">
+            <div class="row table-responsive-sm">
+                <div class="col-md-12 ">
+                    <table id="employeeListDataTable" class="display" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>Müşteri ID</th>
+                            <th>Müşteri Adı</th>
+                            <th>Müşteri Maili</th>
+                            <th>Müşteri Ayarları</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model.CustomerList)
+                        {
+                            <tr>
+                                <td>@item.CustomerID</td>
+                                <td>@item.CustomerName</td>
+                                <td>@item.CustomerMail</td>
+                                         <td>
+                                          <a href="@Url.Action("CustomerCard","Admin",new {CustomerID = item.CustomerID})" class="btn btn-warning btn-sm"><i class="fas fa-address-card"></i></a>
+                                         <button type="button" class="btn btn-warning btn-sm" data-toggle="ajax-modal" data-target="#editCustomer" data-url="@Url.Action("EditCustomer", "Admin", new {CustomerID = item.CustomerID})"><i class="fas fa-edit"></i></button> 
+                                         <a href="@Url.Action("DeleteCustomer","Admin",new {CustomerID = item.CustomerID})" class="btn btn-warning btn-sm"><i class="fas fa-trash"></i></a>   
+                                        </td>   
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                            
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>

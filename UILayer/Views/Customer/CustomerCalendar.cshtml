@@ -1,0 +1,84 @@
+﻿@model dynamic
+
+@{
+    ViewBag.Title = "Paylaşım Planım";
+    Layout = "_Layout";
+}
+
+    
+    
+    <link href='~/fullcalendar/lib/main.css' rel='stylesheet' />
+    <script src='~/fullcalendar/lib/main.js'></script>
+    <script src='~/fullcalendar/lib/locales-all.js'></script>
+<script>
+    
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+          get: (searchParams, prop) => searchParams.get(prop),
+        });
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+          },
+          buttonText: {
+              today: "bugün",
+               month:    'aylık',
+                week:     'haftalık',
+                day:      'günlük',
+                list:     'liste',
+              },
+              firstDay:1,
+          timeZone: 'local',
+          initialDate: new Date().toISOString().slice(0, 10),
+          locales:"tr",
+          navLinks: true, // can click day/week names to navigate views
+          selectable: true,
+          selectMirror: true,
+          eventClick: function(arg) {
+            window.location.assign("/Customer/CustomerProductDetails?EventID="+ arg.event.id);
+          },
+          
+          dayMaxEvents: true, // allow "more" link when too many events
+          events: "/Customer/GetAllEventsForCustomer/"
+      });
+        calendar.render();
+      });
+    
+    </script>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Paylaşım Planım</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Customer/">Customer</a></li>
+                    <li class="breadcrumb-item active">CustomerCalendar</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                    Paylaşım Planım
+                </a>
+            </div>
+            <div id="collapseCompanyCreate">
+                 <div class="container">
+                    <div id='calendar'></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="~/bootstrap/js/bootstrap.js"> </script>
+

@@ -1,0 +1,224 @@
+﻿@model EntityLayer.DTOs.ServicePackageandServiceListDTO
+
+@{
+    ViewBag.Title = "Hizmet Oluştur";
+    Layout = "_Layout";
+}
+
+@section Styles{
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+}
+@section Scripts{
+    <script src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#employeeListDataTable').DataTable();
+        });
+    </script>
+    <script>
+     $(function () {
+         var PlaceHolderElement = $('#PlaceHolderHere');
+         $('button[data-toggle="ajax-modal"]').click(function (event)
+         {
+            var url = $(this).data('url');
+            $.get(url).done(function (data) {
+               PlaceHolderElement.html(data);
+               PlaceHolderElement.find('.modal').modal('show');
+                }
+                )
+                
+         })
+         PlaceHolderElement.on('click', '[data-save="modal"]', function (event) {
+             var form = $(this).parents('.modal').find('form');
+             var actionUrl = form.attr('action');
+             var sendData = form.serialize();
+             $.post(actionUrl,sendData).done(function(data){
+             PlaceHolderElement.find('.modal').modal('hide');    
+             })
+         })
+     })
+    </script>
+}
+<div id="PlaceHolderHere"></div>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Hizmet Oluştur</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Admin/">Admin</a></li>
+                    <li class="breadcrumb-item active">Services</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="row">
+            <div class="col-md-6">
+                                           
+                <div class="card shadow mt-5">
+                    <div class="card-header bg-dark">
+                        <a href="#collapseCompanyCreate" class="card-link p-1">
+                            Hizmet Oluştur
+                        </a>
+                    </div>
+                    <div id="collapseCompanyCreate">
+                        <form asp-controller="Admin" asp-action="Services" method="post">
+                            <div class="card-body shadow">
+                                <div class="row">
+                                </div>
+                                <div class="form-group row">
+                                    <label asp-for="ServiceName" class="col-md-3 col-form-label">Hizmet Adı:</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" asp-for="ServiceName"/>
+                                        <span asp-validation-for="ServiceName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label asp-for="ServiceDescription" class="col-md-3 col-form-label">Hizmet Açıklaması:</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" asp-for="ServiceDescription"/>
+                                        <span asp-validation-for="ServiceDescription" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                                                        
+                                <input type="hidden" value="1" asp-for="selectedButtonId" />
+                                <div class="form-group row text-right">
+                                    <div class="col-sm-10 offset-sm-2 align-content-center">
+                                        <button type="submit" class="btn btn-success">Hizmet Oluştur</button>
+                                    </div>
+                                </div>
+                                            
+                                            
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                                                       
+                                                    
+
+            </div>
+            <div class="col-md-6">
+                                                                                  
+                <div class="card shadow mt-5">
+                    <div class="card-header bg-dark">
+                        <a href="#collapseCompanyCreate" class="card-link p-1">
+                            Paket Oluştur
+                        </a>
+                    </div>
+                    <div id="collapseCompanyCreate">
+                        <form asp-controller="Admin" asp-action="Services" method="post">
+                            <div class="card-body shadow">
+                                <div class="row">
+                                </div>
+                                <div class="form-group row">
+                                    <label asp-for="PackageName" class="col-md-3 col-form-label">Paket Adı:</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" asp-for="PackageName"/>
+                                        <span asp-validation-for="PackageName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label asp-for="PackageDescription" class="col-md-3 col-form-label">Paket Açıklaması:</label>
+                                    <div class="col-sm-4">
+                                        <input class="form-control" asp-for="PackageDescription"/>
+                                        <span asp-validation-for="PackageDescription" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label asp-for="ServiceName" class="col-md-3 col-form-label">Hizmetler:</label>
+                                                                                                                   
+                                                                                                                   
+                                    <div class="col-sm-4">
+                                        @foreach (var item in Model.ServiceList)
+                                        {
+                                            <div class="form-check">
+                                                                                                                               
+                                                <input class="form-check-input" id="ServiceId" type="checkbox" name="ServiceId" value="@item.ID" />
+                                                <label class="form-check-label">@item.Name</label>
+                                            </div>
+                                                                                                                           
+                                        }
+                                    </div>
+                                </div>
+                                                                                   
+                                <input type="hidden" value="2" asp-for="selectedButtonId" />
+                                <div class="form-group row text-right">
+                                    <div class="col-sm-10 offset-sm-2 align-content-center">
+                                        <button type="submit" class="btn btn-success">Paket Oluştur</button>
+                                    </div>
+                                </div>
+                                                                                   
+                                                                                   
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                                                                                              
+                                                                                           
+                                       
+            </div>
+        </div>
+        
+        
+
+    </div>
+</section>
+
+<section>
+<div id="accordion" style="margin: 20px;">
+<div class="card shadow mt-5">
+    <div class="card-header bg-dark">
+        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            Hizmet Listesi
+        </a>
+    </div>
+    <div id="collapseCompanyList" class="collapse show">
+        <div class="card-body">
+            <div class="row table-responsive-sm">
+                <div class="col-md-12 ">
+                    <table id="employeeListDataTable" class="display" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>Hizmet Adı</th>
+                            <th>Hizmet Açıklaması</th>
+                            <th>Hizmetin Dahil Olduğu Paketler</th>
+                            <th>Hizmet Ayarları</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model.ServiceListViewModel)
+                        {
+                            <tr>
+                                <td>@item.ServiceName</td>
+                                <td>@item.ServiceDescription</td>
+                                @if (item.ServicePackageName == "")
+                                {
+                                    <td class="bg-warning">Hizmet bir pakete tanımlı değil</td>
+                                }
+                                else
+                                {
+                                    <td>@item.ServicePackageName</td>
+                                }
+                               
+                                         <td>
+                                         <button type="button" class="btn btn-warning btn-sm" data-toggle="ajax-modal" data-target="#editEmployee" data-url="@Url.Action("EditService", "Admin", new {ServiceID = item.ServiceId})"><i class="fas fa-edit"></i></button> 
+                                         <a href="@Url.Action("DeleteService","Admin",new {ServiceID = item.ServiceId})" class="btn btn-warning btn-sm"><i class="fas fa-trash"></i></a></td>   
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                            
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>
