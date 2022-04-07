@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "N2EGBssi2A4TVuFfao5JHQIjJuE4yhSaxS6f/qOYBPaHOc3XxX53woIO1pbb2KVGi7OVJxc/3fqxnjg4ntqENw==",
+  "dgSpecHash": "sBviLH1SYNf6PwI4DJyaxBWyIDRdChQCf0S/jZ/BIlJQhYtJwGaoigbVTLeLOuMWJ5MRyBbHTz+12eRCyE3xcg==",
   "success": true,
-  "projectFilePath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\UILayer\\UILayer.csproj",
+  "projectFilePath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\UILayer\\UILayer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Acer\\.nuget\\packages\\aspnetcorehero.toastnotification\\1.1.0\\aspnetcorehero.toastnotification.1.1.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\automapper\\11.0.1\\automapper.11.0.1.nupkg.sha512",
@@ -15,6 +15,7 @@
     "C:\\Users\\Acer\\.nuget\\packages\\hangfire.core\\1.8.0-beta4\\hangfire.core.1.8.0-beta4.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\hangfire.sqlserver\\1.8.0-beta4\\hangfire.sqlserver.1.8.0-beta4.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\identity\\1.0.3\\identity.1.0.3.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\jetbrains.annotations\\2021.1.0\\jetbrains.annotations.2021.1.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\jquery\\2.0.0\\jquery.2.0.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\jquery.datatables\\1.10.15\\jquery.datatables.1.10.15.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\microsoft.aspnet.mvc\\5.2.7\\microsoft.aspnet.mvc.5.2.7.nupkg.sha512",
@@ -151,7 +152,9 @@
     "C:\\Users\\Acer\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512",
-    "C:\\Users\\Acer\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512"
+    "C:\\Users\\Acer\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\x.pagedlist\\8.1.0\\x.pagedlist.8.1.0.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\x.pagedlist.mvc.core\\8.1.0\\x.pagedlist.mvc.core.8.1.0.nupkg.sha512"
   ],
   "logs": [
     {

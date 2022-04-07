@@ -179,6 +179,15 @@
           "lib/netstandard2.0/Identity.dll": {}
         }
       },
+      "JetBrains.Annotations/2021.1.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/JetBrains.Annotations.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/JetBrains.Annotations.dll": {}
+        }
+      },
       "jQuery/2.0.0": {
         "type": "package"
       },
@@ -2161,6 +2170,33 @@
           "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
         }
       },
+      "X.PagedList/8.1.0": {
+        "type": "package",
+        "dependencies": {
+          "JetBrains.Annotations": "2021.1.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/X.PagedList.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/X.PagedList.dll": {}
+        }
+      },
+      "X.PagedList.Mvc.Core/8.1.0": {
+        "type": "package",
+        "dependencies": {
+          "X.PagedList": "8.1.0"
+        },
+        "compile": {
+          "lib/netcoreapp3.1/X.PagedList.Mvc.Core.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/X.PagedList.Mvc.Core.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
       "BusinessLayer/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
@@ -2541,6 +2577,28 @@
         "identity.1.0.3.nupkg.sha512",
         "identity.nuspec",
         "lib/netstandard2.0/Identity.dll"
+      ]
+    },
+    "JetBrains.Annotations/2021.1.0": {
+      "sha512": "n9JSw5Z+F+6gp9vSv4aLH6p/bx3GAYA6FZVq1wJq/TJySv/kPgFKLGFeS7A8Xa5X4/GWorh5gd43yjamUgnBNA==",
+      "type": "package",
+      "path": "jetbrains.annotations/2021.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "icon.png",
+        "jetbrains.annotations.2021.1.0.nupkg.sha512",
+        "jetbrains.annotations.nuspec",
+        "lib/net20/JetBrains.Annotations.dll",
+        "lib/net20/JetBrains.Annotations.xml",
+        "lib/netstandard1.0/JetBrains.Annotations.deps.json",
+        "lib/netstandard1.0/JetBrains.Annotations.dll",
+        "lib/netstandard1.0/JetBrains.Annotations.xml",
+        "lib/netstandard2.0/JetBrains.Annotations.deps.json",
+        "lib/netstandard2.0/JetBrains.Annotations.dll",
+        "lib/netstandard2.0/JetBrains.Annotations.xml",
+        "lib/portable40-net40+sl5+win8+wp8+wpa81/JetBrains.Annotations.dll",
+        "lib/portable40-net40+sl5+win8+wp8+wpa81/JetBrains.Annotations.xml"
       ]
     },
     "jQuery/2.0.0": {
@@ -7599,6 +7657,30 @@
         "system.xml.xmlserializer.nuspec"
       ]
     },
+    "X.PagedList/8.1.0": {
+      "sha512": "xBZNtE+WU6FEKEapLvIdTFn4h3Ue03dsBE1LfnhzsLFIrop5bX6f7UuXnsenG/QK1OPHYknkC0a0vPBAMo0bXQ==",
+      "type": "package",
+      "path": "x.pagedlist/8.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/X.PagedList.dll",
+        "x.pagedlist.8.1.0.nupkg.sha512",
+        "x.pagedlist.nuspec"
+      ]
+    },
+    "X.PagedList.Mvc.Core/8.1.0": {
+      "sha512": "Nqz9rSjU/St77F25GV8TogDfkVsbErC0o6o8hJtkkXrAilXHjsEALRMn8eVhgAFJ3XFWvvaHHSiDN3SnTGWSEA==",
+      "type": "package",
+      "path": "x.pagedlist.mvc.core/8.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netcoreapp3.1/X.PagedList.Mvc.Core.dll",
+        "x.pagedlist.mvc.core.8.1.0.nupkg.sha512",
+        "x.pagedlist.mvc.core.nuspec"
+      ]
+    },
     "BusinessLayer/1.0.0": {
       "type": "project",
       "path": "../BusinessLayer/BusinessLayer.csproj",
@@ -7628,6 +7710,8 @@
       "Microsoft.AspNet.Mvc >= 5.2.7",
       "Microsoft.AspNetCore.Identity >= 2.2.0",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 5.0.0",
+      "X.PagedList >= 8.1.0",
+      "X.PagedList.Mvc.Core >= 8.1.0",
       "fullcalendar >= 3.9.0",
       "jquery.datatables >= 1.10.15"
     ]
@@ -7639,11 +7723,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\UILayer\\UILayer.csproj",
+      "projectUniqueName": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\UILayer\\UILayer.csproj",
       "projectName": "UILayer",
-      "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\UILayer\\UILayer.csproj",
+      "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\UILayer\\UILayer.csproj",
       "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
-      "outputPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\UILayer\\obj\\",
+      "outputPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\UILayer\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -7664,14 +7748,14 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\BusinessLayer\\BusinessLayer.csproj": {
-              "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\BusinessLayer\\BusinessLayer.csproj"
+            "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\BusinessLayer\\BusinessLayer.csproj": {
+              "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\BusinessLayer\\BusinessLayer.csproj"
             },
-            "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\DataAccessLayer\\DataAccessLayer.csproj": {
-              "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\DataAccessLayer\\DataAccessLayer.csproj"
+            "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\DataAccessLayer\\DataAccessLayer.csproj": {
+              "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\DataAccessLayer\\DataAccessLayer.csproj"
             },
-            "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\EntityLayer\\EntityLayer.csproj": {
-              "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\EntityLayer\\EntityLayer.csproj"
+            "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\EntityLayer\\EntityLayer.csproj": {
+              "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\EntityLayer\\EntityLayer.csproj"
             }
           }
         }
@@ -7717,6 +7801,14 @@
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
             "target": "Package",
             "version": "[5.0.0, )"
+          },
+          "X.PagedList": {
+            "target": "Package",
+            "version": "[8.1.0, )"
+          },
+          "X.PagedList.Mvc.Core": {
+            "target": "Package",
+            "version": "[8.1.0, )"
           },
           "fullcalendar": {
             "target": "Package",

@@ -22,3 +22,15 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\Project\EntityLayer\obj\Debug\net5.
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\Project\EntityLayer\obj\Debug\net5.0\EntityLayer.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\Project\EntityLayer\obj\Debug\net5.0\ref\EntityLayer.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\Project\EntityLayer\obj\Debug\net5.0\EntityLayer.pdb
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\bin\Debug\net5.0\EntityLayer.deps.json
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\bin\Debug\net5.0\EntityLayer.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\bin\Debug\net5.0\ref\EntityLayer.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\bin\Debug\net5.0\EntityLayer.pdb
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\EntityLayer.csproj.AssemblyReference.cache
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\EntityLayer.GeneratedMSBuildEditorConfig.editorconfig
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\EntityLayer.AssemblyInfoInputs.cache
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\EntityLayer.AssemblyInfo.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\EntityLayer.csproj.CoreCompileInputs.cache
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\EntityLayer.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\ref\EntityLayer.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\EntityLayer\obj\Debug\net5.0\EntityLayer.pdb

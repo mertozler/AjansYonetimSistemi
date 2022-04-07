@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "N9Pd3SaiwQOljFUFKGmmb1WyDBU19hvarlhcOx1LWthCLCIkHb9GefTAeii1B22S/ed7Brxj4/kNs1HMzu8hXw==",
+  "dgSpecHash": "KmUNUdc5H1pt9oRhDRCB1mg3G9EWlHuaWjfmkmGUEi2IZjBCBxwFYch/JoVaqI05nZ0kpaO5SME888r+KJHXXQ==",
   "success": true,
-  "projectFilePath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\EntityLayer\\EntityLayer.csproj",
+  "projectFilePath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\EntityLayer\\EntityLayer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Acer\\.nuget\\packages\\microsoft.aspnetcore.authentication\\2.2.0\\microsoft.aspnetcore.authentication.2.2.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\microsoft.aspnetcore.authentication.abstractions\\2.2.0\\microsoft.aspnetcore.authentication.abstractions.2.2.0.nupkg.sha512",

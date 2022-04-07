@@ -1,0 +1,92 @@
+﻿@model EntityLayer.DTOs.CustomerReportsDTO
+
+@{
+    ViewBag.Title = "Raporlarım";
+    Layout = "_Layout";
+}
+@section Styles{
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+}
+@section Scripts{
+    <script src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#employeeListDataTable').DataTable();
+        });
+        </script>
+}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Raporlarım</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Customer/">Customer</a></li>
+                    <li class="breadcrumb-item active">CustomerReports</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section>
+<div id="accordion" style="margin: 20px;">
+<div class="card shadow mt-5">
+    <div class="card-header bg-dark">
+        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            Raporlar
+        </a>
+    </div>
+    <div id="collapseCompanyList" class="collapse show">
+        <div class="card-body">
+            <div class="row table-responsive-sm">
+                <div class="col-md-12 ">
+                    <table id="employeeListDataTable" class="display" style="width:100%">
+                        <thead>
+                        <tr>
+                            
+                            <th>Ürün Adı</th>
+                            <th>Ürün Açıklaması</th>
+                            <th>Ürün İçeriği</th>
+                            <th>Ürün Gönderilme Tarihi</th>
+                            <th>Rapor Adı</th>
+                            <th>Raporu Ayarları</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        
+                        @foreach (var item in Model.ReportList)
+                        {
+                            <tr>
+
+                                <td>@item.ProductTitle</td>
+                                <td>@item.ProductDescription</td>
+                                <td>@item.ProductContent</td>
+                                <td>@item.ProductDate</td>
+                                <td>@item.ReportName</td>
+                                <td><a href="~/@item.ReportPath" download class="btn btn-success btn-sm"><span class="badge bg-success">Raporu İndir</span></a>
+                                    <a href="@Url.Action("CustomerProductDetails", "Customer", new {EventID = item.ProductID})" class="btn btn-warning btn-sm"><span class="badge bg-warning">Ürüne Git</span></a></td>
+                                                                                                											
+
+
+
+                            </tr>
+                        }
+
+
+
+
+                        </tbody>
+                    </table>
+                            
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nl2gmM1AXya+HBJSvrMOd/nhfMYlJOpjbNdkwGVo6GE28h1NkT9e0W8qduYOPsJks1AGsDJQOb+vJGvO7dMSWg==",
+  "dgSpecHash": "jkw8NsmHinT5V7OqpOUjKKJS9AIJyjWW2F2Zh+V3KfXE09VRNciwcC7aPz62IJXwHuzfWyR0kRSXu9nP4sT1uQ==",
   "success": true,
-  "projectFilePath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\Project\\BackgroundJobs\\BackgroundJobs.csproj",
+  "projectFilePath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\BackgroundJobs\\BackgroundJobs.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Acer\\.nuget\\packages\\hangfire\\1.8.0-beta4\\hangfire.1.8.0-beta4.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\hangfire.aspnetcore\\1.8.0-beta4\\hangfire.aspnetcore.1.8.0-beta4.nupkg.sha512",

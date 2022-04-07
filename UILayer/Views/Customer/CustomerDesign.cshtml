@@ -1,0 +1,243 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Web.Common
+@model IPagedList<string>
+
+@{
+    ViewBag.Title = "Tasarımlar";
+    Layout = "_Layout";
+}
+<script src="~/plugins/ekko-lightbox/ekko-lightbox.min.js"></script>
+<link rel="stylesheet" href="~/plugins/ekko-lightbox/ekko-lightbox.css">
+<link rel="stylesheet" href="~/dist/css/adminlte.css?v=3.2.0">
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Tasarımlarım</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Customer/">Customer</a></li>
+                    <li class="breadcrumb-item active">CustomerDesign</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                    Tasarımlarım
+                </a>
+            </div>
+            <div id="collapseCompanyCreate">
+                <div class="card-body">
+                    @if (Model.Count == 0){
+                    <div class="alert alert-info" role="alert">
+                        <strong>Bilgi!</strong> Henüz bir tasarım kaydınız yok.
+                    </div>
+                    }
+                    <div class="gallery-image">
+                        @foreach (var item in Model)
+                        {
+
+
+                            <div class="img-box">
+                                <div class="transparent-box">
+                                    <div class="caption">
+                                        <p>Tasarım</p>
+                                        <p class="opacity-low">Orjinal Boyutta Görmek İçin Tıkla</p>
+                                    </div>
+                                </div>
+                                <img src="~/@item" alt="" id="myImg" onclick="onClick(this)">
+                            </div>
+                        }
+
+
+
+
+
+
+                    </div>
+
+                    <br/>
+                     @if (Model.Count >= 1)
+                     {
+                         @Html.PagedListPager((IPagedList) Model, page => Url.Action("CustomerDesign", new {page}), new PagedListRenderOptions
+                         {
+                             LiElementClasses = new string[] {"page-item"},
+                             PageClasses = new string[] {"page-link"},
+                             LinkToFirstPageFormat = "<< İlk", LinkToPreviousPageFormat = "< Önceki", LinkToNextPageFormat = "Sonraki >", LinkToLastPageFormat = "Son >>",
+                         })
+                     }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div id="modal01" class="modal" onclick="this.style.display='none'">
+     <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="editEmployeeLabel">Tasarım</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>X</span>
+                    </button>
+                </div>
+                
+         <div class="modal-body">
+             <span class="close">&times;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+             <div class="modal-content">
+                 <img id="img01" style="max-width:100%">
+             </div>
+         </div>
+         </div>
+</div>
+
+<script>
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+}
+</script>
+<style>
+
+#myImg {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#myImg:hover {opacity: 0.2;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
+}
+
+/* Modal Content (Image) */
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+}
+
+/* Caption of Modal Image (Image Text) - Same Width as the Image */
+#caption {
+  margin: auto;
+  width: 80%;
+  max-width: 700px;
+  text-align: center;
+  color: #ccc;
+  padding: 10px 0;
+  height: 150px;
+}
+
+/* Add Animation - Zoom in the Modal */
+.modal-content, #caption {
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+
+/* The Close Button */
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+   
+    .gallery-image {
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .gallery-image img {
+      height: 250px;
+      width: 350px;
+      transform: scale(1.0);
+      transition: transform 0.4s ease;
+    }
+    
+    .img-box {
+      box-sizing: content-box;
+      margin: 10px;
+      height: 250px;
+      width: 350px;
+      overflow: hidden;
+      display: inline-block;
+      color: white;
+      position: relative;
+      background-color: white;
+    }
+    
+    .caption {
+      position: absolute;
+      bottom: 5px;
+      left: 20px;
+      opacity: 0.0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    
+    .transparent-box {
+      height: 250px;
+      width: 350px;
+      background-color:rgba(0, 0, 0, 0);
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: background-color 0.3s ease;
+    }
+    
+    .img-box:hover img { 
+      transform: scale(1.1);
+    }
+    
+    .img-box:hover .transparent-box {
+      background-color:rgba(0, 0, 0, 0.5);
+    }
+    
+    .img-box:hover .caption {
+      transform: translateY(-20px);
+      opacity: 300;
+    }
+    
+    .img-box:hover {
+      cursor: pointer;
+    }
+    
+    .caption > p:nth-child(2) {
+      font-size: 0.8em;
+    }
+    
+    .opacity-low {
+      opacity: 300;
+    }
+</style>
