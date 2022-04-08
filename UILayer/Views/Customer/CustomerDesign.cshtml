@@ -90,7 +90,9 @@
          <div class="modal-body">
              <span class="close">&times;&nbsp;&nbsp;&nbsp;&nbsp;</span>
              <div class="modal-content">
+                 <a href="" id="href" target="_blank">
                  <img id="img01" style="max-width:100%">
+                </a>
              </div>
          </div>
          </div>
@@ -100,6 +102,7 @@
 function onClick(element) {
   document.getElementById("img01").src = element.src;
   document.getElementById("modal01").style.display = "block";
+  document.getElementById("href").href=element.src;
 }
 </script>
 <style>

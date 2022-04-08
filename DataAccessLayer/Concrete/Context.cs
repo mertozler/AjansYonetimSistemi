@@ -91,5 +91,6 @@ namespace DataAccessLayer.Concrete
         public DbSet<ServicePackage> ServicePackages { get; set; }
         public DbSet<Package> Packages { get; set; }
         public DbSet<EmployeeCalendar> EmployeeCalendar { get; set; }
+        public DbSet<CustomerEmployee> CustomerEmployees { get; set; }
     }
 }

@@ -152,15 +152,19 @@
 		</div>
 
 		<div class="flex-grow-0 py-3 px-4 border-top">
-			<form asp-controller="Customer" asp-action="CustomerProductDetails" method="post">
-				<div class="input-group">
-						
-					<input type="text" class="form-control" name="CustomerRequestContent" asp-for="CustomerRequestContent" id="CustomerRequestContent" placeholder="Eğer revize talep ediyorsanız, açıklama yazınız...">
-					<button class="btn btn-primary">Revize Talep Et</button>
-						 
-				</div>
-				<input type="hidden" asp-for="CustomerProductsID" value="@Model.CustomerProductsID">	
-			</form>
+			@if (Model.DemandStatus == true)
+			{
+				<form asp-controller="Customer" asp-action="CustomerProductDetails" method="post">
+					<div class="input-group">
+
+						<input type="text" class="form-control" name="CustomerRequestContent" asp-for="CustomerRequestContent" id="CustomerRequestContent" placeholder="Eğer revize talep ediyorsanız, açıklama yazınız...">
+						<button class="btn btn-primary">Revize Talep Et</button>
+
+					</div>
+					<input type="hidden" asp-for="CustomerProductsID" value="@Model.CustomerProductsID">
+				</form>
+			}
+			
 		</div>
 
 	</div>

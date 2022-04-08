@@ -556,3 +556,5 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\X.PagedLis
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\X.PagedList.Mvc.Core.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Customer\RevisedDemands.cshtml.g.cs
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Customer\CustomerReports.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Designer\_EmployeeModelPartial.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Admin\DefineCustomerEmployee.cshtml.g.cs

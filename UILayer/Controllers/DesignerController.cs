@@ -56,6 +56,17 @@ namespace Project.Controllers
         {
             return View();
         }
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        public async Task<IActionResult> ReportEmployee(string employeeID)
+        {
+            EditEmployeeDTO selectedEmployee = new EditEmployeeDTO();
+            var user = await _userManager.FindByIdAsync(employeeID);
+            var userRole = await _userManager.GetRolesAsync(user);
+            selectedEmployee.Name = user.NameSurname;
+            selectedEmployee.Email = user.Email;
+            selectedEmployee.Role = userRole[0];
+            return PartialView("_EmployeeModelPartial", selectedEmployee);
+        }
 
         public async Task<IActionResult> CustomerServicePlanning()
         {
@@ -276,6 +287,7 @@ namespace Project.Controllers
             productModel.ProductsFilePath = productFilePath.FilePath;
             dataList.Add(productModel);
             model.CustomerProductsList = dataList;
+            model.ProductID = selectedCustomerProduct.id;
             demandFileList.Add(new DemandFileClass
             {
                 FileName = productModel.ProductsTitle + "Tasarım.v1", FileDate = productFilePath.CreateDate,
@@ -284,7 +296,7 @@ namespace Project.Controllers
             var demand = _demandManager.GetByProductID(CustomerProductsID);
             if (demand != null)
             {
-
+                model.DemandStatus = demand.Status;
                 productDemand.DemandTitle = demand.Title;
                 productDemand.DemandContent = demand.Content;
                 productDemand.DemandDate = demand.CreateDate;
@@ -335,6 +347,7 @@ namespace Project.Controllers
             model.DemandFileList = demandFileList;
             return View(model);
         }
+        
 
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public IActionResult CustomerProductsDetail(CustomerDetailsDTO data)
@@ -651,6 +664,23 @@ namespace Project.Controllers
             _customerProductsManager.Delete(selectedEvent);
             _notyf.Success("Etkinlik başarıyla silindi");
             return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = selectedEvent.CustomerID});
+        }
+
+        public IActionResult CloseDemand(int ProductID)
+        {
+            var checkIsDemandExist = _demandManager.GetByProductID(ProductID);
+            if (checkIsDemandExist == null)
+            {
+                _notyf.Error("Bu ürün için bir talep bulunmamaktadır");
+                return RedirectToAction("CustomerProductsDetail", "Designer",new {CustomerProductsID = ProductID});
+            }
+            else
+            {
+                checkIsDemandExist.Status = false;
+                _demandManager.Update(checkIsDemandExist);
+                _notyf.Success("Talep başarıyla kapatılmıştır");
+                return RedirectToAction("CustomerProductsDetail", "Designer",new {CustomerProductsID = ProductID});
+            }
         }
         
         public IActionResult GetAllEventsForEmployee(string EmployeeID)

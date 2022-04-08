@@ -11,6 +11,7 @@ namespace EntityLayer.DTOs
         
         public int ProductID { get; set; }
         public string DemandAnswer { get; set; }
+        public bool DemandStatus { get; set; }
         public List<DemandAnswers> DemandAnswersList { get; set; }
         public IFormFile RevisedFile { get; set; }
         public List<DemandFileClass> DemandFileList { get; set; }

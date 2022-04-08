@@ -27,7 +27,7 @@ namespace BusinessLayer.Concrete
 
         public void Update(Demand t)
         {
-            throw new System.NotImplementedException();
+            _demandDal.Update(t);
         }
 
         public List<Demand> GetList()

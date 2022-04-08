@@ -664,6 +664,25 @@ namespace Project.Controllers
             customerCardModel.CustomerDefinedServiceList = serviceListForCustomer;
             return View(customerCardModel);
         }
+
+        public async Task<IActionResult> DefineCustomerEmployee(string CustomerID)
+        {
+            var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
+            DefineCustomerEmployeeDTO defineCustomerEmployeeDTO = new DefineCustomerEmployeeDTO();
+            List<RoleListDefineEmployee> roleList = new List<RoleListDefineEmployee>();
+            defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
+            var roles = _context.Roles.Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops").ToList();
+            foreach (var item in roles)
+            {
+                roleList.Add(new RoleListDefineEmployee
+                {
+                    RoleName = item.NormalizedName,
+                    RoleID = item.Id
+                });
+            }
+            defineCustomerEmployeeDTO.RoleList = roleList;
+            return View(defineCustomerEmployeeDTO);
+        }
         
         
         

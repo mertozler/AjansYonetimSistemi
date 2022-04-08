@@ -17,6 +17,7 @@ namespace EntityLayer.DTOs
         public List<DemandAnswersForCustomer> DemandAnswerList { get; set; }
        
         public List<DemandFileClassForCustomer> DemandFileList { get; set; }
+        public bool DemandStatus { get; set; }
         
     }
 

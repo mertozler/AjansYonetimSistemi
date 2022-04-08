@@ -6,6 +6,30 @@
 }
 @using FileInfo = System.IO.FileInfo;
 
+<link rel="stylesheet" href="~/css/adminlte.min.css">
+  <script>
+     $(function () {
+         var PlaceHolderElement = $('#PlaceHolderHere');
+         $('button[data-toggle="ajax-modal"]').click(function (event)
+         {
+            var url = $(this).data('url');
+            $.get(url).done(function (data) {
+               PlaceHolderElement.html(data);
+               PlaceHolderElement.find('.modal').modal('show');
+                }
+                )
+                
+         })
+         PlaceHolderElement.on('click', '[data-save="modal"]', function (event) {
+             var form = $(this).parents('.modal').find('form');
+             var actionUrl = form.attr('action');
+             var sendData = form.serialize();
+             $.post(actionUrl,sendData).done(function(data){
+             PlaceHolderElement.find('.modal').modal('hide');    
+             })
+         })
+     })
+    </script>
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -37,9 +61,18 @@
 								}
 								
 							</div>
-							<div>
-								<button class="btn btn-light border btn-lg px-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal feather-lg"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></button>
-							</div>
+							<div class="card-tools">
+                                    <div class="btn-group show">
+                                      <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                                        Talep Ayarları
+                                        <i class="fas fa-wrench"></i>
+                                      </button>
+	                                    <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
+		                                    <a href="@Url.Action("CloseDemand", "Designer", new {ProductID = Model.ProductID})" class="dropdown-item">Talebi Kapat</a>
+											 <button type="button" class="dropdown-item" data-toggle="ajax-modal" data-target="#reportEmployee" data-url="@Url.Action("ReportEmployee", "Designer", new {employeeID = "7082199a-5c6f-4c09-b4cc-7a2948c3d4a2"})">Personele Bildir</button> 
+                                                                                          </div>
+                                    </div>
+                                    </div>
 						</div>
 					</div>
 
@@ -150,29 +183,33 @@
 					
 @if (Model.DemandAnswersList != null)
 {
-	<form asp-controller="Designer" asp-action="CustomerProductsDetail" enctype="multipart/form-data" method="post">
-		<div class="flex-grow-0 py-3 px-4 border-top">
-			<div class="input-group">
-				<div class="image-upload">
-					<label for="RevisedFile">
-						<i class="fas fa-paperclip" style="height: 35px;
+	@if (Model.DemandStatus == true)
+	{
+		<form asp-controller="Designer" asp-action="CustomerProductsDetail" enctype="multipart/form-data" method="post">
+			<div class="flex-grow-0 py-3 px-4 border-top">
+				<div class="input-group">
+					<div class="image-upload">
+						<label for="RevisedFile">
+							<i class="fas fa-paperclip" style="height: 35px;
                                                                                                    position: absolute;
                                                                                                    right: 0;
                                                                                                    top: 8px;
                                                                                                    
                                                                                                    margin-right:80px;
                                                                                                    z-index: 999;"></i>
-					</label>
-					<input type="file" name="RevisedFile" id="RevisedFile" asp-for="RevisedFile"/>
+						</label>
+						<input type="file" name="RevisedFile" id="RevisedFile" asp-for="RevisedFile"/>
+					</div>
+					<input type="hidden" value="@Model.CustomerProductsList[0].ProductID" asp-for="@Model.CustomerProductsList[0].ProductID"/>
+					<input type="text" class="form-control" asp-for="DemandAnswer" placeholder="Cevap Yaz">
+					<button class="btn btn-primary" type="submit">Gönder</button>
+
 				</div>
-				<input type="hidden" value="@Model.CustomerProductsList[0].ProductID" asp-for="@Model.CustomerProductsList[0].ProductID"/>
-				<input type="text" class="form-control" asp-for="DemandAnswer" placeholder="Cevap Yaz">
-				<button class="btn btn-primary" type="submit">Gönder</button>
 
 			</div>
-
-		</div>
-	</form>
+		</form>
+	}
+	
 }
 
 				</div>
@@ -223,8 +260,21 @@
 	  
 </section>
 
+
+
+<script>
+function onClick(element) {
+
+  document.getElementById("modal01").style.display = "block";
+
+}
+</script>
+
 <style>
 	
+	
+	
+    
     .image-upload > input
       {
           display: none;

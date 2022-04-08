@@ -78,6 +78,7 @@ namespace Project.Controllers
                 newEvent.start = item.start;
                 newEvent.color = item.color;
                 newEvent.title = item.title;
+                newEvent.description = item.description;
                 newEvent.textColor = item.textColor;
                 newEvent.end = item.end;
                 eventList.Add(newEvent);
@@ -123,7 +124,7 @@ namespace Project.Controllers
             var demand = _demandManager.GetByProductID(EventID);
             if (demand != null)
             {
-
+                customerProducts.DemandStatus = demand.Status;
                 var loggedCustomer = await _userManager.GetUserAsync(User);
                 CustomerProductDemand productDemand = new CustomerProductDemand();
                 productDemand.DemandTitle = demand.Title;
@@ -313,7 +314,7 @@ namespace Project.Controllers
                     if (checkDemandisExist != null)
                     {
                         newProduct.ReportName = newProduct.ProductTitle + "rapor.v1";
-                        newProduct.ReportPath = "CustomerProductsFile/"+selectedProductFile.FilePath;
+                        newProduct.ReportPath = "CustomerProductsFile/" + selectedProductFile.FilePath;
                         int versionCounter = 2;
                         reportList.Add(newProduct);
                         var checkDemandAnswers = _demandAnswerManager.GetByDemandId(checkDemandisExist.ID);
@@ -325,32 +326,75 @@ namespace Project.Controllers
                                 {
                                     FileInfo fileInfoForAnswer = new FileInfo(item.AnswerFilePath);
                                     string fileExtension = fileInfoForAnswer.Extension;
-                                    if (fileExtension == ".docx" || fileExtension == ".doc" || fileExtension == ".pdf" || fileExtension == ".xls" ||
-                                        fileExtension == ".xlsx" || fileExtension == ".ppt" || fileExtension == ".pptx" || fileExtension == ".txt")
+                                    if (fileExtension == ".docx" || fileExtension == ".doc" ||
+                                        fileExtension == ".pdf" || fileExtension == ".xls" ||
+                                        fileExtension == ".xlsx" || fileExtension == ".ppt" ||
+                                        fileExtension == ".pptx" || fileExtension == ".txt")
                                     {
                                         var newProductWithDemand = _mapper.Map<ReportListClass>(product);
                                         newProductWithDemand.DemandStatus = checkDemandisExist.Status;
                                         newProductWithDemand.DemandID = checkDemandisExist.ID;
-                                        newProductWithDemand.ReportPath = "DemandFiles/"+item.AnswerFilePath;
-                                        newProductWithDemand.ReportName = newProductWithDemand.ProductTitle + "-Rapor.v"+versionCounter;
+                                        newProductWithDemand.ReportPath = "DemandFiles/" + item.AnswerFilePath;
+                                        newProductWithDemand.ReportName = newProductWithDemand.ProductTitle +
+                                                                          "-Rapor.v" + versionCounter;
                                         versionCounter++;
                                         reportList.Add(newProductWithDemand);
                                     }
                                 }
-                                
-                                
+
+
                             }
-                           
+
                         }
                     }
                     else
                     {
                         newProduct.ReportName = newProduct.ProductTitle + "-Rapor.v1";
                         reportList.Add(newProduct);
-                        
+
+                    }
+                }
+                else
+                {
+                    var checkDemandisExist = _demandManager.GetByProductID(product.id);
+                    if (checkDemandisExist != null)
+                    {
+                        int versionCounterForAnswers = 1;
+                        var checkDemandAnswers = _demandAnswerManager.GetByDemandId(checkDemandisExist.ID);
+                        if (checkDemandAnswers != null)
+                        {
+                            foreach (var item in checkDemandAnswers)
+                            {
+                                if (item.AnswerFilePath != null)
+                                {
+                                    FileInfo fileInfoForAnswer = new FileInfo(item.AnswerFilePath);
+                                    string fileExtension = fileInfoForAnswer.Extension;
+                                    if (fileExtension == ".docx" || fileExtension == ".doc" ||
+                                        fileExtension == ".pdf" || fileExtension == ".xls" ||
+                                        fileExtension == ".xlsx" || fileExtension == ".ppt" ||
+                                        fileExtension == ".pptx" || fileExtension == ".txt")
+                                    {
+                                        var newProductWithDemand = _mapper.Map<ReportListClass>(product);
+                                        newProductWithDemand.DemandStatus = checkDemandisExist.Status;
+                                        newProductWithDemand.DemandID = checkDemandisExist.ID;
+                                        newProductWithDemand.ReportPath = "DemandFiles/" + item.AnswerFilePath;
+                                        newProductWithDemand.ReportName = newProductWithDemand.ProductTitle +
+                                                                          "-Rapor.v" + versionCounterForAnswers;
+                                        versionCounterForAnswers++;
+                                        reportList.Add(newProductWithDemand);
+                                    }
+                                }
+
+
+                            }
+
+                        }
                     }
                 }
             }
+        
+        
+    
             model.ReportList = reportList;
             return View(model);
         }

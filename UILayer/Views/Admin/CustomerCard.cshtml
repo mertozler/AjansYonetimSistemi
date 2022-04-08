@@ -26,6 +26,9 @@
             $(document).ready(function () {
                                  $('#customerServiceDataTable').DataTable();
                              });
+            $(document).ready(function () {
+                                             $('#CustomerEmployeeDataTable').DataTable();
+                                         });
         </script>
 
 
@@ -105,39 +108,80 @@
 
 
 <section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                    Müşterinin Satın Aldığı Hizmetler
+                </a>
+            </div>
+            <div id="collapseCompanyList" class="collapse show">
+                <div class="card-body">
+                    <div class="row table-responsive-sm">
+                        <div class="col-md-12 ">
+                            <table id="CustomerDataTable" class="display" style="width:100%">
+                                <thead>
+                                <tr>
+                                    <th>Hizmet ID</th>
+                                    <th>Hizmet Adı</th>
+                                    <th>Hizmet Açıklaması</th>
+                                    <th>Satın Alma Tarihi</th>
+                                    <th>Bitiş Tarihi</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.CustomerDefinedServiceList)
+                                {
+                                    <tr>
+                                        <td>@item.ServiceId</td>
+                                        <td>@item.ServiceName</td>
+                                        <td>@item.ServiceDescription</td>
+                                        <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
+                                          
+                                        <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
         <div id="accordion" style="margin: 20px;">
             <div class="card shadow mt-5">
                 <div class="card-header bg-dark">
                     <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
-                        Müşterinin Satın Aldığı Hizmetler
+                        Müşteriyle İlgilenen Personeller
                     </a>
+                     <a href="@Url.Action("DefineCustomerEmployee", "Admin", new {CustomerID = Model.CustomerID})" class="btn pull-right bg-success">Personel Tanımla</a>
+                    
                 </div>
                 <div id="collapseCompanyList" class="collapse show">
                     <div class="card-body">
                         <div class="row table-responsive-sm">
                             <div class="col-md-12 ">
-                                <table id="CustomerDataTable" class="display" style="width:100%">
+                                <table id="CustomerEmployeeDataTable" class="display" style="width:100%">
                                     <thead>
                                     <tr>
-                                        <th>Hizmet ID</th>
-                                        <th>Hizmet Adı</th>
-                                        <th>Hizmet Açıklaması</th>
-                                        <th>Satın Alma Tarihi</th>
-                                        <th>Bitiş Tarihi</th>
+                                        <th>#</th>
+                                        <th>Personel Adı</th>
+                                        <th>Personel Rolü</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach (var item in Model.CustomerDefinedServiceList)
-                                    {
+                                   
                                         <tr>
-                                            <td>@item.ServiceId</td>
-                                            <td>@item.ServiceName</td>
-                                            <td>@item.ServiceDescription</td>
-                                            <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
-                                          
-                                            <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
+                                            <td>item.ServiceId</td>
+                                            <td>item.ServiceName</td>
+                                            <td>item.ServiceDescription</td>
                                         </tr>
-                                    }
+                                    
                                     </tbody>
                                 </table>
     
