@@ -40,7 +40,8 @@ namespace Project.Controllers
         CustomerProductsFileManager _customerProductsFileManager = new CustomerProductsFileManager(new EfCustomerProductsFileRepository());
         DemandManager _demandManager = new DemandManager(new EfDemandRepository());
         DemandFilesManager _demandFileManager = new DemandFilesManager(new EfDemandFilesRepository());
-
+        private CustomerEmployeeManager _customerEmployeeManager =
+            new CustomerEmployeeManager(new EfCustomerEmployeeRepository());
         public MarketingController(INotyfService notyf,Context context,IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
@@ -58,16 +59,12 @@ namespace Project.Controllers
         {
             List<CustomerListWithServiceName> customerServiceList = new List<CustomerListWithServiceName>();
             string ServiceNamesForCustomer = "";
-            var allCustomers = await (from user in _context.Users
-                join userRole in _context.UserRoles
-                    on user.Id equals userRole.UserId
-                join role in _context.Roles
-                    on userRole.RoleId equals role.Id
-                where ((role.Name == "customer") && user.Status == true)
-                select user).ToListAsync();
-            foreach (var customer in allCustomers)
+            var currentUser = await _userManager.GetUserAsync(User);;
+            var customerIDsForEmployee = _customerEmployeeManager.GetEmployeeListByEmployeeID(currentUser.Id);
+            foreach (var oneCustomerEmployee in customerIDsForEmployee)
             {
-                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(customer.Id);
+                var selectedCustomer = await _userManager.FindByIdAsync(oneCustomerEmployee.CustomerID);
+                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
                 ServiceNamesForCustomer = "";
                 foreach (var customerServices in customerService)
                 {
@@ -77,10 +74,11 @@ namespace Project.Controllers
 
                 customerServiceList.Add(new CustomerListWithServiceName
                 {
-                    CustomerID = customer.Id, CustomerName = customer.NameSurname, CustomerMail = customer.Email,
+                    CustomerID = selectedCustomer.Id, CustomerName = selectedCustomer.NameSurname, CustomerMail = selectedCustomer.Email,
                     ServiceNames = ServiceNamesForCustomer
                 });
             }
+
 
 
            
@@ -175,7 +173,6 @@ namespace Project.Controllers
                 newCustomerProducts.description = "Bu plan " + selectedService.Name + " hizmeti için "+ currentUser.NameSurname +  " tarafından oluşturuldu.";
                 newCustomerProducts.CreateDate = DateTime.Now;
                 newCustomerProducts.CreatorID = currentUser.Id;
-                newCustomerProducts.CustomerProductsTypeID = 1;
                 var newEmployeeCalendarPlan = _mapper.Map<EmployeeCalendar>(data);
                 var selectedEmployee = await _userManager.FindByIdAsync(data.CustomerID);
                 newEmployeeCalendarPlan.description = "Bu plan "  + selectedEmployee.NameSurname + " isimli müşterinin satın aldığı " + selectedService.Name + " adlı hizmet için oluşturulmuştur. Detaylar için lütfen ilgili müşterinin hizmet takvimine bakınız.";

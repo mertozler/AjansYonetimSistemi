@@ -10,6 +10,7 @@ namespace EntityLayer.DTOs
     
     public class ReportListClass
     {
+        public string CustomerName { get; set; }
         public int DemandID { get; set; }
         public string ProductTitle { get; set; }
         public string ProductDescription { get; set; }

@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace EntityLayer.DTOs
 {
     public class DefineCustomerEmployeeDTO
     {
         public string CustomerName { get; set; }
-        public string SelectedRoleID { get; set; }
+        public string SelectedCustomerID { get; set; }
+        [Required(ErrorMessage ="Personel seçimi boş geçilemez.")]
+        public string SelectedEmployeeID { get; set; }
         public List<EmployeeListDefineEmployee> EmployeeList { get; set; }
         public List<RoleListDefineEmployee> RoleList { get; set; }
     }

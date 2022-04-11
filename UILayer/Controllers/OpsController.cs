@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
@@ -11,6 +12,7 @@ using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
 using EntityLayer.Concrete;
 using EntityLayer.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,12 +39,18 @@ namespace Project.Controllers
         CustomerProductsFileManager _customerProductsFileManager = new CustomerProductsFileManager(new EfCustomerProductsFileRepository());
         DemandManager _demandManager = new DemandManager(new EfDemandRepository());
         DemandFilesManager _demandFileManager = new DemandFilesManager(new EfDemandFilesRepository());
+        PaymentRoutineTypesManager _paymentRoutineTypeManager = new PaymentRoutineTypesManager(new EfPaymentRouteTypesRepository());
+
+        private CustomerPaymentsManager _customerPaymentsManager =
+            new CustomerPaymentsManager(new EfCustomerPaymentsRepository());
 
         private EmployeeCalendarManager _employeeCalendarManager =
             new EmployeeCalendarManager(new EfEmployeeCalendarRepository());
 
         private DemandAnswerManager _demandAnswerManager = new DemandAnswerManager(new EfDemandAnswersRepository());
 
+        private CustomerEmployeeManager _customerEmployeeManager =
+            new CustomerEmployeeManager(new EfCustomerEmployeeRepository());
         public OpsController(INotyfService notyf,Context context,IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
@@ -60,16 +68,12 @@ namespace Project.Controllers
         {
             List<CustomerListWithServiceName> customerServiceList = new List<CustomerListWithServiceName>();
             string ServiceNamesForCustomer = "";
-            var allCustomers = await (from user in _context.Users
-                join userRole in _context.UserRoles
-                    on user.Id equals userRole.UserId
-                join role in _context.Roles
-                    on userRole.RoleId equals role.Id
-                where ((role.Name == "customer") && user.Status == true)
-                select user).ToListAsync();
-            foreach (var customer in allCustomers)
+            var currentUser = await _userManager.GetUserAsync(User);;
+            var customerIDsForEmployee = _customerEmployeeManager.GetEmployeeListByEmployeeID(currentUser.Id);
+            foreach (var oneCustomerEmployee in customerIDsForEmployee)
             {
-                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(customer.Id);
+                var selectedCustomer = await _userManager.FindByIdAsync(oneCustomerEmployee.CustomerID);
+                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
                 ServiceNamesForCustomer = "";
                 foreach (var customerServices in customerService)
                 {
@@ -79,10 +83,11 @@ namespace Project.Controllers
 
                 customerServiceList.Add(new CustomerListWithServiceName
                 {
-                    CustomerID = customer.Id, CustomerName = customer.NameSurname, CustomerMail = customer.Email,
+                    CustomerID = selectedCustomer.Id, CustomerName = selectedCustomer.NameSurname, CustomerMail = selectedCustomer.Email,
                     ServiceNames = ServiceNamesForCustomer
                 });
             }
+
 
             return View(customerServiceList);
         }
@@ -199,7 +204,6 @@ namespace Project.Controllers
                 newCustomerProducts.ServiceID = data.SelectedServiceID;
                 newCustomerProducts.description = "Bu plan " + selectedService.Name + " hizmeti için "+ currentUser.NameSurname +  " tarafından oluşturuldu.";
                 newCustomerProducts.CreatorID = currentUser.Id;
-                newCustomerProducts.CustomerProductsTypeID = 1;
                 var newEmployeeCalendarPlan = _mapper.Map<EmployeeCalendar>(data);
                 var selectedEmployee = await _userManager.FindByIdAsync(data.CustomerID);
                 newEmployeeCalendarPlan.description = "Bu plan "  + selectedEmployee.NameSurname + " isimli müşterinin satın aldığı " + selectedService.Name + " adlı hizmet için oluşturulmuştur. Detaylar için lütfen ilgili müşterinin hizmet takvimine bakınız.";
@@ -757,6 +761,124 @@ namespace Project.Controllers
             _notyf.Success("Etkinlik başarıyla güncellendi");
             return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = data.CustomerID});
         }
+
+        public async Task<IActionResult> CustomerPayments()
+        {
+            List<CustomerListWithPaymentRoutineName> customerPaymentList = new List<CustomerListWithPaymentRoutineName>();
+            string ServiceNamesForCustomer = "";
+            var currentUser = await _userManager.GetUserAsync(User);;
+            var customerIDsForEmployee = _customerEmployeeManager.GetEmployeeListByEmployeeID(currentUser.Id);
+            foreach (var oneCustomerEmployee in customerIDsForEmployee)
+            {
+                var selectedCustomer = await _userManager.FindByIdAsync(oneCustomerEmployee.CustomerID);
+                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
+                ServiceNamesForCustomer = "";
+                PaymentRoutineType paymentRoutineType = new PaymentRoutineType();
+                foreach (var customerServices in customerService)
+                {
+                    paymentRoutineType = _paymentRoutineTypeManager.GetById(customerServices.PaymentRoutineTypeID);
+                    var selectedService = _serviceManager.GetById(customerServices.ServiceID);
+                    ServiceNamesForCustomer = selectedService.Name + ", " + ServiceNamesForCustomer;
+                }
+
+                customerPaymentList.Add(new CustomerListWithPaymentRoutineName
+                {
+                    CustomerID = selectedCustomer.Id, CustomerName = selectedCustomer.NameSurname, CustomerMail = selectedCustomer.Email,
+                    ServiceNames = ServiceNamesForCustomer,PaymentRoutineName = paymentRoutineType.Name
+                });
+            }
+
+
+            return View(customerPaymentList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CustomerPaymentTracking(string CustomerID)
+        {
+            CustomerPaymentTrackingDTO model = new CustomerPaymentTrackingDTO();
+            List<Services> serviceList = new List<Services>();
+            double PaymentPriceSum = 0;
+            List<PaymentHistoryClass> paymentHistoryList = new List<PaymentHistoryClass>();
+            var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
+            model.CustomerMail = selectedCustomer.Email;
+            model.CustomerName = selectedCustomer.NameSurname;
+            model.CustomerID = selectedCustomer.Id;
+            StringBuilder sb = new StringBuilder();
+            var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
+            foreach (var service in customerService)
+            {
+                var selectedService = _serviceManager.GetById(service.ServiceID);
+                serviceList.Add(selectedService);
+                sb.Append(selectedService.Name + ", ");
+            }
+            var selectedCustomerPaymentHistory = _customerPaymentsManager.GetPaymentListByCustomerID(selectedCustomer.Id);
+            foreach (var payment in selectedCustomerPaymentHistory)
+            {
+                PaymentPriceSum += payment.PaymentPrice;
+                paymentHistoryList.Add(new PaymentHistoryClass
+                {
+                    PaymentDate = payment.PaymentDate,
+                    PaymentPrice = payment.PaymentPrice,
+                });
+            }
+            model.CustomerServices = sb.ToString();
+            model.serviceList = serviceList;
+            model.PaymentHistoryList = paymentHistoryList;
+            model.PaymentPriceSum = PaymentPriceSum;
+            return View(model);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> CustomerPaymentTracking(CustomerPaymentTrackingDTO data, IFormCollection collection)
+        {
+            var selectedCustomer = await _userManager.FindByIdAsync(data.CustomerID);
+            if (data.SelectedServiceID == 0)
+            {
+                _notyf.Error("Müşteri ödeme kaydı yapılırken bir hata oluştu.");
+                return RedirectToAction("CustomerPaymentTracking", new { CustomerID = selectedCustomer.Id });
+            }
+            if (data.PaymentPrice == 0)
+            {
+                _notyf.Error("Müşteri ödeme kaydı yapılırken bir hata oluştu.");
+                return RedirectToAction("CustomerPaymentTracking", new { CustomerID = selectedCustomer.Id });
+            }
+            if (ModelState.IsValid)
+            {
+               
+                var customerServiceData = _customerServiceManager.GetCustomerServiceByCustomerIDandCustomerService(data.CustomerID,
+                    data.SelectedServiceID);
+                CustomerPayment newCustomerPayment = new CustomerPayment();
+                newCustomerPayment.CustomerID = selectedCustomer.Id;
+                var price = collection["PaymentPrice"].ToString();
+                newCustomerPayment.PaymentPrice = double.Parse(price, System.Globalization.CultureInfo.InvariantCulture);
+                newCustomerPayment.PaymentDate = data.SelectedDate;
+                newCustomerPayment.PaymentRoutineTypeID = customerServiceData.PaymentRoutineTypeID;
+                newCustomerPayment.Status = true;
+                _customerPaymentsManager.Add(newCustomerPayment);
+                _notyf.Success("Müşteri ödeme kaydı tamamlandı");
+                return RedirectToAction("CustomerPaymentTracking", new { CustomerID = selectedCustomer.Id });
+            }
+            
+            CustomerPaymentTrackingDTO model = new CustomerPaymentTrackingDTO();
+            List<Services> serviceList = new List<Services>();
+            model.CustomerMail = selectedCustomer.Email;
+            model.CustomerName = selectedCustomer.NameSurname;
+            model.CustomerID = selectedCustomer.Id;
+            StringBuilder sb = new StringBuilder();
+            var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
+            foreach (var service in customerService)
+            {
+                var selectedService = _serviceManager.GetById(service.ServiceID);
+                serviceList.Add(selectedService);
+                sb.Append(selectedService.Name + ", ");
+            }
+            model.CustomerServices = sb.ToString();
+            model.serviceList = serviceList;
+            _notyf.Error("Müşteri ödeme kaydı yapılırken bir hata oluştu.");
+            return View(model);
+        }
+        
+       
         
         
     }

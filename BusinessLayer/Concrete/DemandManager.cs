@@ -32,7 +32,7 @@ namespace BusinessLayer.Concrete
 
         public List<Demand> GetList()
         {
-            throw new System.NotImplementedException();
+            return _demandDal.GetListAll();
         }
         public List<Demand> GetByEmployeeId(string id)
         {

@@ -14,6 +14,8 @@ namespace EntityLayer.Concrete
         public Services Service { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int PaymentRoutineTypeID { get; set; }
+        public PaymentRoutineType PaymentRoutineType { get; set; }
         public bool Status { get; set; }
     }
 }

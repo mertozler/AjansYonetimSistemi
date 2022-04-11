@@ -1,6 +1,10 @@
-﻿namespace DataAccessLayer.EntityFramework
+﻿using DataAccessLayer.Abstract;
+using DataAccessLayer.Repositories;
+using EntityLayer.Concrete;
+
+namespace DataAccessLayer.EntityFramework
 {
-    public class EfCustomerEmployeeRepository
+    public class EfCustomerEmployeeRepository: GenericRepository<CustomerEmployee>,ICustomerEmployeeDal
     {
         
     }

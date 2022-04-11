@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20220408101503_customerEmployeesAdded")]
-    partial class customerEmployeesAdded
+    [Migration("20220411102440_initialmig")]
+    partial class initialmig
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,35 +51,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "24ffc479-4ba0-4546-b1a4-4db5e1048af3",
+                            ConcurrencyStamp = "348ae170-3124-427d-81ea-d529926cc709",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "2bc77cf1-aa4e-4a3c-b62c-17f8d72cecb4",
+                            ConcurrencyStamp = "aaf9f4e8-537b-4911-aba1-699555d3e6ae",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "f4268c7e-469d-4db7-8229-27f0e1108c63",
+                            ConcurrencyStamp = "95c7d334-0569-4aa6-8229-2eaf3a7ef6fe",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "c7d12552-2afc-4584-bb45-475ab3318bc0",
+                            ConcurrencyStamp = "cf2e3b14-eb27-4de1-925b-a121b34b03a6",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "e444e746-df05-4ca3-9ab4-2163fc2b4eea",
+                            ConcurrencyStamp = "0ca0ef7d-cd4e-4554-afed-a166d6ef7e4c",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -188,9 +188,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("EmployeeID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("EmployeeRoleName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
@@ -354,6 +351,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("PaymentRoutineTypeID")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServiceID")
                         .HasColumnType("int");
 
@@ -366,6 +366,8 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("CustomerID");
+
+                    b.HasIndex("PaymentRoutineTypeID");
 
                     b.HasIndex("ServiceID");
 
@@ -647,6 +649,36 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("PaymentRoutineTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Description = "Aylık ödeme",
+                            Name = "Aylık",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Description = "3 Aylık ödeme",
+                            Name = "3 Aylık",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Description = " 6 Aylık ödeme",
+                            Name = "6 Aylık",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 4,
+                            Description = "Yıllık ödeme",
+                            Name = "Yıllık",
+                            Status = true
+                        });
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.ServicePackage", b =>
@@ -904,6 +936,12 @@ namespace DataAccessLayer.Migrations
                         .WithMany()
                         .HasForeignKey("CustomerID");
 
+                    b.HasOne("EntityLayer.Concrete.PaymentRoutineType", "PaymentRoutineType")
+                        .WithMany()
+                        .HasForeignKey("PaymentRoutineTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("EntityLayer.Concrete.Services", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceID")
@@ -911,6 +949,8 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+
+                    b.Navigation("PaymentRoutineType");
 
                     b.Navigation("Service");
                 });

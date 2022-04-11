@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BusinessLayer.Abstract;
 using DataAccessLayer.Abstract;
 using EntityLayer.Concrete;
@@ -38,7 +39,10 @@ namespace BusinessLayer.Concrete
         {
             return _customerServiceDal.GetListAll(x=> x.ServiceID == id);
         }
-        
+        public CustomerService GetCustomerServiceByCustomerIDandCustomerService(string customerID, int serviceID)
+        {
+            return _customerServiceDal.GetListAll(x=> x.ServiceID == serviceID && x.CustomerID == customerID).FirstOrDefault();
+        }
         
         public List<CustomerService> GetCustomerServiceByCustomerID(string customerId)
         {

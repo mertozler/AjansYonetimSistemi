@@ -31,7 +31,7 @@ namespace BusinessLayer.Concrete
 
         public List<CustomerProducts> GetList()
         {
-            throw new System.NotImplementedException();
+            return _customerProdutcsDal.GetListAll();
         }
         
         public List<CustomerProducts> GetCustomerProductsListByCustomerID(string CustomerID)

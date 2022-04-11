@@ -17,8 +17,38 @@ namespace DataAccessLayer.Concrete
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(builder);          
-            
+            base.OnModelCreating(builder);
+            builder.Entity<PaymentRoutineType>().HasData(new PaymentRoutineType
+            {
+                ID = 1,
+                Description = "Aylık ödeme",
+                Name = "Aylık",
+                Status = true
+            });
+            builder.Entity<PaymentRoutineType>().HasData(new PaymentRoutineType
+            {
+                ID = 2,
+                Description = "3 Aylık ödeme",
+                Name = "3 Aylık",
+                Status = true
+            });
+
+            builder.Entity<PaymentRoutineType>().HasData(new PaymentRoutineType
+            {
+                ID = 3,
+                Description = " 6 Aylık ödeme",
+                Name = "6 Aylık",
+                Status = true
+            });
+
+            builder.Entity<PaymentRoutineType>().HasData(new PaymentRoutineType
+            {
+                ID = 4,
+                Description = "Yıllık ödeme",
+                Name = "Yıllık",
+                Status = true
+            });
+
             
             builder.Entity<ApplicationRole>().HasData(new ApplicationRole
             {
@@ -77,7 +107,6 @@ namespace DataAccessLayer.Concrete
         public DbSet<CustomerPayment> CustomerPayments { get; set; }
         public DbSet<CustomerProducts> CustomerProducts { get; set; }
         public DbSet<CustomerProductsFile> CustomerProductsFiles { get; set; }
-        public DbSet<CustomerProductsType> CustomerProductsTypes { get; set; }
         public DbSet<CustomerService> CustomerServices { get; set; }
         public DbSet<CustomerServicePlanning> CustomerServicesPlannings { get; set; }
         public DbSet<CustomerServicePlanningDate> CustomerServicesPlanningDates { get; set; }

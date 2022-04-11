@@ -116,7 +116,14 @@ else if (kullaniciRolleri[0] == "admin")
                                 </ul>
                             </li>
               
-              
+               <li class="nav-item">
+                                <a href="/Admin/Services" class="nav-link">
+                                    <i class="nav-icon fas fa-cog"></i>
+                                    <p>
+                                        Ayarlar
+                                    </p>
+                                </a>
+                            </li>
               
 
           </ul>
@@ -346,14 +353,23 @@ else if (kullaniciRolleri[0] == "ops")
                   </a>
               </li>
               
+              <li class="nav-item">
+                  <a href="@Url.Action("EmployeeCalendar","Ops",new {EmployeeID = girisYapanKullanici.Id})" class="nav-link">
+                      <i class="nav-icon far fa-calendar-alt"></i>
+                      <p>
+                          Takvimim
+                      </p>
+                  </a>
+              </li>
+              
                <li class="nav-item">
-                                               <a href="@Url.Action("EmployeeCalendar","Ops",new {EmployeeID = girisYapanKullanici.Id})" class="nav-link">
-                                                  <i class="nav-icon far fa-calendar-alt"></i>
-                                                  <p>
-                                                      Takvimim
-                                                  </p>
-                                              </a>
-                                          </li>
+                                                             <a href="@Url.Action("CustomerPayments","Ops")" class="nav-link">
+                                                                <i class="nav-icon fas fa-hand-holding-usd"></i>
+                                                                <p>
+                                                                    Müşteri Ödeme Takip
+                                                                </p>
+                                                            </a>
+                                                        </li>
               
                  
               
@@ -443,6 +459,15 @@ else if (kullaniciRolleri[0] == "customer")
                       </p>
                   </a>
               </li>
+              
+               <li class="nav-item">
+                                <a href="/Customer/AccountExtract" class="nav-link">
+                                    <i class="nav-icon fas fa-money-bill-wave"></i>
+                                    <p>
+                                        Hesap Özeti
+                                    </p>
+                                </a>
+                            </li>
               
               
 

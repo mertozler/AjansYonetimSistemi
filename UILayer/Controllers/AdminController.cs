@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
@@ -32,11 +34,29 @@ namespace Project.Controllers
         private readonly ServiceManager _serviceManager = new ServiceManager(new EfServicesRepository());
         private readonly PackageManager _packageManager = new PackageManager(new EfPackageRepository());
 
+        private CustomerPaymentsManager _customerPaymentsManager =
+            new CustomerPaymentsManager(new EfCustomerPaymentsRepository());
+
         private readonly ServicePackageManager _servicePackageManager =
             new ServicePackageManager(new EfServicePackageRepository());
 
         private readonly CustomerServiceManager _customerServiceManager =
             new CustomerServiceManager(new EfCustomerServiceRepository());
+
+        private CustomerEmployeeManager _customerEmployeeManager =
+            new CustomerEmployeeManager(new EfCustomerEmployeeRepository());
+
+        private PaymentRoutineTypesManager _paymentRoutineTypesManager =
+            new PaymentRoutineTypesManager(new EfPaymentRouteTypesRepository());
+        CustomerProdutcsManager _customerProductsManager =
+            new CustomerProdutcsManager(new EfCustomerProductsRepository());
+
+        private DemandManager _demandManager = new DemandManager(new EfDemandRepository());
+
+        private CustomerProductsFileManager _customerProductsFileManager =
+            new CustomerProductsFileManager(new EfCustomerProductsFileRepository());
+
+        private DemandAnswerManager _demandAnswerManager = new DemandAnswerManager(new EfDemandAnswersRepository());
 
 
         public AdminController(INotyfService notyf, IMapper mapper, UserManager<ApplicationUser> userManager,
@@ -50,9 +70,27 @@ namespace Project.Controllers
         }
 
         // GET
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            AdminIndexDTO model = new AdminIndexDTO();
+            model.DemandCounter = _demandManager.GetList().Count;
+            model.CustomerProductCounter = _customerProductsManager.GetList().Count;
+            double totalIncome = 0;
+            var customerPayments = _customerPaymentsManager.GetList();
+            foreach (var item in customerPayments)
+            {
+                totalIncome += item.PaymentPrice;
+            }
+            model.TotalIncome = totalIncome;
+            var customerList = await (from user in _context.Users
+                join userRole in _context.UserRoles
+                    on user.Id equals userRole.UserId
+                join role in _context.Roles
+                    on userRole.RoleId equals role.Id
+                where(role.Name == "customer")
+                select user).ToListAsync();
+            model.CustomerCounter = customerList.Count;
+            return View(model);
         }
 
         [HttpGet]
@@ -537,6 +575,7 @@ namespace Project.Controllers
             CustomerDefineServiceDTO customerViewModel = new CustomerDefineServiceDTO();
             List<CustomerListClassForDefineService> customerList = new List<CustomerListClassForDefineService>();
             List<CustomerDefinedServiceListClass> customerServiceList = new List<CustomerDefinedServiceListClass>();
+            List<PaymentRoutineTypesClass> paymentRoutineTypeList = new List<PaymentRoutineTypesClass>();
             string ServiceNamesForCustomer = "";
             var allCustomers = await (from user in _context.Users
                 join userRole in _context.UserRoles
@@ -551,16 +590,28 @@ namespace Project.Controllers
                     {CustomerID = customer.Id, CustomerName = customer.NameSurname, CustomerMail = customer.Email});
                 var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(customer.Id);
                 ServiceNamesForCustomer = "";
+                PaymentRoutineType selectedPaymentRoutine = new PaymentRoutineType();
                 foreach (var customerServices in customerService)
                 {
+                    selectedPaymentRoutine =
+                        _paymentRoutineTypesManager.GetById(customerServices.PaymentRoutineTypeID);
                     var selectedService = _serviceManager.GetById(customerServices.ServiceID);
                     ServiceNamesForCustomer = selectedService.Name + ", " + ServiceNamesForCustomer;
                 }
-
+              
                 customerServiceList.Add(new CustomerDefinedServiceListClass
                 {
                     CustomerID = customer.Id, CustomerName = customer.NameSurname, CustomerMail = customer.Email,
-                    ServiceNames = ServiceNamesForCustomer
+                    ServiceNames = ServiceNamesForCustomer,PaymentRoutineTypeName = selectedPaymentRoutine.Name
+                });
+            }
+
+            var allPaymentRoutineTypes = _paymentRoutineTypesManager.GetList();
+            foreach (var onePaymentRoutineType in allPaymentRoutineTypes)
+            {
+                paymentRoutineTypeList.Add(new PaymentRoutineTypesClass
+                {
+                    PaymentRoutineID = onePaymentRoutineType.ID, PaymentRoutineName = onePaymentRoutineType.Name,
                 });
             }
 
@@ -569,6 +620,7 @@ namespace Project.Controllers
             customerViewModel.ServiceList = _serviceManager.GetList();
             customerViewModel.CustomerList = customerList;
             customerViewModel.CustomerDefinedServiceList = customerServiceList;
+            customerViewModel.PaymentRoutineTypesList = paymentRoutineTypeList;
             return View(customerViewModel);
         }
 
@@ -631,6 +683,7 @@ namespace Project.Controllers
                 newCustomerService.CustomerID = customerDefineServiceData.selectedCustomerID;
                 newCustomerService.StartDate = DateTime.Now;;
                 newCustomerService.ServiceID = serviceID;
+                newCustomerService.PaymentRoutineTypeID = customerDefineServiceData.SelectedPaymentRoutineTypeID;
                 _customerServiceManager.Add(newCustomerService);
             }
                 _notyf.Success("Müşteri hizmeti başarıyla tanımlandı");
@@ -648,6 +701,9 @@ namespace Project.Controllers
         public async Task<IActionResult> CustomerCard(string CustomerID)
         {
             List<CustomerCardServiceListClass> serviceListForCustomer = new List<CustomerCardServiceListClass>();
+            List<CustomerEmployeeListClass> customerEmployeeList = new List<CustomerEmployeeListClass>();
+            List<PaymentHistoryClassForAdmin> paymentHistoryList = new List<PaymentHistoryClassForAdmin>();
+            double PaymentPriceSum = 0;
             var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
             var customerCardModel = _mapper.Map<CustomerCardDTO>(selectedCustomer);
             var selectedCustomerDefinedServiceList = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
@@ -661,30 +717,225 @@ namespace Project.Controllers
                 });
             }
 
+            var selectedCustomerEmployee = _customerEmployeeManager.GetEmployeeListByCustomerID(CustomerID);
+            foreach (var oneCustomerEmployee in selectedCustomerEmployee)
+            {
+                var selectedEmployee = await _userManager.FindByIdAsync(oneCustomerEmployee.EmployeeID);
+                var selectedEmployeeRole = await _userManager.GetRolesAsync(selectedEmployee);
+                customerEmployeeList.Add(new CustomerEmployeeListClass
+                {
+                        EmployeeID = oneCustomerEmployee.EmployeeID, EmployeeName = selectedEmployee.NameSurname, EmployeeRole = selectedEmployeeRole[0].ToUpper(),
+                        CustomerEmployeeID = oneCustomerEmployee.ID,
+                });
+            }
+            var selectedCustomerPaymentHistory = _customerPaymentsManager.GetPaymentListByCustomerID(CustomerID);
+            foreach (var payment in selectedCustomerPaymentHistory)
+            {
+                PaymentPriceSum += payment.PaymentPrice;
+                paymentHistoryList.Add(new PaymentHistoryClassForAdmin
+                {
+                    PaymentDate = payment.PaymentDate,
+                    PaymentPrice = payment.PaymentPrice,
+                });
+            }
+            CustomerReportsDTO model = new CustomerReportsDTO();
+            List<ReportListClass> reportList = new List<ReportListClass>();
+            var customerProductList = _customerProductsManager.GetCustomerProductsListByCustomerID(selectedCustomer.Id);
+            foreach (var product in customerProductList)
+            {
+                var selectedProductFile = _customerProductsFileManager.GetByProductId(product.id);
+                FileInfo fileInfo = new FileInfo(selectedProductFile.FilePath);
+                string fileExt = fileInfo.Extension;
+                if (fileExt == ".docx" || fileExt == ".doc" || fileExt == ".pdf" || fileExt == ".xls" ||
+                    fileExt == ".xlsx" || fileExt == ".ppt" || fileExt == ".pptx" || fileExt == ".txt")
+                {
+                    var newProduct = _mapper.Map<ReportListClass>(product);
+                    var checkDemandisExist = _demandManager.GetByProductID(product.id);
+                    if (checkDemandisExist != null)
+                    {
+                        newProduct.ReportName = newProduct.ProductTitle + "rapor.v1";
+                        newProduct.ReportPath = "CustomerProductsFile/" + selectedProductFile.FilePath;
+                        int versionCounter = 2;
+                        reportList.Add(newProduct);
+                        var checkDemandAnswers = _demandAnswerManager.GetByDemandId(checkDemandisExist.ID);
+                        if (checkDemandAnswers != null)
+                        {
+                            foreach (var item in checkDemandAnswers)
+                            {
+                                if (item.AnswerFilePath != null)
+                                {
+                                    FileInfo fileInfoForAnswer = new FileInfo(item.AnswerFilePath);
+                                    string fileExtension = fileInfoForAnswer.Extension;
+                                    if (fileExtension == ".docx" || fileExtension == ".doc" ||
+                                        fileExtension == ".pdf" || fileExtension == ".xls" ||
+                                        fileExtension == ".xlsx" || fileExtension == ".ppt" ||
+                                        fileExtension == ".pptx" || fileExtension == ".txt")
+                                    {
+                                        var newProductWithDemand = _mapper.Map<ReportListClass>(product);
+                                        newProductWithDemand.DemandStatus = checkDemandisExist.Status;
+                                        newProductWithDemand.DemandID = checkDemandisExist.ID;
+                                        newProductWithDemand.ReportPath = "DemandFiles/" + item.AnswerFilePath;
+                                        newProductWithDemand.ReportName = newProductWithDemand.ProductTitle +
+                                                                          "-Rapor.v" + versionCounter;
+                                        newProductWithDemand.CustomerName = selectedCustomer.NameSurname;
+                                        versionCounter++;
+                                        reportList.Add(newProductWithDemand);
+                                    }
+                                }
+
+
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        newProduct.ReportPath = "CustomerProductsFile/" + selectedProductFile.FilePath;
+                        newProduct.CustomerName = selectedCustomer.NameSurname;
+                        newProduct.ReportName = newProduct.ProductTitle + "-Rapor.v1";
+                        reportList.Add(newProduct);
+
+                    }
+                }
+                else
+                {
+                    var checkDemandisExist = _demandManager.GetByProductID(product.id);
+                    if (checkDemandisExist != null)
+                    {
+                        int versionCounterForAnswers = 1;
+                        var checkDemandAnswers = _demandAnswerManager.GetByDemandId(checkDemandisExist.ID);
+                        if (checkDemandAnswers != null)
+                        {
+                            foreach (var item in checkDemandAnswers)
+                            {
+                                if (item.AnswerFilePath != null)
+                                {
+                                    FileInfo fileInfoForAnswer = new FileInfo(item.AnswerFilePath);
+                                    string fileExtension = fileInfoForAnswer.Extension;
+                                    if (fileExtension == ".docx" || fileExtension == ".doc" ||
+                                        fileExtension == ".pdf" || fileExtension == ".xls" ||
+                                        fileExtension == ".xlsx" || fileExtension == ".ppt" ||
+                                        fileExtension == ".pptx" || fileExtension == ".txt")
+                                    {
+                                        var newProductWithDemand = _mapper.Map<ReportListClass>(product);
+                                        newProductWithDemand.DemandStatus = checkDemandisExist.Status;
+                                        newProductWithDemand.DemandID = checkDemandisExist.ID;
+                                        newProductWithDemand.ReportPath = "DemandFiles/" + item.AnswerFilePath;
+                                        newProductWithDemand.ReportName = newProductWithDemand.ProductTitle +
+                                                                          "-Rapor.v" + versionCounterForAnswers;
+                                        newProductWithDemand.CustomerName = selectedCustomer.NameSurname;
+                                        versionCounterForAnswers++;
+                                        reportList.Add(newProductWithDemand);
+                                    }
+                                }
+
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        
+        
+    
+            customerCardModel.ReportList = reportList;
+            customerCardModel.PaymentPriceSum = PaymentPriceSum;
+            customerCardModel.CustomerEmployeeList = customerEmployeeList;
             customerCardModel.CustomerDefinedServiceList = serviceListForCustomer;
+            customerCardModel.PaymentHistoryList = paymentHistoryList;
             return View(customerCardModel);
         }
 
+        public IActionResult DeleteCustomerEmployee(int CustomerEmployeeID)
+        {
+            var selectedCustomerEmployee = _customerEmployeeManager.GetById(CustomerEmployeeID);
+            selectedCustomerEmployee.Status = false;
+            _customerEmployeeManager.Update(selectedCustomerEmployee);
+            _notyf.Success("Müşteri çalışanı başarıyla silindi");
+            return RedirectToAction("CustomerCard", "Admin", new { CustomerID = _customerEmployeeManager.GetById(CustomerEmployeeID).CustomerID });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> DefineCustomerEmployee(string CustomerID)
         {
             var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
             DefineCustomerEmployeeDTO defineCustomerEmployeeDTO = new DefineCustomerEmployeeDTO();
-            List<RoleListDefineEmployee> roleList = new List<RoleListDefineEmployee>();
+            List<EmployeeListDefineEmployee> employeeListForSelectedItem = new List<EmployeeListDefineEmployee>();
             defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
-            var roles = _context.Roles.Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops").ToList();
-            foreach (var item in roles)
+            var employeeList = await (from user in _context.Users
+                join userRole in _context.UserRoles
+                    on user.Id equals userRole.UserId
+                join role in _context.Roles
+                    on userRole.RoleId equals role.Id
+                where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
+                select user).ToListAsync();
+            foreach (var oneEmployee in employeeList)
             {
-                roleList.Add(new RoleListDefineEmployee
+                var selectedEmployeeRole = await _userManager.GetRolesAsync(oneEmployee);
+                StringBuilder employeeName = new StringBuilder();
+                employeeName.Append("["+ selectedEmployeeRole[0].ToUpper() + "]");
+                employeeName.Append(" " + oneEmployee.NameSurname);
+                employeeListForSelectedItem.Add(new EmployeeListDefineEmployee
                 {
-                    RoleName = item.NormalizedName,
-                    RoleID = item.Id
+                        EmployeeID   = oneEmployee.Id,
+                      EmployeeName  = employeeName.ToString(),
                 });
+
             }
-            defineCustomerEmployeeDTO.RoleList = roleList;
+
+            defineCustomerEmployeeDTO.SelectedCustomerID = CustomerID;
+            defineCustomerEmployeeDTO.EmployeeList = employeeListForSelectedItem;
             return View(defineCustomerEmployeeDTO);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> DefineCustomerEmployee(DefineCustomerEmployeeDTO data)
+        {
+            if (ModelState.IsValid)
+            {
+                CustomerEmployee newCustomerEmployee = new CustomerEmployee();
+                newCustomerEmployee.Status = true;
+                newCustomerEmployee.CustomerID = data.SelectedCustomerID;
+                newCustomerEmployee.EmployeeID = data.SelectedEmployeeID;
+                _customerEmployeeManager.Add(newCustomerEmployee);
+                _notyf.Success("Müşteriye başarıyla personel tanımlandı!");
+                return RedirectToAction("CustomerCard", "Admin", new { CustomerID = data.SelectedCustomerID });
+            }
+            _notyf.Error("Personel tanımlanamadı!");
+            var selectedCustomer = await _userManager.FindByIdAsync( data.SelectedCustomerID);
+            DefineCustomerEmployeeDTO defineCustomerEmployeeDTO = new DefineCustomerEmployeeDTO();
+            List<EmployeeListDefineEmployee> employeeListForSelectedItem = new List<EmployeeListDefineEmployee>();
+            defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
+            var employeeList = await (from user in _context.Users
+                join userRole in _context.UserRoles
+                    on user.Id equals userRole.UserId
+                join role in _context.Roles
+                    on userRole.RoleId equals role.Id
+                where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
+                select user).ToListAsync();
+            foreach (var oneEmployee in employeeList)
+            {
+                var selectedEmployeeRole = await _userManager.GetRolesAsync(oneEmployee);
+                StringBuilder employeeName = new StringBuilder();
+                employeeName.Append("["+ selectedEmployeeRole[0].ToUpper() + "]");
+                employeeName.Append(" " + oneEmployee.NameSurname);
+                employeeListForSelectedItem.Add(new EmployeeListDefineEmployee
+                {
+                    EmployeeID   = oneEmployee.Id,
+                    EmployeeName  = employeeName.ToString(),
+                });
+
+            }
+
+            defineCustomerEmployeeDTO.SelectedCustomerID = data.SelectedCustomerID;
+            defineCustomerEmployeeDTO.EmployeeList = employeeListForSelectedItem;
+            return View(defineCustomerEmployeeDTO);
+
+        }
         
-        
-        
+
+
+
     }
 }

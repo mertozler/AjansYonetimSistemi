@@ -11,7 +11,6 @@ namespace EntityLayer.Concrete
         public ApplicationUser Customer { get; set; }
         public string EmployeeID { get; set; }
         public ApplicationUser Employee { get; set; }
-        public string EmployeeRoleName { get; set; }
         public bool Status { get; set; }
     }
 }

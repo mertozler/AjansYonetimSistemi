@@ -20,9 +20,7 @@ namespace EntityLayer.Concrete
         public string Content { get; set; }
         public int ServiceID { get; set; }
         public Services Service { get; set; }
-        public string description { get; set; }  
-        public int CustomerProductsTypeID { get; set; }
-        public CustomerProductsType CustomerProductsType { get; set; }
+        public string description { get; set; }
         public bool Status { get; set; }
     }
 }

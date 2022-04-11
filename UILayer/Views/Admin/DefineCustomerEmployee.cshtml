@@ -82,29 +82,42 @@
                         </a>
                     </div>
             <div id="collapseCompanyCreate">
+                <form asp-controller="Admin" asp-action="DefineCustomerEmployee" method="post">
                 <div class="card-body shadow">
-                    <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label asp-for="CustomerName">Müşteri Adı</label>
-                        <input asp-for="CustomerName" class="form-control"/>
+                        <input asp-for="CustomerName" class="form-control" readonly/>
                         <span asp-validation-for="CustomerName"></span>
                     </div>
 
-                    <div class="form-group">
-                                                                   <label asp-for="SelectedRoleID" class="col-sm-1 col-form-label">Personel Rolü Seçin:</label>
-                                                                   
-                                                                       <select name="SelectedRoleID" id="SelectedRoleID" class="custom-select" onchange="jsFunction(this.value);">
-                                                                           <option value="" disabled selected hidden>Personel Rolü Seçin</option>
-                                                                           @foreach (var item in Model.RoleList)
-                                                                           {
-                                                                               var roleName = char.ToUpper(item.RoleName[0]) + item.RoleName.Substring(1);
-                                                                               <option value="@item.RoleID" id="Role">@roleName</option>
-                                                                           }
-                                                                       </select>
-                                                                       <span asp-validation-for="SelectedRoleID" class="text-danger"></span>
-                                                                   
-                                                               </div>
+                    <div class="form-group row">
+                        <label asp-for="SelectedEmployeeID" class="col-sm-1 col-form-label">Personel Seçin:</label>
+
+                        <select name="SelectedEmployeeID" id="SelectedEmployeeID" class="custom-select">
+                            <option value="" disabled selected hidden>Personel Seçin</option>
+                            @foreach (var item in Model.EmployeeList)
+                            {
+                                <option value="@item.EmployeeID" id="Role">@item.EmployeeName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="SelectedEmployeeID" class="text-danger"></span>
+
+                    </div>
+                    <input type="hidden" name="SelectedCustomerID" value="@Model.SelectedCustomerID"/>
+
+                    <div class="form-group row">
+                        <div class="col-sm-10 offset-sm-2">
+                            <button type="submit" class="btn btn-success">Personel Tanımla</button>
+                        </div>
+                    </div>
 
                 </div>
+                </form>
             </div>
             </div>
     </div>

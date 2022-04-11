@@ -29,6 +29,12 @@
             $(document).ready(function () {
                                              $('#CustomerEmployeeDataTable').DataTable();
                                          });
+             $(document).ready(function () {
+                        $('#employeePaymentList').DataTable();
+                    });
+             $(document).ready(function () {
+                        $('#employeeListReportDataTable').DataTable();
+                    });
         </script>
 
 
@@ -153,42 +159,146 @@
 </section>
 
 <section>
-        <div id="accordion" style="margin: 20px;">
-            <div class="card shadow mt-5">
-                <div class="card-header bg-dark">
-                    <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
-                        Müşteriyle İlgilenen Personeller
-                    </a>
-                     <a href="@Url.Action("DefineCustomerEmployee", "Admin", new {CustomerID = Model.CustomerID})" class="btn pull-right bg-success">Personel Tanımla</a>
-                    
-                </div>
-                <div id="collapseCompanyList" class="collapse show">
-                    <div class="card-body">
-                        <div class="row table-responsive-sm">
-                            <div class="col-md-12 ">
-                                <table id="CustomerEmployeeDataTable" class="display" style="width:100%">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Personel Adı</th>
-                                        <th>Personel Rolü</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                   
-                                        <tr>
-                                            <td>item.ServiceId</td>
-                                            <td>item.ServiceName</td>
-                                            <td>item.ServiceDescription</td>
-                                        </tr>
-                                    
-                                    </tbody>
-                                </table>
-    
-                            </div>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                    Müşteri Ödeme Geçmişi
+                </a>
+            </div>
+            <div id="collapseCompanyList" class="collapse show">
+                <div class="card-body">
+                    <div class="row table-responsive-sm">
+                        <div class="col-md-12 ">
+                            <table id="employeePaymentList" class="display" style="width:100%">
+                                <thead>
+                                <tr>
+                                    <th>Ödeme Tarihi</th>
+                                    <th>Ödeme Tutarı</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                       @foreach (var item in Model.PaymentHistoryList)
+                                                           {
+                                <tr>
+                                        <td>@item.PaymentDate</td>
+                                        <td>@item.PaymentPrice ₺</td>
+                                </tr>
+                                                               
+                                                           }
+                       
+                                </tbody>
+                            </table>
+                            <label>Toplam Ödeme Tutarı: @Model.PaymentPriceSum ₺</label>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                    Müşteriyle İlgilenen Personeller
+                </a>
+                <a href="@Url.Action("DefineCustomerEmployee", "Admin", new {CustomerID = Model.CustomerID})" class="btn pull-right bg-success">Personel Tanımla</a>
+                    
+            </div>
+            <div id="collapseCompanyList" class="collapse show">
+                <div class="card-body">
+                    <div class="row table-responsive-sm">
+                        <div class="col-md-12 ">
+                            <table id="CustomerEmployeeDataTable" class="display" style="width:100%">
+                                <thead>
+                                <tr>
+                                       
+                                    <th>Personel Adı</th>
+                                    <th>Personel Rolü</th>
+                                    <th>Ayarlar</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.CustomerEmployeeList)
+                                {
+                                    <tr>
+                                        <td>@item.EmployeeName</td>
+                                        <td>@item.EmployeeRole</td>
+                                        <td><a href="@Url.Action("DeleteCustomerEmployee","Admin",new {CustomerEmployeeID = item.CustomerEmployeeID})" class="btn btn-warning btn-sm"><i class="fas fa-trash"></i></a></td>
+                                                    
+                                    </tr>
+                                }
+                                       
+                                    
+                                </tbody>
+                            </table>
+    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+<div id="accordion" style="margin: 20px;">
+<div class="card shadow mt-5">
+    <div class="card-header bg-dark">
+        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            Müşteri Raporları
+        </a>
+    </div>
+    <div id="collapseCompanyList" class="collapse show">
+        <div class="card-body">
+            <div class="row table-responsive-sm">
+                <div class="col-md-12 ">
+                    <table id="employeeListReportDataTable" class="display" style="width:100%">
+                        <thead>
+                        <tr>
+                            
+                            <th>Müşteri Adı</th>
+                            <th>Ürün Adı</th>
+                            <th>Ürün Açıklaması</th>
+                            <th>Ürün İçeriği</th>
+                            <th>Ürün Gönderilme Tarihi</th>
+                            <th>Rapor Adı</th>
+                            <th>Raporu Ayarları</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        
+                        @foreach (var item in Model.ReportList)
+                        {
+                            <tr>
+
+                                <td>@item.CustomerName</td>
+                                <td>@item.ProductTitle</td>
+                                <td>@item.ProductDescription</td>
+                                <td>@item.ProductContent</td>
+                                <td>@item.ProductDate</td>
+                                <td>@item.ReportName</td>
+                                <td><a href="~/@item.ReportPath" download class="btn btn-success btn-sm"><span class="badge bg-success">Raporu İndir</span></a>
+                                   </td>                                                          											
+
+
+
+                            </tr>
+                        }
+
+
+
+
+                        </tbody>
+                    </table>
+                            
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>

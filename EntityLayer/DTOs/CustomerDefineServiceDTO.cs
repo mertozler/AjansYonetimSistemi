@@ -12,6 +12,8 @@ namespace EntityLayer.DTOs
         public List<CustomerDefinedServiceListClass> CustomerDefinedServiceList { get; set; }
         public List<Services> ServiceList { get; set; }
         public List<Package> PackageList { get; set; }
+        public List<PaymentRoutineTypesClass>   PaymentRoutineTypesList { get; set; }
+        public int SelectedPaymentRoutineTypeID { get; set; }
     }
     public class CustomerListClassForDefineService
     {
@@ -26,5 +28,12 @@ namespace EntityLayer.DTOs
         public string CustomerMail { get; set; }
         public string CustomerName { get; set; }
         public string ServiceNames {get; set;}
+        public string PaymentRoutineTypeName { get; set; }
+    }
+
+    public class PaymentRoutineTypesClass
+    {
+        public int PaymentRoutineID { get; set; }
+        public string PaymentRoutineName { get; set; }
     }
 }

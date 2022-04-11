@@ -49,35 +49,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "24ffc479-4ba0-4546-b1a4-4db5e1048af3",
+                            ConcurrencyStamp = "534bff3d-6bf0-4dfb-9de9-549dae5c55af",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "2bc77cf1-aa4e-4a3c-b62c-17f8d72cecb4",
+                            ConcurrencyStamp = "0ee936e1-ae0d-44f9-bcd5-df4d405f0abf",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "f4268c7e-469d-4db7-8229-27f0e1108c63",
+                            ConcurrencyStamp = "e14328e1-4a26-4b1f-bd09-01a386269d64",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "c7d12552-2afc-4584-bb45-475ab3318bc0",
+                            ConcurrencyStamp = "813a9d0a-4002-4f8e-a422-af5732406f72",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "e444e746-df05-4ca3-9ab4-2163fc2b4eea",
+                            ConcurrencyStamp = "173f93b3-5fd1-4aae-b5df-4ee152be122c",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -187,9 +187,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("EmployeeID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("EmployeeRoleName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
@@ -252,9 +249,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("CustomerID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("CustomerProductsTypeID")
-                        .HasColumnType("int");
-
                     b.Property<int>("ServiceID")
                         .HasColumnType("int");
 
@@ -284,8 +278,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("CreatorID");
 
                     b.HasIndex("CustomerID");
-
-                    b.HasIndex("CustomerProductsTypeID");
 
                     b.HasIndex("ServiceID");
 
@@ -318,27 +310,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("CustomerProductsFiles");
                 });
 
-            modelBuilder.Entity("EntityLayer.Concrete.CustomerProductsType", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("CustomerProductsTypes");
-                });
-
             modelBuilder.Entity("EntityLayer.Concrete.CustomerService", b =>
                 {
                     b.Property<int>("ID")
@@ -352,6 +323,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("PaymentRoutineTypeID")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServiceID")
                         .HasColumnType("int");
 
@@ -364,6 +338,8 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("CustomerID");
+
+                    b.HasIndex("PaymentRoutineTypeID");
 
                     b.HasIndex("ServiceID");
 
@@ -645,6 +621,36 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("PaymentRoutineTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Description = "Aylık ödeme",
+                            Name = "Aylık",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Description = "3 Aylık ödeme",
+                            Name = "3 Aylık",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Description = " 6 Aylık ödeme",
+                            Name = "6 Aylık",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 4,
+                            Description = "Yıllık ödeme",
+                            Name = "Yıllık",
+                            Status = true
+                        });
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.ServicePackage", b =>
@@ -864,12 +870,6 @@ namespace DataAccessLayer.Migrations
                         .WithMany()
                         .HasForeignKey("CustomerID");
 
-                    b.HasOne("EntityLayer.Concrete.CustomerProductsType", "CustomerProductsType")
-                        .WithMany()
-                        .HasForeignKey("CustomerProductsTypeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EntityLayer.Concrete.Services", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceID")
@@ -879,8 +879,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Creator");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("CustomerProductsType");
 
                     b.Navigation("Service");
                 });
@@ -902,6 +900,12 @@ namespace DataAccessLayer.Migrations
                         .WithMany()
                         .HasForeignKey("CustomerID");
 
+                    b.HasOne("EntityLayer.Concrete.PaymentRoutineType", "PaymentRoutineType")
+                        .WithMany()
+                        .HasForeignKey("PaymentRoutineTypeID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("EntityLayer.Concrete.Services", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceID")
@@ -909,6 +913,8 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+
+                    b.Navigation("PaymentRoutineType");
 
                     b.Navigation("Service");
                 });

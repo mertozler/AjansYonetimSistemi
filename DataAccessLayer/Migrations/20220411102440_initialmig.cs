@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataAccessLayer.Migrations
 {
-    public partial class initial : Migration
+    public partial class initialmig : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -230,30 +230,53 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Demands",
+                name: "CustomerEmployees",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CreatorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CustomerID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    EmployeeID = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Demands", x => x.ID);
+                    table.PrimaryKey("PK_CustomerEmployees", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Demands_AspNetUsers_CreatorId",
-                        column: x => x.CreatorId,
+                        name: "FK_CustomerEmployees_AspNetUsers_CustomerID",
+                        column: x => x.CustomerID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Demands_AspNetUsers_ReceiverId",
-                        column: x => x.ReceiverId,
+                        name: "FK_CustomerEmployees_AspNetUsers_EmployeeID",
+                        column: x => x.EmployeeID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmployeeCalendar",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    start = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    end = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    color = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    textColor = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmployeeID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeCalendar", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_EmployeeCalendar_AspNetUsers_EmployeeID",
+                        column: x => x.EmployeeID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -279,47 +302,6 @@ namespace DataAccessLayer.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CustomerProducts",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    start = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    end = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    color = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    textColor = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CustomerID = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatorID = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CustomerProductsTypeID = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerProducts", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_CustomerProducts_AspNetUsers_CreatorID",
-                        column: x => x.CreatorID,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_CustomerProducts_AspNetUsers_CustomerID",
-                        column: x => x.CustomerID,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_CustomerProducts_CustomerProductsTypes_CustomerProductsTypeID",
-                        column: x => x.CustomerProductsTypeID,
-                        principalTable: "CustomerProductsTypes",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -352,6 +334,55 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CustomerProducts",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    start = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    end = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    color = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    textColor = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreatorID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ServiceID = table.Column<int>(type: "int", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CustomerProductsTypeID = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerProducts", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_CustomerProducts_AspNetUsers_CreatorID",
+                        column: x => x.CreatorID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CustomerProducts_AspNetUsers_CustomerID",
+                        column: x => x.CustomerID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CustomerProducts_CustomerProductsTypes_CustomerProductsTypeID",
+                        column: x => x.CustomerProductsTypeID,
+                        principalTable: "CustomerProductsTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CustomerProducts_Services_ServiceID",
+                        column: x => x.ServiceID,
+                        principalTable: "Services",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CustomerServices",
                 columns: table => new
                 {
@@ -361,6 +392,7 @@ namespace DataAccessLayer.Migrations
                     ServiceID = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PaymentRoutineTypeID = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -372,6 +404,12 @@ namespace DataAccessLayer.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CustomerServices_PaymentRoutineTypes_PaymentRoutineTypeID",
+                        column: x => x.PaymentRoutineTypeID,
+                        principalTable: "PaymentRoutineTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CustomerServices_Services_ServiceID",
                         column: x => x.ServiceID,
@@ -441,6 +479,86 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CustomerProductsFiles",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerProductsID = table.Column<int>(type: "int", nullable: false),
+                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerProductsFiles", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CustomerProductsFiles_CustomerProducts_CustomerProductsID",
+                        column: x => x.CustomerProductsID,
+                        principalTable: "CustomerProducts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Demands",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ReceiverId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    CustomerProductsID = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Demands", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Demands_AspNetUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Demands_AspNetUsers_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Demands_CustomerProducts_CustomerProductsID",
+                        column: x => x.CustomerProductsID,
+                        principalTable: "CustomerProducts",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerServicesPlanningDates",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerServicePlanningID = table.Column<int>(type: "int", nullable: false),
+                    ServiceDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerServicesPlanningDates", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CustomerServicesPlanningDates_CustomerServicesPlannings_CustomerServicePlanningID",
+                        column: x => x.CustomerServicePlanningID,
+                        principalTable: "CustomerServicesPlannings",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DemandAnswers",
                 columns: table => new
                 {
@@ -451,7 +569,10 @@ namespace DataAccessLayer.Migrations
                     ReceiverID = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false)
+                    DemandAnswerType = table.Column<byte>(type: "tinyint", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    AnswerFilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -506,65 +627,33 @@ namespace DataAccessLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "CustomerProductsFiles",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerProductsID = table.Column<int>(type: "int", nullable: false),
-                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerProductsFiles", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_CustomerProductsFiles_CustomerProducts_CustomerProductsID",
-                        column: x => x.CustomerProductsID,
-                        principalTable: "CustomerProducts",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CustomerServicesPlanningDates",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerServicePlanningID = table.Column<int>(type: "int", nullable: false),
-                    ServiceDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerServicesPlanningDates", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_CustomerServicesPlanningDates_CustomerServicesPlannings_CustomerServicePlanningID",
-                        column: x => x.CustomerServicePlanningID,
-                        principalTable: "CustomerServicesPlannings",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "1", "0d16c2c7-dbfb-452a-917f-91a803aca555", "admin", "ADMIN" },
-                    { "2", "47255b14-84d8-422a-8939-d619e0b49638", "customer", "CUSTOMER" },
-                    { "3", "05e21a6d-2e7f-4c37-a59b-c0eb1e100530", "designer", "DESIGNER" },
-                    { "4", "012abe59-5044-4d94-b7d2-505699047a01", "ops", "OPS" },
-                    { "5", "b89bb856-1550-4f4f-b0b0-bce4dde8dd73", "marketing", "MARKETING" }
+                    { "1", "348ae170-3124-427d-81ea-d529926cc709", "admin", "ADMIN" },
+                    { "2", "aaf9f4e8-537b-4911-aba1-699555d3e6ae", "customer", "CUSTOMER" },
+                    { "3", "95c7d334-0569-4aa6-8229-2eaf3a7ef6fe", "designer", "DESIGNER" },
+                    { "4", "cf2e3b14-eb27-4de1-925b-a121b34b03a6", "ops", "OPS" },
+                    { "5", "0ca0ef7d-cd4e-4554-afed-a166d6ef7e4c", "marketing", "MARKETING" }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NameSurname", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Status", "TwoFactorEnabled", "UserName" },
                 values: new object[] { "22e40406-8a9d-2d82-912c-5d6a640ee696", 0, "15142b86-2dd6-4e0a-8731-0af709f5c26b", "admin@gmail.com", true, false, null, "Sistem Yöneticisi", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAEAACcQAAAAEBnB8oXphFdmCsywKjHsM1T0Rqoy+MUE/X6BTKXc92U7kCDqn3k8JwfkAyO3GjGfuA==", null, false, "G4UWDNIBHRMGKMISDT73JLS7P3EBZMRV", false, false, "admin@gmail.com" });
+
+            migrationBuilder.InsertData(
+                table: "PaymentRoutineTypes",
+                columns: new[] { "ID", "Description", "Name", "Status" },
+                values: new object[,]
+                {
+                    { 1, "Aylık ödeme", "Aylık", true },
+                    { 2, "3 Aylık ödeme", "3 Aylık", true },
+                    { 3, " 6 Aylık ödeme", "6 Aylık", true },
+                    { 4, "Yıllık ödeme", "Yıllık", true }
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
@@ -611,6 +700,16 @@ namespace DataAccessLayer.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CustomerEmployees_CustomerID",
+                table: "CustomerEmployees",
+                column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerEmployees_EmployeeID",
+                table: "CustomerEmployees",
+                column: "EmployeeID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomerPayments_CustomerID",
                 table: "CustomerPayments",
                 column: "CustomerID");
@@ -636,6 +735,11 @@ namespace DataAccessLayer.Migrations
                 column: "CustomerProductsTypeID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CustomerProducts_ServiceID",
+                table: "CustomerProducts",
+                column: "ServiceID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomerProductsFiles_CustomerProductsID",
                 table: "CustomerProductsFiles",
                 column: "CustomerProductsID");
@@ -644,6 +748,11 @@ namespace DataAccessLayer.Migrations
                 name: "IX_CustomerServices_CustomerID",
                 table: "CustomerServices",
                 column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerServices_PaymentRoutineTypeID",
+                table: "CustomerServices",
+                column: "PaymentRoutineTypeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerServices_ServiceID",
@@ -701,9 +810,19 @@ namespace DataAccessLayer.Migrations
                 column: "CreatorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Demands_CustomerProductsID",
+                table: "Demands",
+                column: "CustomerProductsID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Demands_ReceiverId",
                 table: "Demands",
                 column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeCalendar_EmployeeID",
+                table: "EmployeeCalendar",
+                column: "EmployeeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeePerfonmanceScores_EmployeeID",
@@ -739,6 +858,9 @@ namespace DataAccessLayer.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "CustomerEmployees");
+
+            migrationBuilder.DropTable(
                 name: "CustomerPayments");
 
             migrationBuilder.DropTable(
@@ -757,6 +879,9 @@ namespace DataAccessLayer.Migrations
                 name: "DemandFiles");
 
             migrationBuilder.DropTable(
+                name: "EmployeeCalendar");
+
+            migrationBuilder.DropTable(
                 name: "EmployeePerfonmanceScores");
 
             migrationBuilder.DropTable(
@@ -772,9 +897,6 @@ namespace DataAccessLayer.Migrations
                 name: "PaymentRoutineTypes");
 
             migrationBuilder.DropTable(
-                name: "CustomerProducts");
-
-            migrationBuilder.DropTable(
                 name: "CustomerServicesPlannings");
 
             migrationBuilder.DropTable(
@@ -784,13 +906,16 @@ namespace DataAccessLayer.Migrations
                 name: "Packages");
 
             migrationBuilder.DropTable(
+                name: "CustomerProducts");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "CustomerProductsTypes");
 
             migrationBuilder.DropTable(
                 name: "Services");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
         }
     }
 }

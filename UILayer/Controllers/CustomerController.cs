@@ -46,6 +46,12 @@ namespace Project.Controllers
         DemandFilesManager _demandFileManager = new DemandFilesManager(new EfDemandFilesRepository());
         private DemandAnswerManager _demandAnswerManager = new DemandAnswerManager(new EfDemandAnswersRepository());
 
+        private CustomerEmployeeManager _customerEmployeeManager =
+            new CustomerEmployeeManager(new EfCustomerEmployeeRepository());
+
+        private CustomerPaymentsManager _customerPaymentsManager =
+            new CustomerPaymentsManager(new EfCustomerPaymentsRepository());
+
         public CustomerController(INotyfService notyf, Context context, IMapper mapper,
             UserManager<ApplicationUser> userManager)
         {
@@ -349,6 +355,7 @@ namespace Project.Controllers
                     }
                     else
                     {
+                        newProduct.ReportPath = "CustomerProductsFile/" + selectedProductFile.FilePath;
                         newProduct.ReportName = newProduct.ProductTitle + "-Rapor.v1";
                         reportList.Add(newProduct);
 
@@ -396,6 +403,55 @@ namespace Project.Controllers
         
     
             model.ReportList = reportList;
+            return View(model);
+        }
+
+        public async Task<IActionResult> AccountExtract()
+        {
+            AccountExtractDTO model = new AccountExtractDTO();
+            List<CustomerCardServiceListClassForCustomer> serviceListForCustomer =
+                new List<CustomerCardServiceListClassForCustomer>();
+            List<CustomerEmployeeListClassForCustomer> customerEmployeeList =
+                new List<CustomerEmployeeListClassForCustomer>();
+            List<PaymentHistoryClassForCustomer> paymentHistoryList = new List<PaymentHistoryClassForCustomer>();
+            double PaymentPriceSum = 0;
+            var currentUser = _userManager.GetUserAsync(User).Result;
+            var selectedCustomerDefinedServiceList = _customerServiceManager.GetCustomerServiceByCustomerID(currentUser.Id);
+            foreach (var service in selectedCustomerDefinedServiceList)
+            {
+                var selectedService = _serviceManager.GetById(service.ServiceID);
+                serviceListForCustomer.Add(new CustomerCardServiceListClassForCustomer
+                {
+                    ServiceId = service.ID, ServiceStartDate = service.StartDate, ServiceEndDate = service.EndDate,
+                    ServiceName = selectedService.Name, ServiceDescription = selectedService.Description
+                });
+            }
+
+            var selectedCustomerEmployee = _customerEmployeeManager.GetEmployeeListByCustomerID(currentUser.Id);
+            foreach (var oneCustomerEmployee in selectedCustomerEmployee)
+            {
+                var selectedEmployee = await _userManager.FindByIdAsync(oneCustomerEmployee.EmployeeID);
+                var selectedEmployeeRole = await _userManager.GetRolesAsync(selectedEmployee);
+                customerEmployeeList.Add(new CustomerEmployeeListClassForCustomer
+                {
+                    EmployeeID = oneCustomerEmployee.EmployeeID, EmployeeName = selectedEmployee.NameSurname, EmployeeRole = selectedEmployeeRole[0].ToUpper(),
+                    CustomerEmployeeID = oneCustomerEmployee.ID,
+                });
+            }
+            var selectedCustomerPaymentHistory = _customerPaymentsManager.GetPaymentListByCustomerID(currentUser.Id);
+            foreach (var payment in selectedCustomerPaymentHistory)
+            {
+                PaymentPriceSum += payment.PaymentPrice;
+                paymentHistoryList.Add(new PaymentHistoryClassForCustomer
+                {
+                    PaymentDate = payment.PaymentDate,
+                    PaymentPrice = payment.PaymentPrice,
+                });
+            }
+            model.CustomerEmployeeList = customerEmployeeList;
+            model.CustomerServiceList = serviceListForCustomer;
+            model.CustomerPaymentHistory = paymentHistoryList;
+            model.PaymentPriceSum = PaymentPriceSum;
             return View(model);
         }
     }

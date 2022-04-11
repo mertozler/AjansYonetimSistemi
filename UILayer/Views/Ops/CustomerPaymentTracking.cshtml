@@ -1,0 +1,240 @@
+﻿@model EntityLayer.DTOs.CustomerPaymentTrackingDTO
+
+@{
+    ViewBag.Title = @Model.CustomerName.ToUpper() + " Adlı Müşterinin Ödeme Takibi";
+    Layout = "_Layout";
+}
+
+@section Styles{
+    <link href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+}
+@section Scripts{
+    <script src="//cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#employeeListDataTable').DataTable();
+        }); 
+        $(document).ready(function () {
+            $('#employeePaymentList').DataTable();
+        }); 
+      
+    </script>
+    <script>
+     $(function () {
+         var PlaceHolderElement = $('#PlaceHolderHere');
+         $('button[data-toggle="ajax-modal"]').click(function (event)
+         {
+            var url = $(this).data('url');
+            $.get(url).done(function (data) {
+               PlaceHolderElement.html(data);
+               PlaceHolderElement.find('.modal').modal('show');
+                }
+                )
+                
+         })
+         PlaceHolderElement.on('click', '[data-save="modal"]', function (event) {
+             var form = $(this).parents('.modal').find('form');
+             var actionUrl = form.attr('action');
+             var sendData = form.serialize();
+             $.post(actionUrl,sendData).done(function(data){
+             PlaceHolderElement.find('.modal').modal('hide');    
+             })
+         })
+     })
+    </script>
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Müşteri Tanımla</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Admin/">Admin</a></li>
+                    <li class="breadcrumb-item active">CreateCustomer</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                    Müşteri Bilgileri
+                </a>
+            </div>
+            <div id="collapseCompanyList" class="collapse show">
+                <div class="card-body">
+                    <div class="row table-responsive-sm">
+                        <div class="col-md-12 ">
+                            <table id="employeeListDataTable" class="display" style="width:100%">
+                                <thead>
+                                <tr>
+                                    <th>Müşteri ID</th>
+                                    <th>Müşteri Adı</th>
+                                    <th>Müşteri Maili</th>
+                                    <th>Müşteri Hizmetleri</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                       
+                                <tr>
+                                    <td>@Model.CustomerID</td>
+                                    <td>@Model.CustomerName</td>
+                                    <td>@Model.CustomerMail</td>
+                                    <td>@Model.CustomerServices</td>
+                                    
+                                
+                                </tr>
+                       
+                                </tbody>
+                            </table>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div id="accordion" style="margin: 20px;">
+        <div class="card shadow mt-5">
+            <div class="card-header bg-dark">
+                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+                    Müşteri Ödeme Geçmişi
+                </a>
+            </div>
+            <div id="collapseCompanyList" class="collapse show">
+                <div class="card-body">
+                    <div class="row table-responsive-sm">
+                        <div class="col-md-12 ">
+                            <table id="employeePaymentList" class="display" style="width:100%">
+                                <thead>
+                                <tr>
+                                    <th>Ödeme Tarihi</th>
+                                    <th>Ödeme Tutarı</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                       @foreach (var item in Model.PaymentHistoryList)
+                                                           {
+                                <tr>
+                                        <td>@item.PaymentDate</td>
+                                        <td>@item.PaymentPrice ₺</td>
+                                </tr>
+                                                               
+                                                           }
+                       
+                                </tbody>
+                            </table>
+                            <label>Toplam Ödeme Tutarı: @Model.PaymentPriceSum ₺</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (Model.serviceList != null)
+{
+    <section>
+        <div id="accordion" style="margin: 20px;">
+            <div class="card shadow mt-5">
+                <div class="card-header bg-dark">
+                    <a href="#collapseCompanyCreate" class="card-link p-1">
+                        Ödeme Takip Kaydı
+                    </a>
+                </div>
+                <div id="collapseCompanyCreate">
+                    <form asp-controller="Ops" asp-action="CustomerPaymentTracking" method="post">
+                        <div class="card-body shadow">
+                    
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div asp-validation-summary="All" class="text-danger"></div>
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="form-group row">
+                                <label asp-for="SelectedServiceID" class="col-sm-1 col-form-label">Hizmet Seçin:</label>
+                                <div class="col-sm-4">
+                                    <select name="SelectedServiceID" id="SelectedServiceID" class="custom-select">
+                                        <option value="" disabled selected hidden>Hizmet Seçin</option>
+                                        @foreach (var item in Model.serviceList)
+                                        {
+                                            <option value="@item.ID" id="SelectedServiceID">@item.Name</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="SelectedServiceID" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                                <label asp-for="SelectedDate" class="col-sm-1 col-form-label">Ödeme Tarihi Giriniz:</label>
+                                <div class="col-sm-4">
+                                    <input class="form-control" asp-for="SelectedDate" required/>
+                                    <span asp-validation-for="SelectedDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                                                        <label asp-for="PaymentPrice" class="col-sm-1 col-form-label">Ödeme Tutarını Giriniz:</label>
+                                                        <div class="col-sm-4">
+                                                            <input class="form-control" type="number" step="0.01"  asp-for="PaymentPrice" required/>
+                                                            <span asp-validation-for="PaymentPrice" class="text-danger"></span>
+                                                        </div>
+                                                    </div>
+                            
+                            
+                            <input type="hidden" asp-for="@Model.CustomerID" />
+                    
+    
+                            <div class="form-group row">
+                                <div class="col-sm-10 offset-sm-2">
+                                    <button type="submit" class="btn btn-success">Ödeme Kaydı Yap</button>
+                                </div>
+                            </div>
+                    
+    
+                        </div>
+                    </form>
+                </div>
+            </div>
+          
+        </div>
+    </section>
+}
+else
+{
+    <div id="accordion" style="margin: 20px;">
+    <div class="card shadow mt-5">
+    <div class="card-header bg-dark">
+        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            Ödeme Takip Kaydı
+        </a>
+    </div>
+    <div id="collapseCompanyList" class="collapse show">
+    <div class="card-body">
+    <div class="row table-responsive-sm">
+    <div class="col-md-12 ">
+    <div>Müşterinin bir servisi yoktur.</div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+}
+
+
