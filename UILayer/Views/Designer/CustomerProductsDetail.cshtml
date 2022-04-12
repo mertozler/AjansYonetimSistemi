@@ -69,15 +69,14 @@
                                       </button>
 	                                    <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
 		                                    <a href="@Url.Action("CloseDemand", "Designer", new {ProductID = Model.ProductID})" class="dropdown-item">Talebi Kapat</a>
-											 <button type="button" class="dropdown-item" data-toggle="ajax-modal" data-target="#reportEmployee" data-url="@Url.Action("ReportEmployee", "Designer", new {employeeID = "7082199a-5c6f-4c09-b4cc-7a2948c3d4a2"})">Personele Bildir</button> 
-                                                                                          </div>
+											                                              </div>
                                     </div>
                                     </div>
 						</div>
 					</div>
 
 					<div class="position-relative">
-						<div class="chat-messages p-4">
+						<div class="chat-messages p-4" style="height: 600px; overflow-y: scroll; padding: 15px;">
 							@foreach (var item in Model.CustomerProductsList)
 							{
 								<div class="chat-message-right pb-4">

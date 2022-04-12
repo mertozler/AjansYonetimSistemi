@@ -1,7 +1,17 @@
-﻿
+﻿@using Microsoft.AspNetCore.Identity
+@using EntityLayer.Concrete
+@inject UserManager<ApplicationUser> UserManager
+
+@inject SignInManager<ApplicationUser> SignInManager
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+  var girisYapanKullanici = await UserManager.GetUserAsync(User);
+  IList<string> kullaniciRolleri = null;
+  if(girisYapanKullanici!=null)
+  {
+    kullaniciRolleri = await UserManager.GetRolesAsync(girisYapanKullanici);
+  }
 }
 
 <section class="content-header">
@@ -12,7 +22,26 @@
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+          @if (kullaniciRolleri[0] == "admin")
+          {
+            <li class="breadcrumb-item"><a href="/Admin">Admin</a></li>
+          }else if (kullaniciRolleri[0] == "designer")
+          {
+            <li class="breadcrumb-item"><a href="/Designer">Designer</a></li>
+          }
+          else if (kullaniciRolleri[0] == "ops")
+                    {
+                      <li class="breadcrumb-item"><a href="/Ops">Ops</a></li>
+                    }
+          else if (kullaniciRolleri[0] == "marketing")
+                    {
+                      <li class="breadcrumb-item"><a href="/Marketing">Marketing</a></li>
+                    }
+                    else if (kullaniciRolleri[0] == "customer")
+                              {
+                                <li class="breadcrumb-item"><a href="/Customer">Customer</a></li>
+                              }
+          
           <li class="breadcrumb-item active">404 Error Page</li>
         </ol>
       </div>

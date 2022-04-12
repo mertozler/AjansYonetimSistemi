@@ -121,5 +121,6 @@ namespace DataAccessLayer.Concrete
         public DbSet<Package> Packages { get; set; }
         public DbSet<EmployeeCalendar> EmployeeCalendar { get; set; }
         public DbSet<CustomerEmployee> CustomerEmployees { get; set; }
+        public DbSet<MailSettings> MailSettings { get; set; }
     }
 }

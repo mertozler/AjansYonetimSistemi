@@ -1,0 +1,103 @@
+﻿@model EntityLayer.DTOs.MailSettingsDTO
+
+@{
+    ViewBag.Title = "Ayarlar";
+    Layout = "_Layout";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Ayarlar</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/Admin/">Admin</a></li>
+                    <li class="breadcrumb-item active">Settings</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section>
+<div id="accordion" style="margin: 20px;">
+    <div class="card shadow mt-5">
+        <div class="card-header bg-dark">
+            <a href="#collapseCompanyCreate" class="card-link p-1">
+                Ayarlar
+            </a>
+        </div>
+        <div id="collapseCompanyCreate">
+            <div class="card-body shadow">
+                <div class="row">
+                <div class="col-5 col-sm-3">
+                <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="vert-tabs-home-tab" data-toggle="pill" href="#vert-tabs-home" role="tab" aria-controls="vert-tabs-home" aria-selected="true">Mail Ayarları</a>
+                <a class="nav-link" id="vert-tabs-profile-tab" data-toggle="pill" href="#vert-tabs-profile" role="tab" aria-controls="vert-tabs-profile" aria-selected="false">SMS Ayarları</a>
+               </div>
+                </div>
+                <div class="col-7 col-sm-9">
+                <div class="tab-content" id="vert-tabs-tabContent">
+                <div class="tab-pane text-left fade active show" id="vert-tabs-home" role="tabpanel" aria-labelledby="vert-tabs-home-tab">
+                       <form asp-controller="Admin" asp-action="MailSettings" method="post">
+                                        <div class="card-body shadow">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div asp-validation-summary="All" class="text-danger"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label asp-for="Mail" class="col-sm-1 col-form-label">Mail:</label>
+                                                <div class="col-sm-4">
+                                                    <input class="form-control" asp-for="Mail" />
+                                                    <span asp-validation-for="Mail" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                             <div class="form-group row">
+                                                                                            <label asp-for="Password" class="col-sm-1 col-form-label">Şifre Giriniz:</label>
+                                                                                            <div class="col-sm-4">
+                                                                                                <input class="form-control" asp-for="Password" />
+                                                                                                <span asp-validation-for="Password" class="text-danger"></span>
+                                                                                            </div>
+                                                                                        </div>
+                                           <div class="form-group row">
+                                                                                           <label asp-for="SmtpServer" class="col-sm-1 col-form-label">Smtp Server:</label>
+                                                                                           <div class="col-sm-4">
+                                                                                               <input class="form-control" asp-for="SmtpServer" />
+                                                                                               <span asp-validation-for="SmtpServer" class="text-danger"></span>
+                                                                                           </div>
+                                                                                       </div>
+                                            <div class="form-group row">
+                                                <label asp-for="Port" class="col-sm-1 col-form-label">Port:</label>
+                                                <div class="col-sm-4">
+                                                    <input class="form-control" asp-for="Port" />
+                                                    <span asp-validation-for="Port" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" asp-for="ID" />
+                    
+                                            <div class="form-group row">
+                                                <div class="col-sm-10 offset-sm-2">
+                                                    <button type="submit" class="btn btn-success">Mail Ayarını Kaydet</button>
+                                                </div>
+                                            </div>
+                                    
+                    
+                                        </div>
+                                    </form>           
+                
+                    </div>
+                    <div class="tab-pane fade" id="vert-tabs-profile" role="tabpanel" aria-labelledby="vert-tabs-profile-tab">
+                        SMS AYARLARI
+                    </div>
+                
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>

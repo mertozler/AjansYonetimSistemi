@@ -20,19 +20,12 @@
     </div><!-- /.container-fluid -->
 </section>
 <section>
-
-
 	<div class="card" style="margin:20px;">
-				
-				
 		<div class="py-2 px-4 border-bottom d-none d-lg-block">
 			<div class="d-flex align-items-center py-1">
 				<div class="flex-grow-1 pl-3">
-								
 					<strong>@Model.ProductTitle</strong>
-					<div class="text-muted small"><em>@Model.EmployeeName</em></div>
-								
-								
+					<div class="text-muted small"><em>@Model.EmployeeName</em></div>		
 				</div>
 				<div>
 					<button class="btn btn-light border btn-lg px-3">
@@ -41,10 +34,8 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="position-relative">
 			<div class="chat-messages p-4" style="height: 600px; overflow-y: scroll; padding: 15px;">
-							
 				<div class="chat-message-left pb-4">
 					<div>
 						<img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
@@ -52,7 +43,6 @@
 					</div>
 					<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3" style="max-width:600px;">
 						<div class="font-weight-bold mb-1">@Model.EmployeeName</div>
-						
 						@{
                         								FileInfo fi = new FileInfo(@Model.ProductFilePath);
                         								string fileExtension = fi.Extension;
@@ -73,9 +63,7 @@
 								<p><small>@Model.ProductTitle-Revize-Raporu.v1</small></p>
 							}
 						}
-						
-						<div class="font-weight-normal mb-1">@Model.ProductContent</div>
-	                                                            
+						<div class="font-weight-normal mb-1">@Model.ProductContent</div>                                   
 					</div>
 				</div>
 				@if (Model.RevisedRequest != null)
@@ -91,8 +79,7 @@
 
 						</div>
 					</div>
-				}
-							
+				}		
 				@foreach (var item in Model.DemandAnswerList)
 				{
 					if (item.AnswerType == 0)
@@ -104,8 +91,6 @@
 							</div>
 							<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3" style="max-width:600px;">
 								<div class="font-weight-bold mb-1">@item.ReceiverName</div>
-								
-								
 								@if (item.FilePath != null)
                                  {
 	                                 FileInfo file = new FileInfo(@item.FilePath);
@@ -143,28 +128,20 @@
 							</div>
 						</div>
 					}
-				}
-							
-
-
-								                            
+				}					                            
 			</div>
 		</div>
 
 		<div class="flex-grow-0 py-3 px-4 border-top">
-			@if (Model.DemandStatus == true)
-			{
-				<form asp-controller="Customer" asp-action="CustomerProductDetails" method="post">
-					<div class="input-group">
-
-						<input type="text" class="form-control" name="CustomerRequestContent" asp-for="CustomerRequestContent" id="CustomerRequestContent" placeholder="Eğer revize talep ediyorsanız, açıklama yazınız...">
-						<button class="btn btn-primary">Revize Talep Et</button>
-
-					</div>
-					<input type="hidden" asp-for="CustomerProductsID" value="@Model.CustomerProductsID">
-				</form>
-			}
-			
+            					<form asp-controller="Customer" asp-action="CustomerProductDetails" method="post">
+            						<div class="input-group">
+            
+            							<input type="text" class="form-control" name="CustomerRequestContent" asp-for="CustomerRequestContent" id="CustomerRequestContent" placeholder="Eğer revize talep ediyorsanız, açıklama yazınız...">
+            							<button class="btn btn-primary">Revize Talep Et</button>
+            
+            						</div>
+            						<input type="hidden" asp-for="CustomerProductsID" value="@Model.CustomerProductsID">
+            					</form>
 		</div>
 
 	</div>

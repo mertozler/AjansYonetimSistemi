@@ -49,35 +49,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "534bff3d-6bf0-4dfb-9de9-549dae5c55af",
+                            ConcurrencyStamp = "d0ad1c8b-a807-4961-8640-8b9a55c837b7",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "0ee936e1-ae0d-44f9-bcd5-df4d405f0abf",
+                            ConcurrencyStamp = "98601b9d-ea46-4637-a01e-63a58c77612b",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "e14328e1-4a26-4b1f-bd09-01a386269d64",
+                            ConcurrencyStamp = "55c836d7-5be7-4a2f-95ce-9f4571e86bde",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "813a9d0a-4002-4f8e-a422-af5732406f72",
+                            ConcurrencyStamp = "1b664fab-e9bd-4b0a-9cfa-8203d7f6affa",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "173f93b3-5fd1-4aae-b5df-4ee152be122c",
+                            ConcurrencyStamp = "467b3856-ec67-4f1d-9f0a-54a0f619237e",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -579,6 +579,30 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("EmployeeID");
 
                     b.ToTable("EmployeePerfonmanceScores");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.MailSettings", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Mail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SMTPServer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("MailSettings");
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.Package", b =>

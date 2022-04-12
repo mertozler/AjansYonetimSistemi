@@ -56,6 +56,8 @@ namespace Project.Controllers
         private CustomerProductsFileManager _customerProductsFileManager =
             new CustomerProductsFileManager(new EfCustomerProductsFileRepository());
 
+        private MailSettingsManager _mailSettingsManager = new MailSettingsManager(new EfMailSettingsRepository());
+
         private DemandAnswerManager _demandAnswerManager = new DemandAnswerManager(new EfDemandAnswersRepository());
 
 
@@ -156,6 +158,10 @@ namespace Project.Controllers
                         }
                     }
                 }
+                else
+                {
+                    _notyf.Error("Şifreler eşleşmiyor, lütfen tekrar deneyiniz.");
+                }
             }
             else
             {
@@ -164,6 +170,18 @@ namespace Project.Controllers
 
             EmployeeDefineAndListDTO employeModel = new EmployeeDefineAndListDTO();
             EmployeeList employeeList = new EmployeeList(_context, _userManager);
+            List<RoleListClass> roleList = new List<RoleListClass>();
+            var roles = _context.Roles.Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops").ToList();
+            foreach (var item in roles)
+            {
+                roleList.Add(new RoleListClass
+                {
+                    
+                    RoleName = item.Name,
+                });
+            }
+
+            employeModel.RoleList = roleList;
             employeModel.EmployeeList = employeeList.GetAllEmployee().Result;
             return View(employeModel);
         }
@@ -505,13 +523,33 @@ namespace Project.Controllers
                         }
                     }
                 }
+                else
+                {
+                    _notyf.Error("Şifreler uyuşmuyor!");
+                }
             }
             else
             {
                 _notyf.Error("Beklenmeyen bir hata oluştu");
             }
+            CustomerCreateAndListDTO customerViewModel = new CustomerCreateAndListDTO();
+            List<CustomerListClass> customerList = new List<CustomerListClass>();
+            var allCustomers = await (from user in _context.Users
+                join userRole in _context.UserRoles
+                    on user.Id equals userRole.UserId
+                join role in _context.Roles
+                    on userRole.RoleId equals role.Id
+                where ((role.Name == "customer") && user.Status == true)
+                select user).ToListAsync();
+            foreach (var customer in allCustomers)
+            {
+                customerList.Add(new CustomerListClass
+                    {CustomerID = customer.Id, CustomerName = customer.NameSurname, CustomerMail = customer.Email});
+            }
 
-            return View();
+            customerViewModel.CustomerList = customerList;
+
+            return View(customerViewModel);
         }
 
         public async Task<IActionResult> DeleteCustomer(string CustomerID)
@@ -700,12 +738,16 @@ namespace Project.Controllers
 
         public async Task<IActionResult> CustomerCard(string CustomerID)
         {
+            CustomerCardDTO customerCardModel = new CustomerCardDTO();
+            List<ReportListClass> reportList = new List<ReportListClass>();
             List<CustomerCardServiceListClass> serviceListForCustomer = new List<CustomerCardServiceListClass>();
             List<CustomerEmployeeListClass> customerEmployeeList = new List<CustomerEmployeeListClass>();
             List<PaymentHistoryClassForAdmin> paymentHistoryList = new List<PaymentHistoryClassForAdmin>();
             double PaymentPriceSum = 0;
             var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
-            var customerCardModel = _mapper.Map<CustomerCardDTO>(selectedCustomer);
+            if (selectedCustomer != null)
+            { 
+                customerCardModel = _mapper.Map<CustomerCardDTO>(selectedCustomer);
             var selectedCustomerDefinedServiceList = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
             foreach (var service in selectedCustomerDefinedServiceList)
             {
@@ -739,7 +781,7 @@ namespace Project.Controllers
                 });
             }
             CustomerReportsDTO model = new CustomerReportsDTO();
-            List<ReportListClass> reportList = new List<ReportListClass>();
+            
             var customerProductList = _customerProductsManager.GetCustomerProductsListByCustomerID(selectedCustomer.Id);
             foreach (var product in customerProductList)
             {
@@ -836,6 +878,13 @@ namespace Project.Controllers
                     }
                 }
             }
+            }
+            else
+            {
+                _notyf.Error("Müşteri bilgileri getirilirken bir hata oluştu, lütfen müşteri seçtiğinizden emin olun");
+                return RedirectToAction("CreateCustomer", "Admin");
+            }
+           
         
         
     
@@ -862,27 +911,37 @@ namespace Project.Controllers
             var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
             DefineCustomerEmployeeDTO defineCustomerEmployeeDTO = new DefineCustomerEmployeeDTO();
             List<EmployeeListDefineEmployee> employeeListForSelectedItem = new List<EmployeeListDefineEmployee>();
-            defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
-            var employeeList = await (from user in _context.Users
-                join userRole in _context.UserRoles
-                    on user.Id equals userRole.UserId
-                join role in _context.Roles
-                    on userRole.RoleId equals role.Id
-                where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
-                select user).ToListAsync();
-            foreach (var oneEmployee in employeeList)
+            if (selectedCustomer != null)
             {
-                var selectedEmployeeRole = await _userManager.GetRolesAsync(oneEmployee);
-                StringBuilder employeeName = new StringBuilder();
-                employeeName.Append("["+ selectedEmployeeRole[0].ToUpper() + "]");
-                employeeName.Append(" " + oneEmployee.NameSurname);
-                employeeListForSelectedItem.Add(new EmployeeListDefineEmployee
+                defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
+                var employeeList = await (from user in _context.Users
+                    join userRole in _context.UserRoles
+                        on user.Id equals userRole.UserId
+                    join role in _context.Roles
+                        on userRole.RoleId equals role.Id
+                    where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
+                    select user).ToListAsync();
+                foreach (var oneEmployee in employeeList)
                 {
+                    var selectedEmployeeRole = await _userManager.GetRolesAsync(oneEmployee);
+                    StringBuilder employeeName = new StringBuilder();
+                    employeeName.Append("["+ selectedEmployeeRole[0].ToUpper() + "]");
+                    employeeName.Append(" " + oneEmployee.NameSurname);
+                    employeeListForSelectedItem.Add(new EmployeeListDefineEmployee
+                    {
                         EmployeeID   = oneEmployee.Id,
-                      EmployeeName  = employeeName.ToString(),
-                });
+                        EmployeeName  = employeeName.ToString(),
+                    });
 
+                }
             }
+            else
+            {
+                _notyf.Error("Müşteri bilgileri getirilirken bir hata oluştu, lütfen müşteri seçtiğinizden emin olun");
+                return RedirectToAction("CreateCustomer", "Admin");
+            }
+            
+           
 
             defineCustomerEmployeeDTO.SelectedCustomerID = CustomerID;
             defineCustomerEmployeeDTO.EmployeeList = employeeListForSelectedItem;
@@ -934,6 +993,36 @@ namespace Project.Controllers
 
         }
         
+        public IActionResult Settings()
+        {
+            MailSettingsDTO model = new MailSettingsDTO();
+            var defaultSettings = _mailSettingsManager.GetList().FirstOrDefault();
+            model.Mail = defaultSettings.Mail;
+            model.Password = defaultSettings.Password;
+            model.Port = defaultSettings.Port;
+            model.SmtpServer = defaultSettings.SMTPServer;
+            model.ID = defaultSettings.ID;
+            return View(model);
+        }
+
+        public IActionResult MailSettings(MailSettingsDTO data)
+        {
+            if (ModelState.IsValid)
+            {
+                var getSelectedData = _mailSettingsManager.GetById(data.ID);
+                getSelectedData.SMTPServer = data.SmtpServer;
+                getSelectedData.Mail = data.Mail;
+                getSelectedData.Password = data.Password;
+                getSelectedData.Port = data.Port;
+                _mailSettingsManager.Update(getSelectedData);
+                _notyf.Success("Mail ayarlarınız başarıyla değiştirilmiştir.");
+            }
+            else
+            {
+                _notyf.Error("Mail ayarlarınız değiştirilirken hata oluştu. Lütfen kontrol edip tekrar deneyiniz.");
+            }
+            return RedirectToAction("Settings");
+        }
 
 
 
