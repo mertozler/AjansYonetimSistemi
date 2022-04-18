@@ -40,7 +40,12 @@ namespace BusinessLayer.Concrete
         }
         public CustomerProductsFile GetByProductId(int productId)
         {
-            return _customerProductsFileDal.GetListAll(x => x.CustomerProductsID == productId)[0];
+            var product = _customerProductsFileDal.GetListAll(x => x.CustomerProductsID == productId);
+            if (product.Count != 0)
+            {
+                return product[0];
+            }
+            return null;
         }
     }
 }

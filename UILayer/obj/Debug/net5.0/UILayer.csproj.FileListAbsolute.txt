@@ -562,3 +562,5 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\View
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Ops\CustomerPaymentTracking.cshtml.g.cs
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Customer\AccountExtract.cshtml.g.cs
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Admin\Settings.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\BackgroundJobs.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\BackgroundJobs.pdb

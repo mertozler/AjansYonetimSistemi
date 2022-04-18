@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
+using BackgroundJobs.Schedules;
 using BusinessLayer.Concrete;
 using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
@@ -132,31 +133,47 @@ namespace Project.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public IActionResult CustomerPlanningServiceForADay(CustomerPlanningServiceForADayDTO data)
         {
-            if (data.CustomerProductFiles != null)
+           if (ModelState.IsValid)
             {
-                foreach (var file in data.CustomerProductFiles)
+                if (data.CustomerProductFiles != null)
                 {
-                    CustomerProductsFile newFile = new CustomerProductsFile();
-                    var extension = Path.GetExtension(file.FileName);
-                    var newFileName = Guid.NewGuid() + extension;
-                    var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/CustomerProductsFile/", newFileName);
-                    var stream = new FileStream(location, FileMode.Create);
-                    file.CopyTo(stream);
-                    newFile.Status = true;
-                    newFile.CreateDate = DateTime.Now;
-                    newFile.FilePath = newFileName;
-                    newFile.CustomerProductsID = data.CustomerProductsID;
-                    _customerProductsFileManager.Add(newFile);
-                    var selectedCustomerProduct = _customerProductsManager.GetById(data.CustomerProductsID);
-                    selectedCustomerProduct.color = "#7ecc52";
-                    selectedCustomerProduct.Status = false;
-                    _customerProductsManager.Update(selectedCustomerProduct);
-                    _notyf.Success("Ürün müşteriye başarıyla gönderilmiştir.");
+                    foreach (var file in data.CustomerProductFiles)
+                    {
+                        CustomerProductsFile newFile = new CustomerProductsFile();
+                        var extension = Path.GetExtension(file.FileName);
+                        var newFileName = Guid.NewGuid() + extension;
+                        var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/CustomerProductsFile/", newFileName);
+                        var stream = new FileStream(location, FileMode.Create);
+                        file.CopyTo(stream);
+                        newFile.Status = true;
+                        newFile.CreateDate = DateTime.Now;
+                        newFile.FilePath = newFileName;
+                        newFile.CustomerProductsID = data.CustomerProductsID;
+                        _customerProductsFileManager.Add(newFile);
+                        var selectedCustomerProduct = _customerProductsManager.GetById(data.CustomerProductsID);
+                        selectedCustomerProduct.color = "#7ecc52";
+                        selectedCustomerProduct.Status = false;
+                        selectedCustomerProduct.Content = data.Content;
+                        _customerProductsManager.Update(selectedCustomerProduct);
+                        _notyf.Success("Ürün müşteriye başarıyla gönderilmiştir.");
+                    }
+                    return RedirectToAction("CustomerProductsDetail", "Designer", new {CustomerProductsID = data.CustomerProductsID});
                 }
-                return RedirectToAction("CustomerProductsDetail", "Designer", new {CustomerProductsID = data.CustomerProductsID});
-            }
-            _notyf.Error("Herhangi bir ürün eklemediniz.");
+                _notyf.Error("Herhangi bir ürün eklemediniz.");
                 return RedirectToAction("CustomerPlanningServiceForADay", "Designer",new {EventID = data.CustomerProductsID});
+            }
+            var productsPlan = _customerProductsManager.GetById(data.CustomerProductsID);
+            if (productsPlan == null)
+            {
+                return RedirectToAction("CustomerServicePlanning", "Designer");
+            }
+            if (productsPlan.Status == false)
+            {
+                return RedirectToAction("CustomerProductsDetail", "Designer",new {CustomerProductsID = data.CustomerProductsID});
+            }
+            var product = _mapper.Map<CustomerPlanningServiceForADayDTO>(productsPlan);
+            product.CustomerProductsID = data.CustomerProductsID;
+            return View(data);
         }
 
         public IActionResult GetAllEvents(string CustomerID)
@@ -178,8 +195,9 @@ namespace Project.Controllers
             return new JsonResult(eventList);
         }
 
+       
         [Microsoft.AspNetCore.Mvc.HttpGet]
-        public IActionResult CustomerServicePlanCreate(string CustomerID, string StartDate)
+        public async Task<IActionResult> CustomerServicePlanCreate(string CustomerID, string StartDate)
         {
             CustomerServicePlanCreateDTO newModel = new CustomerServicePlanCreateDTO();
             List<ServiceList> ServiceListForCustomer = new List<ServiceList>();
@@ -190,6 +208,7 @@ namespace Project.Controllers
                 newModel.CustomerID = CustomerID;
                 var endTime = formattingDateTime.AddDays(2);
                 newModel.start = formattingDateTime;
+                newModel.end = DateTime.Now.AddDays(3);
             }
             else
             {
@@ -209,11 +228,14 @@ namespace Project.Controllers
                 });
             }
 
+          
             newModel.ServiceList = ServiceListForCustomer;
+            
             
             return View(newModel);;
         }
 
+        [Obsolete]
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<IActionResult> CustomerServicePlanCreate(CustomerServicePlanCreateDTO data)
         {
@@ -244,6 +266,22 @@ namespace Project.Controllers
                 newEmployeeCalendarPlan.EmployeeID = currentUser.Id;
                 _employeeCalendarManager.Add(newEmployeeCalendarPlan);
                 _customerProductsManager.Add(newCustomerProducts);
+                string userMail = "";
+                var selectedCustomerEmployeeList = _customerEmployeeManager.GetEmployeeListByCustomerID(data.CustomerID);
+                foreach (var users in selectedCustomerEmployeeList)
+                {
+                    var selectedEmployeeForMail = await _userManager.FindByIdAsync(users.EmployeeID);
+                    var kullaniciRolleri = await _userManager.GetRolesAsync(selectedEmployeeForMail);
+                    if (kullaniciRolleri[0] == "ops")
+                    {
+                        userMail = selectedEmployee.Email;
+                        break;
+                    }
+                
+                }
+                var dateTime = data.end;
+                dateTime = dateTime.Add(new TimeSpan(-3, 0, 0));
+                DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime);
                 _notyf.Success("Başarıyla ürün planı oluşturuldu");
                 return RedirectToAction("CustomerServicePlanningDates", "Designer",new {CustomerID = data.CustomerID});
             }
@@ -261,6 +299,7 @@ namespace Project.Controllers
                     ServiceName = selectedService.Name,
                 });
             }
+            
 
             model.ServiceList = ServiceListForCustomer;
             return View(model);
@@ -823,6 +862,18 @@ namespace Project.Controllers
             return View(model);
         }
 
+        public IActionResult CloseDemandForEmployee(int DemandID)
+        {
+            var selectedDemand = _demandManager.GetById(DemandID);
+            selectedDemand.Status = false;
+            _demandManager.Update(selectedDemand);
+            _notyf.Success("Başarıyla talebiniz kapatıldı");
+            return RedirectToAction("DemandToEmployee", "Designer");
+           
+        }
+
 
     }
+    
+    
 }

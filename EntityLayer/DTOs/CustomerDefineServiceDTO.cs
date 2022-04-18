@@ -7,6 +7,7 @@ namespace EntityLayer.DTOs
     public class CustomerDefineServiceDTO
     {
         public string selectedCustomerID { get; set; }
+        public string isCustomerIDComingfromCustomerCard { get; set; }
         public DateTime DateRange {get; set; }
         public List<CustomerListClassForDefineService> CustomerList { get; set; }
         public List<CustomerDefinedServiceListClass> CustomerDefinedServiceList { get; set; }

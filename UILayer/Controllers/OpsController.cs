@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
+using BackgroundJobs.Schedules;
 using BusinessLayer.Concrete;
 using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
@@ -28,27 +29,20 @@ namespace Project.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ServiceManager _serviceManager = new ServiceManager(new EfServicesRepository());
         private readonly PackageManager _packageManager = new PackageManager(new EfPackageRepository());
-
         private readonly ServicePackageManager _servicePackageManager =
             new ServicePackageManager(new EfServicePackageRepository());
-
         private readonly CustomerServiceManager _customerServiceManager =
             new CustomerServiceManager(new EfCustomerServiceRepository());
-        
         CustomerProdutcsManager _customerProductsManager = new CustomerProdutcsManager(new EfCustomerProductsRepository());
         CustomerProductsFileManager _customerProductsFileManager = new CustomerProductsFileManager(new EfCustomerProductsFileRepository());
         DemandManager _demandManager = new DemandManager(new EfDemandRepository());
         DemandFilesManager _demandFileManager = new DemandFilesManager(new EfDemandFilesRepository());
         PaymentRoutineTypesManager _paymentRoutineTypeManager = new PaymentRoutineTypesManager(new EfPaymentRouteTypesRepository());
-
         private CustomerPaymentsManager _customerPaymentsManager =
             new CustomerPaymentsManager(new EfCustomerPaymentsRepository());
-
         private EmployeeCalendarManager _employeeCalendarManager =
             new EmployeeCalendarManager(new EfEmployeeCalendarRepository());
-
         private DemandAnswerManager _demandAnswerManager = new DemandAnswerManager(new EfDemandAnswersRepository());
-
         private CustomerEmployeeManager _customerEmployeeManager =
             new CustomerEmployeeManager(new EfCustomerEmployeeRepository());
         public OpsController(INotyfService notyf,Context context,IMapper mapper, UserManager<ApplicationUser> userManager)
@@ -58,12 +52,10 @@ namespace Project.Controllers
             _notyf = notyf;
             _context = context;
         }
-        // GET
         public IActionResult Index()
         {
             return View();
         }
-        
          public async Task<IActionResult> CustomerServicePlanning()
         {
             List<CustomerListWithServiceName> customerServiceList = new List<CustomerListWithServiceName>();
@@ -91,26 +83,23 @@ namespace Project.Controllers
 
             return View(customerServiceList);
         }
-        
         public IActionResult CustomerServicePlanningDates(string CustomerID)
         {
             var selectedCustomerServiceCheck = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
             if (selectedCustomerServiceCheck.Count == 0)
             {
                 _notyf.Error("Müşteriye henüz bir hizmet tanımlaması olmadığından hizmet planlaması yapılamamaktadır.");
-                return RedirectToAction("CustomerServicePlanning", "Marketing");
+                return RedirectToAction("CustomerServicePlanning", "Ops");
             }
             ViewBag.CustomerID = CustomerID;
             return View();
         }
-        
         public IActionResult GetAllEvents(string CustomerID)
         {
             List<Event> eventList = new List<Event>();
             var events = _customerProductsManager.GetCustomerProductsListByCustomerID(CustomerID);
             foreach (var item in events)
             {
-                
                     Event newEvent = new Event();
                     newEvent.id = item.id;
                     newEvent.start = item.start;
@@ -120,13 +109,9 @@ namespace Project.Controllers
                     newEvent.description = item.description;
                     newEvent.end = item.end;
                     eventList.Add(newEvent);
-                
             }
             return new JsonResult(eventList);
         }
-        
-        
-        
         public IActionResult GetAllEventsForEmployee(string EmployeeID)
         {
             List<EmployeeEvent> eventList = new List<EmployeeEvent>();
@@ -148,7 +133,6 @@ namespace Project.Controllers
             }
             return new JsonResult(eventList);
         }
-        
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public IActionResult CustomerServicePlanCreate(string CustomerID, string StartDate)
         {
@@ -161,13 +145,14 @@ namespace Project.Controllers
                 newModel.CustomerID = CustomerID;
                 var endTime = formattingDateTime.AddDays(2);
                 newModel.start = formattingDateTime;
+                newModel.end = DateTime.Now.AddDays(3);
             }
             else
             {
                 newModel.CustomerID = CustomerID;
                 var endTime = DateTime.Now.AddDays(2);
                 newModel.start = DateTime.Now;
-                newModel.end = endTime;
+                newModel.end = DateTime.Now;
             }
             var serviceList = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
             foreach (var item in serviceList)
@@ -179,11 +164,10 @@ namespace Project.Controllers
                     ServiceName = selectedService.Name,
                 });
             }
-
             newModel.ServiceList = ServiceListForCustomer;
             return View(newModel);;
         }
-
+        [Obsolete]
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<IActionResult> CustomerServicePlanCreate(CustomerServicePlanCreateDTO data)
         {
@@ -214,6 +198,23 @@ namespace Project.Controllers
                 newEmployeeCalendarPlan.EmployeeID = currentUser.Id;
                 _employeeCalendarManager.Add(newEmployeeCalendarPlan);
                 _customerProductsManager.Add(newCustomerProducts);
+                string userMail = "";
+                var selectedCustomerEmployeeList = _customerEmployeeManager.GetEmployeeListByCustomerID(data.CustomerID);
+                foreach (var users in selectedCustomerEmployeeList)
+                {
+                    var selectedEmployeeForMail = await _userManager.FindByIdAsync(users.EmployeeID);
+                    var kullaniciRolleri = await _userManager.GetRolesAsync(selectedEmployeeForMail);
+                    if (kullaniciRolleri[0] == "ops")
+                    {
+                        userMail = selectedEmployeeForMail.Email;
+                        break;
+                    }
+                
+                }
+
+                var dateTime = data.end;
+                dateTime = dateTime.Add(new TimeSpan(-3, 0, 0));
+                DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime);
                 _notyf.Success("Başarıyla ürün planı oluşturuldu");
                 return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = data.CustomerID});
             }
@@ -230,25 +231,31 @@ namespace Project.Controllers
                     ServiceName = selectedService.Name,
                 });
             }
-
             model.ServiceList = ServiceListForCustomer;
             return View(model);
-
         }
-        
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public IActionResult CustomerPlanningServiceForADay(int EventID)
         { 
             var productsPlan = _customerProductsManager.GetById(EventID);
-            if (productsPlan.Status == false)
+            CustomerPlanningServiceForADayDTO product = new CustomerPlanningServiceForADayDTO();
+            if (productsPlan != null)
             {
-                return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
+                if (productsPlan.Status == false)
+                {
+                    return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
+                }
+                product = _mapper.Map<CustomerPlanningServiceForADayDTO>(productsPlan);
+                product.CustomerProductsID = EventID;
             }
-            var product = _mapper.Map<CustomerPlanningServiceForADayDTO>(productsPlan);
-            product.CustomerProductsID = EventID;
+            else
+            {
+                _notyf.Error("Lütfen doğru bir seçim yaptığınızdan emin olunuz");
+                return RedirectToAction("CustomerServicePlanning", "Ops");
+            }
+            
             return View(product);
         }
-
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public IActionResult CustomerPlanningServiceForADay(CustomerPlanningServiceForADayDTO data)
         {
@@ -282,6 +289,10 @@ namespace Project.Controllers
                 return RedirectToAction("CustomerPlanningServiceForADay", "Ops",new {EventID = data.CustomerProductsID});
             }
             var productsPlan = _customerProductsManager.GetById(data.CustomerProductsID);
+            if (productsPlan == null)
+            {
+                return RedirectToAction("CustomerServicePlanning", "Ops");
+            }
             if (productsPlan.Status == false)
             {
                 return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = data.CustomerProductsID});
@@ -289,9 +300,7 @@ namespace Project.Controllers
             var product = _mapper.Map<CustomerPlanningServiceForADayDTO>(productsPlan);
             product.CustomerProductsID = data.CustomerProductsID;
             return View(data);
-            
         }
-        
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public async Task<IActionResult> CustomerProductsDetail(int CustomerProductsID)
         {
@@ -301,7 +310,9 @@ namespace Project.Controllers
             List<DemandFileClass> demandFileList = new List<DemandFileClass>();
             List<CustomerProductsClass> dataList = new List<CustomerProductsClass>();
             var selectedCustomerProduct = _customerProductsManager.GetById(CustomerProductsID);
-            var customerUser = await _userManager.FindByIdAsync(selectedCustomerProduct.CustomerID);
+            if (selectedCustomerProduct != null)
+            {
+                var customerUser = await _userManager.FindByIdAsync(selectedCustomerProduct.CustomerID);
             var creatorUser = await _userManager.FindByIdAsync(selectedCustomerProduct.CreatorID);
             var productModel = _mapper.Map<CustomerProductsClass>(selectedCustomerProduct);
             productModel.ProductstReceiverCustomerName = customerUser.NameSurname;
@@ -318,7 +329,6 @@ namespace Project.Controllers
             var demand = _demandManager.GetByProductID(CustomerProductsID);
             if (demand != null)
             {
-                
                 productDemand.DemandTitle = demand.Title;
                 productDemand.DemandContent = demand.Content;
                 productDemand.DemandDate = demand.CreateDate;
@@ -328,7 +338,6 @@ namespace Project.Controllers
                 var selectedDemandAnswers = _demandAnswerManager.GetByDemandId(demand.ID);
                 foreach (var item in selectedDemandAnswers)
                 {
-                    
                     var receiverName = await _userManager.FindByIdAsync(item.ReceiverID);
                     var senderName = await _userManager.FindByIdAsync(item.SenderID);
                     if(item.AnswerFilePath != null && item.AnswerFilePath != null)
@@ -353,14 +362,14 @@ namespace Project.Controllers
                             SenderName = senderName.NameSurname,AnswerType = item.DemandAnswerType,
                         });
                     }
-                   
-                    
-                   
                 }
                 model.DemandAnswersList = demandAnswersList;
-
-                
-
+            }
+            }
+            else
+            {
+                _notyf.Error("Lütfen doğru bir seçim yaptığınızdan emin olun");
+                return RedirectToAction("CustomerServicePlanning", "Ops");   
             }
             model.DemandFileList = demandFileList;
             return View(model);
@@ -399,7 +408,6 @@ namespace Project.Controllers
             {
                 _demandAnswerManager.Add(newDemandAnswer);
             }
-            
             _notyf.Success("Yanıtınız başarıyla müşteriye gönderilmiştir.");
             return RedirectToAction("CustomerProductsDetail","Ops",new {CustomerProductsID = data.CustomerProductsList[0].ProductID});
         }
@@ -487,7 +495,6 @@ namespace Project.Controllers
             model.CreatorID = currentUser.Id;
             model.EmployeeList = employeeList;
             return View(model);
-
         }
         
         [Microsoft.AspNetCore.Mvc.HttpGet]
@@ -558,8 +565,6 @@ namespace Project.Controllers
             _notyf.Success("Yanıtınız başarıyla gönderildi");
             return RedirectToAction("DemandDetails", "Ops", new {id = selectedDemand.ID});
         }
-        
-        
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public async Task<IActionResult> DemandInbox(int id)
         {
@@ -621,7 +626,6 @@ namespace Project.Controllers
             newDemandAnswer.DemandAnswerType = 1;
             if (data.DemandFile != null)
             {
-                
                 var extension = Path.GetExtension(data.DemandFile.FileName);
                 var newFileName = Guid.NewGuid() + extension;
                 var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DemandFiles/", newFileName);
@@ -634,12 +638,10 @@ namespace Project.Controllers
             _notyf.Success("Yanıtınız başarıyla gönderildi");
             return RedirectToAction("DemandInbox", "Ops", new {id = selectedDemand.ID});
         }
-
         public IActionResult EmployeeCalendar(string EmployeeID)
         {
             return View();
         }
-        
         [HttpGet]
         public IActionResult EmployeeCalendarPlanCreate(string EmployeeID, string StartDate)
         {
@@ -659,7 +661,6 @@ namespace Project.Controllers
                 newModel.start = DateTime.Now;
                 newModel.end = endTime;
             }
-            
             return View(newModel);;
         }
         [HttpPost]
@@ -681,7 +682,6 @@ namespace Project.Controllers
             model.EmployeeID = data.EmployeeID;
             return View(model);
         }
-
         [HttpGet]
         public IActionResult EmployeeCalendarPlanEdit(int EventID)
         {
@@ -876,6 +876,26 @@ namespace Project.Controllers
             model.serviceList = serviceList;
             _notyf.Error("Müşteri ödeme kaydı yapılırken bir hata oluştu.");
             return View(model);
+        }
+        
+        [HttpGet]
+        public IActionResult CloseDemand(int CustomerProductsID)
+        {
+            var demand = _demandManager.GetByProductID(CustomerProductsID);
+            demand.Status = false;
+            _demandManager.Update(demand);
+            _notyf.Success("Müşteri talebi başarıyla kapatıldı");
+            return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = CustomerProductsID});
+        }
+        
+        [HttpGet]
+        public IActionResult CloseDemandForInbox(int DemandID)
+        {
+            var demand = _demandManager.GetById(DemandID);
+            demand.Status = false;
+            _demandManager.Update(demand);
+            _notyf.Success("Müşteri talebi başarıyla kapatıldı");
+            return RedirectToAction("DemandDetails", "Ops",new {id = DemandID});
         }
         
        

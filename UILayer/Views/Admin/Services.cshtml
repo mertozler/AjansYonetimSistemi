@@ -58,56 +58,49 @@
     </div><!-- /.container-fluid -->
 </section>
 <section>
-    <div id="accordion" style="margin: 20px;">
-        <div class="row">
-            <div class="col-md-6">
-                                           
-                <div class="card shadow mt-5">
-                    <div class="card-header bg-dark">
-                        <a href="#collapseCompanyCreate" class="card-link p-1">
-                            Hizmet Oluştur
-                        </a>
-                    </div>
-                    <div id="collapseCompanyCreate">
-                        <form asp-controller="Admin" asp-action="Services" method="post">
-                            <div class="card-body shadow">
-                                <div class="row">
-                                </div>
-                                <div class="form-group row">
-                                    <label asp-for="ServiceName" class="col-md-3 col-form-label">Hizmet Adı:</label>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" asp-for="ServiceName"/>
-                                        <span asp-validation-for="ServiceName" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label asp-for="ServiceDescription" class="col-md-3 col-form-label">Hizmet Açıklaması:</label>
-                                    <div class="col-sm-4">
-                                        <input class="form-control" asp-for="ServiceDescription"/>
-                                        <span asp-validation-for="ServiceDescription" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                                                        
-                                <input type="hidden" value="1" asp-for="selectedButtonId" />
-                                <div class="form-group row text-right">
-                                    <div class="col-sm-10 offset-sm-2 align-content-center">
-                                        <button type="submit" class="btn btn-success">Hizmet Oluştur</button>
-                                    </div>
-                                </div>
-                                            
-                                            
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                                                       
-                                                    
-
+    
+       
+    <div id="accordion" style="margin: 20px;">    
+        <div class="card shadow mt-5">
+            <div class="card-header bg-info">
+                <a href="#collapseCompanyCreate" class="card-link p-1">
+                    Hizmet Oluştur
+                </a>
             </div>
-            <div class="col-md-6">
-                                                                                  
+            <div id="collapseCompanyCreate">
+                <form asp-controller="Admin" asp-action="Services" method="post">
+                    <div class="card-body shadow">
+                        <div class="row">
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="ServiceName" class="col-md-3 col-form-label">Hizmet Adı:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="ServiceName"/>
+                                <span asp-validation-for="ServiceName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="ServiceDescription" class="col-md-3 col-form-label">Hizmet Açıklaması:</label>
+                            <div class="col-sm-4">
+                                <input class="form-control" asp-for="ServiceDescription"/>
+                                <span asp-validation-for="ServiceDescription" class="text-danger"></span>
+                            </div>
+                        </div>                                
+                        <input type="hidden" value="1" asp-for="selectedButtonId" />
+                        <div class="form-group row text-right">
+                            <div class="col-sm-10 offset-sm-2 align-content-center">
+                                <button type="submit" class="btn btn-success">Hizmet Oluştur</button>
+                            </div>
+                        </div>      
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+          
+                    <div id="accordion" style="margin: 20px;">                                                               
                 <div class="card shadow mt-5">
-                    <div class="card-header bg-dark">
+                    <div class="card-header bg-info">
                         <a href="#collapseCompanyCreate" class="card-link p-1">
                             Paket Oluştur
                         </a>
@@ -163,18 +156,18 @@
                                                                                               
                                                                                            
                                        
-            </div>
+          
         </div>
         
         
 
-    </div>
+    
 </section>
 
 <section>
 <div id="accordion" style="margin: 20px;">
 <div class="card shadow mt-5">
-    <div class="card-header bg-dark">
+    <div class="card-header bg-info">
         <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
             Hizmet Listesi
         </a>

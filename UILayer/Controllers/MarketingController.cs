@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
+using BackgroundJobs.Schedules;
 using BusinessLayer.Concrete;
 using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
@@ -129,6 +130,7 @@ namespace Project.Controllers
                 newModel.CustomerID = CustomerID;
                 var endTime = formattingDateTime.AddDays(2);
                 newModel.start = formattingDateTime;
+                newModel.end = DateTime.Now.AddDays(3);
             }
             else
             {
@@ -183,6 +185,23 @@ namespace Project.Controllers
                 newEmployeeCalendarPlan.EmployeeID = currentUser.Id;
                 _employeeCalendarManager.Add(newEmployeeCalendarPlan);
                 _customerProductsManager.Add(newCustomerProducts);
+                string userMail = "";
+                var selectedCustomerEmployeeList = _customerEmployeeManager.GetEmployeeListByCustomerID(data.CustomerID);
+                foreach (var users in selectedCustomerEmployeeList)
+                {
+                    var selectedEmployeeForMail = await _userManager.FindByIdAsync(users.EmployeeID);
+                    var kullaniciRolleri = await _userManager.GetRolesAsync(selectedEmployeeForMail);
+                    if (kullaniciRolleri[0] == "ops")
+                    {
+                        userMail = selectedEmployeeForMail.Email;
+                        break;
+                    }
+                
+                }
+
+                var dateTime = data.end;
+                dateTime = dateTime.Add(new TimeSpan(-3, 0, 0));
+                DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime);
                 _notyf.Success("Başarıyla ürün planı oluşturuldu");
                 return RedirectToAction("CustomerServicePlanningDates", "Marketing",new {CustomerID = data.CustomerID});
             }
@@ -251,6 +270,10 @@ namespace Project.Controllers
                 return RedirectToAction("CustomerPlanningServiceForADay", "Marketing",new {EventID = data.CustomerProductsID});
             }
             var productsPlan = _customerProductsManager.GetById(data.CustomerProductsID);
+            if (productsPlan == null)
+            {
+                return RedirectToAction("CustomerServicePlanning", "Marketing");
+            }
             if (productsPlan.Status == false)
             {
                 return RedirectToAction("CustomerProductsDetail", "Marketing",new {CustomerProductsID = data.CustomerProductsID});
@@ -270,7 +293,9 @@ namespace Project.Controllers
             List<DemandFileClass> demandFileList = new List<DemandFileClass>();
             List<CustomerProductsClass> dataList = new List<CustomerProductsClass>();
             var selectedCustomerProduct = _customerProductsManager.GetById(CustomerProductsID);
-            var customerUser = await _userManager.FindByIdAsync(selectedCustomerProduct.CustomerID);
+            if (selectedCustomerProduct != null)
+            {
+ var customerUser = await _userManager.FindByIdAsync(selectedCustomerProduct.CustomerID);
             var creatorUser = await _userManager.FindByIdAsync(selectedCustomerProduct.CreatorID);
             var productModel = _mapper.Map<CustomerProductsClass>(selectedCustomerProduct);
             productModel.ProductstReceiverCustomerName = customerUser.NameSurname;
@@ -331,6 +356,14 @@ namespace Project.Controllers
                 
 
             }
+            }
+            else
+            {
+                _notyf.Error("Lütfen bir ürün seçtiğinizden emin olunuz.");
+                return RedirectToAction("CustomerServicePlanning", "Marketing");
+            }
+
+           
             model.DemandFileList = demandFileList;
             return View(model);
         }
@@ -674,11 +707,21 @@ namespace Project.Controllers
         }
         
         [HttpGet]
-        public IActionResult EmployeeCalendarPlanEdit(int EventID)
+        public async Task<IActionResult> EmployeeCalendarPlanEdit(int EventID)
         {
+            EmployeeCalendarPlanCreateDTO model = new EmployeeCalendarPlanCreateDTO();
             var selectedEvent = _employeeCalendarManager.GetById(EventID);
-            var model = _mapper.Map<EmployeeCalendarPlanCreateDTO>(selectedEvent);
-            model.EventID = EventID;
+            if (selectedEvent != null)
+            { model = _mapper.Map<EmployeeCalendarPlanCreateDTO>(selectedEvent);
+                model.EventID = EventID;
+            }
+            else
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                _notyf.Error("Lütfen doğru bir seçim yaptığınzdan emin olunuz");
+                return RedirectToAction("EmployeeCalendar", "Marketing", new  { EmployeeID = currentUser.Id });
+            }
+           
             return View(model);
         }
         [HttpPost]
@@ -752,5 +795,17 @@ namespace Project.Controllers
             _notyf.Success("Etkinlik başarıyla güncellendi");
             return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = data.CustomerID});
         }
+        
+        
+        [HttpGet]
+        public IActionResult CloseDemand(int CustomerProductsID)
+        {
+            var demand = _demandManager.GetByProductID(CustomerProductsID);
+            demand.Status = false;
+            _demandManager.Update(demand);
+            _notyf.Success("Müşteri talebi başarıyla kapatıldı");
+            return RedirectToAction("CustomerProductsDetail", "Marketing",new {CustomerProductsID = CustomerProductsID});
+        }
+        
     }
 }

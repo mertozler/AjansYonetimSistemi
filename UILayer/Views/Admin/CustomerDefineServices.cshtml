@@ -86,7 +86,7 @@
 
 <section>
     <div class="card card-primary card-tabs" style="margin:15px";>
-    <div class="card-header bg-dark  p-0 pt-1 border-bottom-0">
+    <div class="card-header bg-info  p-0 pt-1 border-bottom-0">
     <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
     <li class="nav-item">
     <a class="nav-link active" id="custom-tabs-three-home-tab" data-toggle="pill" href="#custom-tabs-three-home" role="tab" aria-controls="custom-tabs-three-home" aria-selected="true">Müşteri Hizmet Tanımla</a>
@@ -103,7 +103,7 @@
     <section>
         <div id="accordion" style="margin: 20px;">
             <div class="card shadow mt-5">
-                <div class="card-header bg-dark">
+                <div class="card-header bg-info">
                     <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
                         Müşteri Listesi
                     </a>
@@ -143,18 +143,37 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach (var item in Model.CustomerList)
+                                    @if (Model.isCustomerIDComingfromCustomerCard != null)
+                                    
                                     {
-                                        <tr>
-                                            <td>@item.CustomerID</td>
-                                            <td>@item.CustomerName</td>
-                                            <td>@item.CustomerMail</td>
-                                            <td>
-    
-                                                <button type="button" id="customerData" onclick="changeLabelText('@item.CustomerName','@item.CustomerID')" value=@item.CustomerName class="btn btn-warning btn-sm">SEÇ</button>
-                                            </td>
-                                        </tr>
+                                        @foreach (var item in Model.CustomerList)
+                                        {
+                                            <tr>
+                                                <td>@item.CustomerID</td>
+                                                <td>@item.CustomerName</td>
+                                                <td>@item.CustomerMail</td>
+                                                <td>
+                                                    <input type="hidden" asp-for="selectedCustomerID"/>
+                                                     </td>
+                                            </tr>
+                                        }
                                     }
+                                    else
+                                    {
+                                        @foreach (var item in Model.CustomerList)
+                                        {
+                                            <tr>
+                                                <td>@item.CustomerID</td>
+                                                <td>@item.CustomerName</td>
+                                                <td>@item.CustomerMail</td>
+                                                <td>
+
+                                                    <button type="button" id="customerData" onclick="changeLabelText('@item.CustomerName','@item.CustomerID')" value=@item.CustomerName class="btn btn-warning btn-sm">SEÇ</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    
                                     </tbody>
                                 </table>
     
@@ -178,7 +197,7 @@
                     <div class="col-md-6">
     
                         <div class="card shadow mt-5">
-                            <div class="card-header bg-dark">
+                            <div class="card-header bg-info">
                                 <a href="#collapseCompanyCreate" class="card-link p-1">
                                     Hizmetler
                                 </a>
@@ -220,7 +239,7 @@
                     <div class="col-md-6">
     
                         <div class="card shadow mt-5">
-                            <div class="card-header bg-dark">
+                            <div class="card-header bg-info">
                                 <a href="#collapseCompanyCreate" class="card-link p-1">
                                     Paketler
                                 </a>
@@ -268,7 +287,11 @@
                     <div class="col-sm-10 offset-sm-2 align-content-center">
     
     
-                        <label id="lblEmp" class="bg-warning">Henüz bir müşteri seçmediniz, işlem yapabilmek için lütfen bir müşteri seçiniz</label>
+                        @if (Model.isCustomerIDComingfromCustomerCard == null)
+
+                        {
+                            <label id="lblEmp" class="bg-warning">Henüz bir müşteri seçmediniz, işlem yapabilmek için lütfen bir müşteri seçiniz</label>
+                        }
     
     
                         @Html.HiddenFor(m => m.selectedCustomerID)
@@ -285,7 +308,7 @@
     <div class="tab-pane fade" id="custom-tabs-three-profile" role="tabpanel" aria-labelledby="custom-tabs-three-profile-tab">
       <div id="accordion" style="margin: 20px;">
                 <div class="card shadow mt-5">
-                    <div class="card-header bg-dark">
+                    <div class="card-header bg-info">
                         <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
                             Müşteri Hizmet Listesi
                         </a>

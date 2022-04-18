@@ -36,6 +36,7 @@
           "AspNetCoreHero.ToastNotification": "1.1.0",
           "AutoMapper": "11.0.1",
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "11.0.0",
+          "BackgroundJobs": "1.0.0",
           "BusinessLayer": "1.0.0",
           "DataAccessLayer": "1.0.0",
           "EntityLayer": "1.0.0",
@@ -1886,6 +1887,18 @@
         },
         "compile": {
           "lib/netcoreapp3.1/X.PagedList.Mvc.Core.dll": {}
+        }
+      },
+      "BackgroundJobs/1.0.0": {
+        "dependencies": {
+          "BusinessLayer": "1.0.0",
+          "Hangfire": "1.8.0-beta4"
+        },
+        "runtime": {
+          "BackgroundJobs.dll": {}
+        },
+        "compile": {
+          "BackgroundJobs.dll": {}
         }
       },
       "BusinessLayer/1.0.0": {
@@ -4614,6 +4627,11 @@
       "sha512": "sha512-Nqz9rSjU/St77F25GV8TogDfkVsbErC0o6o8hJtkkXrAilXHjsEALRMn8eVhgAFJ3XFWvvaHHSiDN3SnTGWSEA==",
       "path": "x.pagedlist.mvc.core/8.1.0",
       "hashPath": "x.pagedlist.mvc.core.8.1.0.nupkg.sha512"
+    },
+    "BackgroundJobs/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     },
     "BusinessLayer/1.0.0": {
       "type": "project",

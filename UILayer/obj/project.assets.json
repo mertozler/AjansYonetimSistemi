@@ -2197,6 +2197,23 @@
           "Microsoft.AspNetCore.App"
         ]
       },
+      "BackgroundJobs/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "dependencies": {
+          "BusinessLayer": "1.0.0",
+          "Hangfire": "1.8.0-beta4"
+        },
+        "compile": {
+          "bin/placeholder/BackgroundJobs.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/BackgroundJobs.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
       "BusinessLayer/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
@@ -7681,6 +7698,11 @@
         "x.pagedlist.mvc.core.nuspec"
       ]
     },
+    "BackgroundJobs/1.0.0": {
+      "type": "project",
+      "path": "../BackgroundJobs/BackgroundJobs.csproj",
+      "msbuildProject": "../BackgroundJobs/BackgroundJobs.csproj"
+    },
     "BusinessLayer/1.0.0": {
       "type": "project",
       "path": "../BusinessLayer/BusinessLayer.csproj",
@@ -7702,6 +7724,7 @@
       "AspNetCoreHero.ToastNotification >= 1.1.0",
       "AutoMapper >= 11.0.1",
       "AutoMapper.Extensions.Microsoft.DependencyInjection >= 11.0.0",
+      "BackgroundJobs >= 1.0.0",
       "BusinessLayer >= 1.0.0",
       "DataAccessLayer >= 1.0.0",
       "EntityLayer >= 1.0.0",
@@ -7748,6 +7771,9 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
+            "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\BackgroundJobs\\BackgroundJobs.csproj": {
+              "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\BackgroundJobs\\BackgroundJobs.csproj"
+            },
             "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\BusinessLayer\\BusinessLayer.csproj": {
               "projectPath": "D:\\MERT\\Coding\\.NET CORE\\AjansYonetimSistemi\\BusinessLayer\\BusinessLayer.csproj"
             },

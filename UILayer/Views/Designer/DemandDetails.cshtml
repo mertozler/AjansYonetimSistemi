@@ -38,8 +38,18 @@
 								
 							</div>
 							<div>
-								<button class="btn btn-light border btn-lg px-3"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal feather-lg"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></button>
-							</div>
+								<div class="card-tools">
+                                                                    <div class="btn-group show">
+                                                                      <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+                                                                        Talep Ayarları
+                                                                        <i class="fas fa-wrench"></i>
+                                                                      </button>
+                                	                                    <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
+                                		                                    <a href="@Url.Action("CloseDemandForEmployee", "Designer", new {DemandID = Model.DemandID})" class="dropdown-item">Talebi Kapat</a>
+                                											                                              </div>
+                                                                    </div>
+                                                                    </div>
+								</div>
 						</div>
 					</div>
 
