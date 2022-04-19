@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Project.Models;
 using X.PagedList;
+using Notification = EntityLayer.Concrete.Notification;
 
 namespace Project.Controllers
 {
@@ -51,6 +52,7 @@ namespace Project.Controllers
 
         private CustomerPaymentsManager _customerPaymentsManager =
             new CustomerPaymentsManager(new EfCustomerPaymentsRepository());
+        NotificationManager _notificationManager = new NotificationManager(new EfNotificationRepository());
 
         public CustomerController(INotyfService notyf, Context context, IMapper mapper,
             UserManager<ApplicationUser> userManager)
@@ -196,6 +198,28 @@ namespace Project.Controllers
                 newDemandToEmployee.Status = true;
                 newDemandToEmployee.CustomerProductsID = data.CustomerProductsID;
                 newDemandToEmployee.Title = selectedProducts.title + " başlıklı ürünün revize talebi.";
+                Notification newNotification = new Notification();
+                newNotification.Date = DateTime.Now;
+                newNotification.isReaded = false;
+                newNotification.Header = loggedCustomer.NameSurname + "'nin Revize Talebi";
+                newNotification.Content = selectedProducts.title + " başlıklı ürüne revize talebi gönderildi.";
+                newNotification.ReceiverUserID = selectedProducts.CreatorID;
+                var creator = await _userManager.FindByIdAsync(selectedProducts.CreatorID);
+                var creatorRole = await _userManager.GetRolesAsync(creator);
+                if (creatorRole[0] == "designer")
+                {
+                    newNotification.Url = "/Designer/CustomerProductsDetail?CustomerProductsID=" +   selectedProducts.id;
+                }
+                else if (creatorRole[0] == "ops")
+                {
+                    newNotification.Url = "/Designer/CustomerProductsDetail?CustomerProductsID=" +   selectedProducts.id;
+                }
+                else if (creatorRole[0] == "marketing")
+                {
+                    newNotification.Url = "/Designer/CustomerProductsDetail?CustomerProductsID=" +   selectedProducts.id;
+                }
+                _notificationManager.Add(newNotification);
+                
                 _demandManager.Add(newDemandToEmployee);
             }
             else
@@ -226,14 +250,18 @@ namespace Project.Controllers
                 isAddedInProductFile = false;
                 var checkDemandisExist = _demandManager.GetByProductID(item.id);
                 var selectedProductImage = _customerProductsFileManager.GetByProductId(item.id);
-                FileInfo fileInfo = new FileInfo(selectedProductImage.FilePath);
-                string fileExt = fileInfo.Extension;
-                if (fileExt == ".jpeg" || fileExt == ".jpg" || fileExt == ".gif" || fileExt == ".tiff" ||
-                    fileExt == ".png" || fileExt == ".PNG")
+                if (selectedProductImage != null)
                 {
-                    ImagePath.Add("CustomerProductsFile/" + selectedProductImage.FilePath);
-                    isAddedInProductFile = true;
+                    FileInfo fileInfo = new FileInfo(selectedProductImage.FilePath);
+                    string fileExt = fileInfo.Extension;
+                    if (fileExt == ".jpeg" || fileExt == ".jpg" || fileExt == ".gif" || fileExt == ".tiff" ||
+                        fileExt == ".png" || fileExt == ".PNG")
+                    {
+                        ImagePath.Add("CustomerProductsFile/" + selectedProductImage.FilePath);
+                        isAddedInProductFile = true;
+                    }
                 }
+                
 
                 if (checkDemandisExist != null)
                 {
@@ -310,7 +338,9 @@ namespace Project.Controllers
             foreach (var product in customerProductList)
             {
                 var selectedProductFile = _customerProductsFileManager.GetByProductId(product.id);
-                FileInfo fileInfo = new FileInfo(selectedProductFile.FilePath);
+                if (selectedProductFile != null)
+                {
+                    FileInfo fileInfo = new FileInfo(selectedProductFile.FilePath);
                 string fileExt = fileInfo.Extension;
                 if (fileExt == ".docx" || fileExt == ".doc" || fileExt == ".pdf" || fileExt == ".xls" ||
                     fileExt == ".xlsx" || fileExt == ".ppt" || fileExt == ".pptx" || fileExt == ".txt")
@@ -398,6 +428,8 @@ namespace Project.Controllers
                         }
                     }
                 }
+                }
+                
             }
         
         

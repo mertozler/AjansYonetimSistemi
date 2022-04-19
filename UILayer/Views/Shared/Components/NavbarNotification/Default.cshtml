@@ -1,0 +1,53 @@
+﻿@model List<EntityLayer.Concrete.Notification>
+
+<li class="nav-item dropdown">
+  <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+    <i class="far fa-bell"></i>
+    <span class="badge badge-danger navbar-badge">@Model.Count</span>
+  </a>
+  <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px; overflow: clip;">
+    @foreach (var item in Model)
+    {
+      <a href="@item.Url" class="dropdown-item" onclick="changeReadedValue(@item.Id)">
+
+        <div class="media">
+          <div class="media-body">
+
+            <h3 class="dropdown-item-title">
+              @item.Header
+              <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+            </h3>
+            <p class="text-sm">@item.Content</p>
+            <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>@item.Date</p>
+          
+
+          </div>
+        </div>
+
+      </a>
+      <div class="dropdown-divider"></div>
+    }
+    <a href="#" class="dropdown-item">
+    <a href="/Home/SeeAllNotification" class="dropdown-item dropdown-footer">Bütün Bildirimleri Gör</a>
+
+    </a>
+    <div class="dropdown-divider"></div>
+  </div>
+</li>
+
+<script>
+  function changeReadedValue(id) {
+    $.ajax({
+      url: '/Home/ChangeReadedValue',
+      type: 'POST',
+      data: {
+        id: id
+      },
+      success: function (data) {
+        if (data.success) {
+          $('#notification-count').text(data.count);
+        }
+      }
+    });
+  }
+</script>

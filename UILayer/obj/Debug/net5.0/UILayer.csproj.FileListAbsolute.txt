@@ -564,3 +564,6 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\View
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Admin\Settings.cshtml.g.cs
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\BackgroundJobs.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\BackgroundJobs.pdb
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Pages\Components\NavbarNotification\Default.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Shared\Components\NavbarNotification\Default.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Home\SeeAllNotification.cshtml.g.cs

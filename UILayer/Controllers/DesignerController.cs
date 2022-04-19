@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Project.Models;
 using Controller = Microsoft.AspNetCore.Mvc.Controller;
 using JsonResult = Microsoft.AspNetCore.Mvc.JsonResult;
+using Notification = EntityLayer.Concrete.Notification;
 
 namespace Project.Controllers
 {
@@ -47,6 +48,7 @@ namespace Project.Controllers
 
         private CustomerEmployeeManager _customerEmployeeManager =
             new CustomerEmployeeManager(new EfCustomerEmployeeRepository());
+        NotificationManager _notificationManager = new NotificationManager(new EfNotificationRepository());
         public DesignerController(INotyfService notyf,Context context,IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
@@ -155,6 +157,16 @@ namespace Project.Controllers
                         selectedCustomerProduct.Status = false;
                         selectedCustomerProduct.Content = data.Content;
                         _customerProductsManager.Update(selectedCustomerProduct);
+                        var selectedUser = _userManager.FindByIdAsync(selectedCustomerProduct.CreatorID);
+                        Notification newNotification = new Notification();
+                        newNotification.Date = DateTime.Now;
+                        newNotification.isReaded = false;
+                        newNotification.ReceiverUserID = data.CustomerID;
+                        newNotification.Header = "Ürününüz Yüklendi";
+                        newNotification.Content = data.title +
+                                                  " başlıklı ürünüz "+ selectedUser.Result.NameSurname + " tarafından yüklenmiştir. Detaylar için lütfen takviminize bakınız ya da buraya tıklayınız.";
+                        newNotification.Url = @Url.Action("CustomerProductDetails","Customer",new {EventID=selectedCustomerProduct.id});
+                        _notificationManager.Add(newNotification);
                         _notyf.Success("Ürün müşteriye başarıyla gönderilmiştir.");
                     }
                     return RedirectToAction("CustomerProductsDetail", "Designer", new {CustomerProductsID = data.CustomerProductsID});
@@ -266,6 +278,15 @@ namespace Project.Controllers
                 newEmployeeCalendarPlan.EmployeeID = currentUser.Id;
                 _employeeCalendarManager.Add(newEmployeeCalendarPlan);
                 _customerProductsManager.Add(newCustomerProducts);
+                Notification newNotification = new Notification();
+                newNotification.Date = DateTime.Now;
+                newNotification.isReaded = false;
+                newNotification.ReceiverUserID = data.CustomerID;
+                newNotification.Header = "Size Özel Plan Oluşturuldu";
+                newNotification.Content = data.title +
+                                          " başlıklı planınız "+ selectedEmployee.NameSurname+ " tarafından oluşturulmuştur. Detaylar için lütfen takviminize bakınız ya da buraya tıklayınız.";
+                newNotification.Url = @Url.Action("CustomerProductDetails","Customer",new {EventID=newCustomerProducts.id});
+                _notificationManager.Add(newNotification);
                 string userMail = "";
                 var selectedCustomerEmployeeList = _customerEmployeeManager.GetEmployeeListByCustomerID(data.CustomerID);
                 foreach (var users in selectedCustomerEmployeeList)
@@ -487,6 +508,33 @@ namespace Project.Controllers
                     
                 }
                 }
+                var selectedEmployee = _userManager.FindByIdAsync(data.CreatorID).Result;
+                Notification newNotification = new Notification();
+                newNotification.Date = DateTime.Now;
+                newNotification.isReaded = false;
+                newNotification.ReceiverUserID = data.ReceiverID;
+                newNotification.Header = "Personel Talebi";
+                newNotification.Content = data.Title +
+                                          " başlıklı talep "+ selectedEmployee.NameSurname + " tarafından size atanmıştır. Detaylar için lütfen taleplerinize bakınız ya da buraya tıklayınız.";
+                var receiverEmployee = _userManager.FindByIdAsync(data.ReceiverID);
+                var kullaniciRolleri = await _userManager.GetRolesAsync(receiverEmployee.Result);
+                if (kullaniciRolleri[0] == "ops")
+                {
+                    newNotification.Url = @Url.Action("DemandInbox", "Ops",
+                        new {id = demand.ID});
+                }
+                else if (kullaniciRolleri[0] == "designer")
+                {
+                    newNotification.Url = @Url.Action("DemandInbox", "Designer",
+                        new {id = demand.ID});
+                }
+                else if (kullaniciRolleri[0] == "marketing")
+                {
+                    newNotification.Url = @Url.Action("DemandInbox", "Marketing",
+                        new {id = demand.ID});
+                }
+
+                _notificationManager.Add(newNotification);
                 _notyf.Success("Talep başarıyla oluşturuldu");
                 return RedirectToAction("DemandDetails","Designer", new { id = demand.ID });
             }
@@ -677,6 +725,7 @@ namespace Project.Controllers
                 newDemandAnswer.AnswerFilePath = newFileName;
             }
             _demandAnswerManager.Add(newDemandAnswer);
+            
             _notyf.Success("Yanıtınız başarıyla gönderildi");
             return RedirectToAction("DemandInbox", "Designer", new {id = selectedDemand.ID});
         }

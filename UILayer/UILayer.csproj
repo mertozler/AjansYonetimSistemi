@@ -34,6 +34,7 @@
       <_ContentIncludedByDefault Remove="Pages\Admin\Index.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\Customer\CustomerCalendar.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\Customer\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Components\NavbarNotification\Default.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

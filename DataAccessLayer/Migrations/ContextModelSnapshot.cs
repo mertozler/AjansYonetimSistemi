@@ -49,35 +49,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "d0ad1c8b-a807-4961-8640-8b9a55c837b7",
+                            ConcurrencyStamp = "8923c0f6-1750-4f84-a345-73ef6bca8e31",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "98601b9d-ea46-4637-a01e-63a58c77612b",
+                            ConcurrencyStamp = "b7daee62-a084-4b14-b1c9-41c814d8cd20",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "55c836d7-5be7-4a2f-95ce-9f4571e86bde",
+                            ConcurrencyStamp = "de0cbd59-e993-4d9c-aca4-417a6f8c926c",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "1b664fab-e9bd-4b0a-9cfa-8203d7f6affa",
+                            ConcurrencyStamp = "fa64e748-9a1e-4e55-a75b-b782eaabc8e5",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "467b3856-ec67-4f1d-9f0a-54a0f619237e",
+                            ConcurrencyStamp = "c9c6f2b0-d64e-497b-9e47-b67dd714209f",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -605,6 +605,38 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("MailSettings");
                 });
 
+            modelBuilder.Entity("EntityLayer.Concrete.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Header")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReceiverUserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isReaded")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverUserID");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("EntityLayer.Concrete.Package", b =>
                 {
                     b.Property<int>("ID")
@@ -1054,6 +1086,15 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("EmployeeID");
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.Notification", b =>
+                {
+                    b.HasOne("EntityLayer.Concrete.ApplicationUser", "ReceiverUser")
+                        .WithMany()
+                        .HasForeignKey("ReceiverUserID");
+
+                    b.Navigation("ReceiverUser");
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.ServicePackage", b =>
