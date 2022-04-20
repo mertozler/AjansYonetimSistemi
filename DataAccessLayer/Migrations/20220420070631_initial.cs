@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataAccessLayer.Migrations
 {
-    public partial class initialmig : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,18 +49,19 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomerProductsTypes",
+                name: "MailSettings",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<bool>(type: "bit", nullable: false)
+                    Mail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SMTPServer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Port = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomerProductsTypes", x => x.ID);
+                    table.PrimaryKey("PK_MailSettings", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -305,6 +306,30 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Header = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReceiverUserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    isReaded = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_AspNetUsers_ReceiverUserID",
+                        column: x => x.ReceiverUserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CustomerPayments",
                 columns: table => new
                 {
@@ -350,7 +375,6 @@ namespace DataAccessLayer.Migrations
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ServiceID = table.Column<int>(type: "int", nullable: false),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CustomerProductsTypeID = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -368,12 +392,6 @@ namespace DataAccessLayer.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_CustomerProducts_CustomerProductsTypes_CustomerProductsTypeID",
-                        column: x => x.CustomerProductsTypeID,
-                        principalTable: "CustomerProductsTypes",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CustomerProducts_Services_ServiceID",
                         column: x => x.ServiceID,
@@ -632,11 +650,11 @@ namespace DataAccessLayer.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "1", "348ae170-3124-427d-81ea-d529926cc709", "admin", "ADMIN" },
-                    { "2", "aaf9f4e8-537b-4911-aba1-699555d3e6ae", "customer", "CUSTOMER" },
-                    { "3", "95c7d334-0569-4aa6-8229-2eaf3a7ef6fe", "designer", "DESIGNER" },
-                    { "4", "cf2e3b14-eb27-4de1-925b-a121b34b03a6", "ops", "OPS" },
-                    { "5", "0ca0ef7d-cd4e-4554-afed-a166d6ef7e4c", "marketing", "MARKETING" }
+                    { "1", "da95c47b-fddd-4cd0-ba73-fc220930d021", "admin", "ADMIN" },
+                    { "2", "bd668ba4-fabf-4411-b6b5-96d8a3c74144", "customer", "CUSTOMER" },
+                    { "3", "c7c3f355-5522-45f9-a79d-f69825421bbc", "designer", "DESIGNER" },
+                    { "4", "de3f4ecc-3c7f-4af9-b42f-47c403b30378", "ops", "OPS" },
+                    { "5", "158894f9-d172-4ba6-9c0a-7d33631ad9de", "marketing", "MARKETING" }
                 });
 
             migrationBuilder.InsertData(
@@ -728,11 +746,6 @@ namespace DataAccessLayer.Migrations
                 name: "IX_CustomerProducts_CustomerID",
                 table: "CustomerProducts",
                 column: "CustomerID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CustomerProducts_CustomerProductsTypeID",
-                table: "CustomerProducts",
-                column: "CustomerProductsTypeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerProducts_ServiceID",
@@ -830,6 +843,11 @@ namespace DataAccessLayer.Migrations
                 column: "EmployeeID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Notifications_ReceiverUserID",
+                table: "Notifications",
+                column: "ReceiverUserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ServicePackages_PackageID",
                 table: "ServicePackages",
                 column: "PackageID");
@@ -885,6 +903,12 @@ namespace DataAccessLayer.Migrations
                 name: "EmployeePerfonmanceScores");
 
             migrationBuilder.DropTable(
+                name: "MailSettings");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "ServicePackages");
 
             migrationBuilder.DropTable(
@@ -910,9 +934,6 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "CustomerProductsTypes");
 
             migrationBuilder.DropTable(
                 name: "Services");

@@ -11,14 +11,17 @@ using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
 using EntityLayer.Concrete;
 using EntityLayer.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Project.Models;
 using X.PagedList;
 using Notification = EntityLayer.Concrete.Notification;
 
 namespace Project.Controllers
 {
+    [Authorize(Roles = "customer")]
     public class CustomerController : Controller
     {
         private readonly INotyfService _notyf;
@@ -53,14 +56,16 @@ namespace Project.Controllers
         private CustomerPaymentsManager _customerPaymentsManager =
             new CustomerPaymentsManager(new EfCustomerPaymentsRepository());
         NotificationManager _notificationManager = new NotificationManager(new EfNotificationRepository());
+        private readonly ILogger<CustomerController> _logger;
 
         public CustomerController(INotyfService notyf, Context context, IMapper mapper,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,ILogger<CustomerController> logger)
         {
             _userManager = userManager;
             _mapper = mapper;
             _notyf = notyf;
             _context = context;
+            _logger = logger;
         }
 
         // GET
@@ -76,21 +81,29 @@ namespace Project.Controllers
 
         public async Task<IActionResult> GetAllEventsForCustomer()
         {
-            var loggedCustomer = await _userManager.GetUserAsync(User);
             List<Event> eventList = new List<Event>();
-            var events = _customerProductsManager.GetCustomerProductsListByCustomerID(loggedCustomer.Id);
-            foreach (var item in events)
+            try
             {
-                Event newEvent = new Event();
-                newEvent.id = item.id;
-                newEvent.start = item.start;
-                newEvent.color = item.color;
-                newEvent.title = item.title;
-                newEvent.description = item.description;
-                newEvent.textColor = item.textColor;
-                newEvent.end = item.end;
-                eventList.Add(newEvent);
+                var loggedCustomer = await _userManager.GetUserAsync(User);
+               
+                var events = _customerProductsManager.GetCustomerProductsListByCustomerID(loggedCustomer.Id);
+                foreach (var item in events)
+                {
+                    Event newEvent = new Event();
+                    newEvent.id = item.id;
+                    newEvent.start = item.start;
+                    newEvent.color = item.color;
+                    newEvent.title = item.title;
+                    newEvent.description = item.description;
+                    newEvent.textColor = item.textColor;
+                    newEvent.end = item.end;
+                    eventList.Add(newEvent);
+                }
+            }catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
             }
+            
 
             return new JsonResult(eventList);
         }
@@ -100,13 +113,16 @@ namespace Project.Controllers
         {
             List<DemandAnswersForCustomer> demandAnswersList = new List<DemandAnswersForCustomer>();
             List<DemandFileClassForCustomer> demandFileList = new List<DemandFileClassForCustomer>();
-            var productsPlan = _customerProductsManager.GetById(EventID);
+            CustomerProductDetailForCustomerDTO customerProducts = new CustomerProductDetailForCustomerDTO();
+            try
+            {
+                var productsPlan = _customerProductsManager.GetById(EventID);
             if (productsPlan.Status == true)
             {
                 return RedirectToAction("CustomerCalendar", "Customer");
             }
 
-            var customerProducts = _mapper.Map<CustomerProductDetailForCustomerDTO>(productsPlan);
+            customerProducts = _mapper.Map<CustomerProductDetailForCustomerDTO>(productsPlan);
             var productFiles = _customerProductsFileManager.GetByProductId(productsPlan.id);
             var creatorEmployee = await _userManager.FindByIdAsync(productsPlan.CreatorID);
             var creatorEmployeeRole = await _userManager.GetRolesAsync(creatorEmployee);
@@ -179,6 +195,11 @@ namespace Project.Controllers
 
             customerProducts.DemandFileList = demandFileList;
             customerProducts.DemandAnswerList = demandAnswersList;
+            }catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(customerProducts);
         }
 
@@ -186,7 +207,9 @@ namespace Project.Controllers
         public async Task<IActionResult> CustomerProductDetails(CustomerProductDetailForCustomerDTO data)
         {
             Demand newDemandToEmployee = new Demand();
-            var checkDemandisExist = _demandManager.GetByProductID(data.CustomerProductsID);
+            try
+            {
+                var checkDemandisExist = _demandManager.GetByProductID(data.CustomerProductsID);
             if (checkDemandisExist == null)
             {
                 var selectedProducts = _customerProductsManager.GetById(data.CustomerProductsID);
@@ -235,6 +258,12 @@ namespace Project.Controllers
                 _demandAnswerManager.Add(newDemandAnswer);
                 _notyf.Success("Yanıtınız başarıyla müşteriye gönderilmiştir.");
             }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
 
             return RedirectToAction("CustomerProductDetails", "Customer", new {EventID = data.CustomerProductsID});
         }
@@ -242,7 +271,9 @@ namespace Project.Controllers
         public async Task<IActionResult> CustomerDesign(int page = 1)
         {
             List<string> ImagePath = new List<string>();
-            bool isAddedInProductFile = false;
+            try
+            {
+               bool isAddedInProductFile = false;
             var currentUser = await _userManager.GetUserAsync(User);
             var customerProductList = _customerProductsManager.GetCustomerProductsListByCustomerID(currentUser.Id);
             foreach (var item in customerProductList)
@@ -297,7 +328,12 @@ namespace Project.Controllers
             }
 
 
-            var sortedImageList = ImagePath.OrderByDescending(x => x).ToList();
+            
+            }catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            var sortedImageList = ImagePath.OrderByDescending(x => x).ToList(); 
             var values = sortedImageList.ToPagedList(page, 8);
             return View(values);
         }
@@ -306,24 +342,32 @@ namespace Project.Controllers
         {
             CustomerRevisedDemandsDTO model = new CustomerRevisedDemandsDTO();
             List<RevisedDemandListClass> revisedDemandList = new List<RevisedDemandListClass>();
-            var currentUser = _userManager.GetUserAsync(User).Result;
-            var customerProductList = _customerProductsManager.GetCustomerProductsListByCustomerID(currentUser.Id);
-            foreach (var item in customerProductList)
+            try
             {
-                var checkDemandisExist = _demandManager.GetByProductID(item.id);
-                if (checkDemandisExist != null)
+                var currentUser = _userManager.GetUserAsync(User).Result;
+                var customerProductList = _customerProductsManager.GetCustomerProductsListByCustomerID(currentUser.Id);
+                foreach (var item in customerProductList)
                 {
-                    var newReviseDemandListData = _mapper.Map<RevisedDemandListClass>(item);
-                    newReviseDemandListData.DemandStatus = checkDemandisExist.Status;
-                    newReviseDemandListData.DemandID = checkDemandisExist.ID;
-                    newReviseDemandListData.RevisedMessage = checkDemandisExist.Content;
-                    revisedDemandList.Add(newReviseDemandListData);
+                    var checkDemandisExist = _demandManager.GetByProductID(item.id);
+                    if (checkDemandisExist != null)
+                    {
+                        var newReviseDemandListData = _mapper.Map<RevisedDemandListClass>(item);
+                        newReviseDemandListData.DemandStatus = checkDemandisExist.Status;
+                        newReviseDemandListData.DemandID = checkDemandisExist.ID;
+                        newReviseDemandListData.RevisedMessage = checkDemandisExist.Content;
+                        revisedDemandList.Add(newReviseDemandListData);
+                    }
+
+
                 }
 
-
+                model.RevisedDemandList = revisedDemandList;
             }
-
-            model.RevisedDemandList = revisedDemandList;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
 
             return View(model);
         }
@@ -333,7 +377,9 @@ namespace Project.Controllers
             CustomerReportsDTO model = new CustomerReportsDTO();
             //Get all customer reports in customerproducts and demandanswers
             List<ReportListClass> reportList = new List<ReportListClass>();
-            var currentUser = await _userManager.GetUserAsync(User);
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
             var customerProductList = _customerProductsManager.GetCustomerProductsListByCustomerID(currentUser.Id);
             foreach (var product in customerProductList)
             {
@@ -435,6 +481,12 @@ namespace Project.Controllers
         
     
             model.ReportList = reportList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(model);
         }
 
@@ -445,7 +497,9 @@ namespace Project.Controllers
                 new List<CustomerCardServiceListClassForCustomer>();
             List<CustomerEmployeeListClassForCustomer> customerEmployeeList =
                 new List<CustomerEmployeeListClassForCustomer>();
-            List<PaymentHistoryClassForCustomer> paymentHistoryList = new List<PaymentHistoryClassForCustomer>();
+            try
+            {
+                List<PaymentHistoryClassForCustomer> paymentHistoryList = new List<PaymentHistoryClassForCustomer>();
             double PaymentPriceSum = 0;
             var currentUser = _userManager.GetUserAsync(User).Result;
             var selectedCustomerDefinedServiceList = _customerServiceManager.GetCustomerServiceByCustomerID(currentUser.Id);
@@ -484,6 +538,12 @@ namespace Project.Controllers
             model.CustomerServiceList = serviceListForCustomer;
             model.CustomerPaymentHistory = paymentHistoryList;
             model.PaymentPriceSum = PaymentPriceSum;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(model);
         }
     }

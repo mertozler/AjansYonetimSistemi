@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Project.Controllers
 {
@@ -59,39 +60,49 @@ namespace Project.Controllers
         private MailSettingsManager _mailSettingsManager = new MailSettingsManager(new EfMailSettingsRepository());
 
         private DemandAnswerManager _demandAnswerManager = new DemandAnswerManager(new EfDemandAnswersRepository());
+        private readonly ILogger<AdminController> _logger;
 
 
         public AdminController(INotyfService notyf, IMapper mapper, UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager, Context context)
+            RoleManager<ApplicationRole> roleManager, Context context,ILogger<AdminController> logger)
         {
             _notyf = notyf;
             _mapper = mapper;
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
+            _logger = logger;
         }
 
         
         public async Task<IActionResult> Index()
         {
             AdminIndexDTO model = new AdminIndexDTO();
-            model.DemandCounter = _demandManager.GetList().Count;
-            model.CustomerProductCounter = _customerProductsManager.GetList().Count;
-            double totalIncome = 0;
-            var customerPayments = _customerPaymentsManager.GetList();
-            foreach (var item in customerPayments)
+            try
             {
-                totalIncome += item.PaymentPrice;
+                model.DemandCounter = _demandManager.GetList().Count;
+                model.CustomerProductCounter = _customerProductsManager.GetList().Count;
+                double totalIncome = 0;
+                var customerPayments = _customerPaymentsManager.GetList();
+                foreach (var item in customerPayments)
+                {
+                    totalIncome += item.PaymentPrice;
+                }
+                model.TotalIncome = totalIncome;
+                var customerList = await (from user in _context.Users
+                    join userRole in _context.UserRoles
+                        on user.Id equals userRole.UserId
+                    join role in _context.Roles
+                        on userRole.RoleId equals role.Id
+                    where(role.Name == "customer")
+                    select user).ToListAsync();
+                model.CustomerCounter = customerList.Count;
             }
-            model.TotalIncome = totalIncome;
-            var customerList = await (from user in _context.Users
-                join userRole in _context.UserRoles
-                    on user.Id equals userRole.UserId
-                join role in _context.Roles
-                    on userRole.RoleId equals role.Id
-                where(role.Name == "customer")
-                select user).ToListAsync();
-            model.CustomerCounter = customerList.Count;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(model);
         }
 
@@ -101,23 +112,33 @@ namespace Project.Controllers
             EmployeeList employeeList = new EmployeeList(_context, _userManager);
             EmployeeDefineAndListDTO employeModel = new EmployeeDefineAndListDTO();
             List<RoleListClass> roleList = new List<RoleListClass>();
-            employeModel.EmployeeList = employeeList.GetAllEmployee().Result;
-            var roles = _context.Roles.Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops").ToList();
-            foreach (var item in roles)
+            try
             {
-                roleList.Add(new RoleListClass
-                { 
-                    RoleName = item.Name,
-                });
+                employeModel.EmployeeList = employeeList.GetAllEmployee().Result;
+                var roles = _context.Roles.Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops").ToList();
+                foreach (var item in roles)
+                {
+                    roleList.Add(new RoleListClass
+                    { 
+                        RoleName = item.Name,
+                    });
+                }
+                employeModel.RoleList = roleList;
             }
-            employeModel.RoleList = roleList;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(employeModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> DefineEmployee(EmployeeDefineAndListDTO employeeData)
         {
+            EmployeeDefineAndListDTO employeModel = new EmployeeDefineAndListDTO();
             MailService SendMail = new MailService();
+            try
+            {
             if (ModelState.IsValid)
             {
                 if (employeeData.Password == employeeData.ConfirmPassword)
@@ -165,7 +186,7 @@ namespace Project.Controllers
             {
                 _notyf.Error("Beklenmeyen bir hata oluştu");
             }
-            EmployeeDefineAndListDTO employeModel = new EmployeeDefineAndListDTO();
+            
             EmployeeList employeeList = new EmployeeList(_context, _userManager);
             List<RoleListClass> roleList = new List<RoleListClass>();
             var roles = _context.Roles.Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops").ToList();
@@ -179,6 +200,12 @@ namespace Project.Controllers
             }
             employeModel.RoleList = roleList;
             employeModel.EmployeeList = employeeList.GetAllEmployee().Result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+           
             return View(employeModel);
         }
 
@@ -186,71 +213,95 @@ namespace Project.Controllers
         public async Task<IActionResult> EditEmployee(string employeeID)
         {
             EditEmployeeDTO selectedEmployee = new EditEmployeeDTO();
-            var user = await _userManager.FindByIdAsync(employeeID);
-            var userRole = await _userManager.GetRolesAsync(user);
-            selectedEmployee.Name = user.NameSurname;
-            selectedEmployee.Email = user.Email;
-            selectedEmployee.Role = userRole[0];
+            try
+            {
+                var user = await _userManager.FindByIdAsync(employeeID);
+                var userRole = await _userManager.GetRolesAsync(user);
+                selectedEmployee.Name = user.NameSurname;
+                selectedEmployee.Email = user.Email;
+                selectedEmployee.Role = userRole[0];
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return PartialView("_EmployeeModelPartial", selectedEmployee);
         }
 
         [HttpPost]
         public async Task<IActionResult> EditEmployee(EditEmployeeDTO employeeData)
         {
-            var user = await _userManager.FindByIdAsync(employeeData.EmployeeID);
-            if (ModelState.IsValid)
+            EditEmployeeDTO selectedEmployee = new EditEmployeeDTO();
+            try
             {
-                var userRole = await _userManager.GetRolesAsync(user);
-                user.NameSurname = employeeData.Name;
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
+                var user = await _userManager.FindByIdAsync(employeeData.EmployeeID);
+                if (ModelState.IsValid)
                 {
-                    await _userManager.RemoveFromRoleAsync(user, userRole[0]);
-                    var roleResult = await _userManager.AddToRoleAsync(user, employeeData.Role);
-                    if (roleResult.Succeeded)
+                    var userRole = await _userManager.GetRolesAsync(user);
+                    user.NameSurname = employeeData.Name;
+                    var result = await _userManager.UpdateAsync(user);
+                    if (result.Succeeded)
                     {
-                        _notyf.Success("Personel başarıyla güncellendi");
+                        await _userManager.RemoveFromRoleAsync(user, userRole[0]);
+                        var roleResult = await _userManager.AddToRoleAsync(user, employeeData.Role);
+                        if (roleResult.Succeeded)
+                        {
+                            _notyf.Success("Personel başarıyla güncellendi");
+                        }
+                        else
+                        {
+                            _notyf.Error("Personel Güncellenirken bir hata oluştu");
+                        }
                     }
                     else
                     {
                         _notyf.Error("Personel Güncellenirken bir hata oluştu");
+                        foreach (var item in result.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, item.Description);
+                        }
                     }
                 }
                 else
                 {
-                    _notyf.Error("Personel Güncellenirken bir hata oluştu");
-                    foreach (var item in result.Errors)
+                    foreach (var error in ViewData.ModelState.Values.SelectMany(modelState => modelState.Errors))
                     {
-                        ModelState.AddModelError(string.Empty, item.Description);
+                        _notyf.Error("Personel güncellenirken bir hata oluştu. Hata mesajı: " + error.ErrorMessage);
                     }
                 }
+                
+                var employeeRole = await _userManager.GetRolesAsync(user);
+                selectedEmployee.Name = user.NameSurname;
+                selectedEmployee.Email = user.Email;
+                selectedEmployee.Role = employeeRole[0];
             }
-            else
+            catch (Exception e)
             {
-                foreach (var error in ViewData.ModelState.Values.SelectMany(modelState => modelState.Errors))
-                {
-                    _notyf.Error("Personel güncellenirken bir hata oluştu. Hata mesajı: " + error.ErrorMessage);
-                }
+                _logger.LogError(e, e.Message);
             }
-            EditEmployeeDTO selectedEmployee = new EditEmployeeDTO();
-            var employeeRole = await _userManager.GetRolesAsync(user);
-            selectedEmployee.Name = user.NameSurname;
-            selectedEmployee.Email = user.Email;
-            selectedEmployee.Role = employeeRole[0];
+           
             return PartialView("_EmployeeModelPartial", selectedEmployee);
         }
 
         public async Task<IActionResult> DeleteEmployee(string EmployeeID)
         {
-            var user = await _userManager.FindByIdAsync(EmployeeID);
-            user.Status = false;
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
+            try
             {
-                _notyf.Success("Personel başarıyla silindi");
-                return RedirectToAction("DefineEmployee", "Admin");
+                var user = await _userManager.FindByIdAsync(EmployeeID);
+                user.Status = false;
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    _notyf.Success("Personel başarıyla silindi");
+                    return RedirectToAction("DefineEmployee", "Admin");
+                }
+                _notyf.Error("Personel silinirken bir hata oluştu.");
             }
-            _notyf.Error("Personel silinirken bir hata oluştu.");
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+           
             return RedirectToAction("DefineEmployee", "Admin");
         }
 
@@ -259,31 +310,39 @@ namespace Project.Controllers
         {
             ServicePackageandServiceListDTO ServicePackageandServiceList = new ServicePackageandServiceListDTO();
             List<ServiceListViewModel> serviceViewModelList = new List<ServiceListViewModel>();
-            var allServices = _serviceManager.GetList();
-            foreach (var service in allServices)
+            try
             {
-                if (service.Status == true)
+                var allServices = _serviceManager.GetList();
+                foreach (var service in allServices)
                 {
-                    ServiceListViewModel newServiceListViewModel = new ServiceListViewModel();
-                    newServiceListViewModel.ServiceName = service.Name;
-                    newServiceListViewModel.ServiceDescription = service.Description;
-                    newServiceListViewModel.ServiceId = service.ID;
-                    var servicePackageID = _servicePackageManager.GetPackageIDListByServiceId(service.ID);
-                    string packageNames = "";
-                    foreach (var packageID in servicePackageID)
+                    if (service.Status == true)
                     {
-                        var package = _packageManager.GetById(packageID.PackageID);
-                        if (package != null)
+                        ServiceListViewModel newServiceListViewModel = new ServiceListViewModel();
+                        newServiceListViewModel.ServiceName = service.Name;
+                        newServiceListViewModel.ServiceDescription = service.Description;
+                        newServiceListViewModel.ServiceId = service.ID;
+                        var servicePackageID = _servicePackageManager.GetPackageIDListByServiceId(service.ID);
+                        string packageNames = "";
+                        foreach (var packageID in servicePackageID)
                         {
-                            packageNames = package.Name + ", " + packageNames;
+                            var package = _packageManager.GetById(packageID.PackageID);
+                            if (package != null)
+                            {
+                                packageNames = package.Name + ", " + packageNames;
+                            }
                         }
+                        newServiceListViewModel.ServicePackageName = packageNames;
+                        serviceViewModelList.Add(newServiceListViewModel);
                     }
-                    newServiceListViewModel.ServicePackageName = packageNames;
-                    serviceViewModelList.Add(newServiceListViewModel);
                 }
+                ServicePackageandServiceList.ServiceList = allServices;
+                ServicePackageandServiceList.ServiceListViewModel = serviceViewModelList;
             }
-            ServicePackageandServiceList.ServiceList = allServices;
-            ServicePackageandServiceList.ServiceListViewModel = serviceViewModelList;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(ServicePackageandServiceList);
         }
 
@@ -292,7 +351,9 @@ namespace Project.Controllers
             IFormCollection selectedServicesIDforPackages)
         {
             ServicePackageandServiceListDTO ServicePackageandServiceList = new ServicePackageandServiceListDTO();
-            var allServices = _serviceManager.GetList();
+            try
+            {
+                var allServices = _serviceManager.GetList();
             ServicePackageandServiceList.ServiceList = allServices;
             if (ModelState.IsValid)
             {
@@ -407,36 +468,67 @@ namespace Project.Controllers
 
             ServicePackageandServiceList.ServiceList = allServices;
             ServicePackageandServiceList.ServiceListViewModel = serviceViewModelList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             
             return View(ServicePackageandServiceList);
         }
 
         public IActionResult DeleteService(int ServiceID)
         {
-            var selectedService = _serviceManager.GetById(ServiceID);
-            selectedService.Status = false;
-            _serviceManager.Update(selectedService);
-            _notyf.Success("Hizmet başarıyla silindi");
+            try
+            {
+                var selectedService = _serviceManager.GetById(ServiceID);
+                selectedService.Status = false;
+                _serviceManager.Update(selectedService);
+                _notyf.Success("Hizmet başarıyla silindi");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return RedirectToAction("Services", "Admin");
         }
 
         [HttpGet]
         public IActionResult EditService(int ServiceID)
         {
-            var selectedService = _serviceManager.GetById(ServiceID);
             EditServiceDTO editServiceModel = new EditServiceDTO();
-            editServiceModel.ServiceName = selectedService.Name;
-            editServiceModel.ServiceDescription = selectedService.Description;
+            try
+            {
+                var selectedService = _serviceManager.GetById(ServiceID);
+                
+                editServiceModel.ServiceName = selectedService.Name;
+                editServiceModel.ServiceDescription = selectedService.Description;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return PartialView("_EditServicePartial", editServiceModel);
         }
 
         [HttpPost]
         public IActionResult EditService(EditServiceDTO data)
         {
-            var service = _mapper.Map<Services>(data);
-            service.Status = true;
-            _serviceManager.Update(service);
-            _notyf.Success("Hizmet başarıyla güncellendi");
+            try
+            {
+                var service = _mapper.Map<Services>(data);
+                service.Status = true;
+                _serviceManager.Update(service);
+                _notyf.Success("Hizmet başarıyla güncellendi");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return PartialView("_EditServicePartial");
         }
 
@@ -445,27 +537,39 @@ namespace Project.Controllers
         {
             CustomerCreateAndListDTO customerViewModel = new CustomerCreateAndListDTO();
             List<CustomerListClass> customerList = new List<CustomerListClass>();
-            var allCustomers = await (from user in _context.Users
-                join userRole in _context.UserRoles
-                    on user.Id equals userRole.UserId
-                join role in _context.Roles
-                    on userRole.RoleId equals role.Id
-                where ((role.Name == "customer") && user.Status == true)
-                select user).ToListAsync();
-            foreach (var customer in allCustomers)
+            try
             {
-                customerList.Add(new CustomerListClass
-                    {CustomerID = customer.Id, CustomerName = customer.NameSurname, CustomerMail = customer.Email});
+                var allCustomers = await (from user in _context.Users
+                    join userRole in _context.UserRoles
+                        on user.Id equals userRole.UserId
+                    join role in _context.Roles
+                        on userRole.RoleId equals role.Id
+                    where ((role.Name == "customer") && user.Status == true)
+                    select user).ToListAsync();
+                foreach (var customer in allCustomers)
+                {
+                    customerList.Add(new CustomerListClass
+                        {CustomerID = customer.Id, CustomerName = customer.NameSurname, CustomerMail = customer.Email});
+                }
+                customerViewModel.CustomerList = customerList;
             }
-            customerViewModel.CustomerList = customerList;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(customerViewModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateCustomer(CustomerCreateAndListDTO customerData)
         {
+            CustomerCreateAndListDTO customerViewModel = new CustomerCreateAndListDTO();
+            List<CustomerListClass> customerList = new List<CustomerListClass>();
             MailService SendMail = new MailService();
-            if (ModelState.IsValid)
+            try
+            {
+                if (ModelState.IsValid)
             {
                 if (customerData.Password == customerData.ConfirmPassword)
                 {
@@ -512,8 +616,7 @@ namespace Project.Controllers
             {
                 _notyf.Error("Beklenmeyen bir hata oluştu");
             }
-            CustomerCreateAndListDTO customerViewModel = new CustomerCreateAndListDTO();
-            List<CustomerListClass> customerList = new List<CustomerListClass>();
+            
             var allCustomers = await (from user in _context.Users
                 join userRole in _context.UserRoles
                     on user.Id equals userRole.UserId
@@ -528,22 +631,36 @@ namespace Project.Controllers
             }
 
             customerViewModel.CustomerList = customerList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
 
             return View(customerViewModel);
         }
         public async Task<IActionResult> DeleteCustomer(string CustomerID)
         {
-            var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
-            selectedCustomer.Status = false;
-            var result = await _userManager.UpdateAsync(selectedCustomer);
-            if (result.Succeeded)
+            try
             {
-                _notyf.Success("Müşteri başarıyla silindi!");
+                var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
+                selectedCustomer.Status = false;
+                var result = await _userManager.UpdateAsync(selectedCustomer);
+                if (result.Succeeded)
+                {
+                    _notyf.Success("Müşteri başarıyla silindi!");
+                }
+                else
+                {
+                    _notyf.Error("Müşteri silinirken bir hata oluştu!");
+                }
             }
-            else
+            catch (Exception e)
             {
-                _notyf.Error("Müşteri silinirken bir hata oluştu!");
+                _logger.LogError(e, e.Message);
             }
+            
 
             return RedirectToAction("CreateCustomer", "Admin");
         }
@@ -551,34 +668,50 @@ namespace Project.Controllers
         public async Task<IActionResult> EditCustomer(string CustomerID)
         {
             EditCustomerDTO customerEditViewModel = new EditCustomerDTO();
-            var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
-            customerEditViewModel.Name = selectedCustomer.NameSurname;
+            try
+            {
+                var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
+                customerEditViewModel.Name = selectedCustomer.NameSurname;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return PartialView("_EditCustomerPartial", customerEditViewModel);
         }
         [HttpPost]
         public async Task<IActionResult> EditCustomer(EditCustomerDTO customerNewData)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var selectedCustomer = await _userManager.FindByIdAsync(customerNewData.CustomerID);
-                selectedCustomer.NameSurname = customerNewData.Name;
-                var result = await _userManager.UpdateAsync(selectedCustomer);
-                if (result.Succeeded)
+                if (ModelState.IsValid)
                 {
-                    _notyf.Success("Müşteri başarıyla güncellendi!");
+                    var selectedCustomer = await _userManager.FindByIdAsync(customerNewData.CustomerID);
+                    selectedCustomer.NameSurname = customerNewData.Name;
+                    var result = await _userManager.UpdateAsync(selectedCustomer);
+                    if (result.Succeeded)
+                    {
+                        _notyf.Success("Müşteri başarıyla güncellendi!");
+                    }
+                    else
+                    {
+                        _notyf.Error("Müşteri güncellenirken bir hata oluştu!");
+                    }
                 }
                 else
                 {
-                    _notyf.Error("Müşteri güncellenirken bir hata oluştu!");
+                    foreach (var error in ViewData.ModelState.Values.SelectMany(modelState => modelState.Errors))
+                    {
+                        _notyf.Error("Personel güncellenirken bir hata oluştu. Hata mesajı: " + error.ErrorMessage);
+                    }
                 }
             }
-            else
+            catch (Exception e)
             {
-                foreach (var error in ViewData.ModelState.Values.SelectMany(modelState => modelState.Errors))
-                {
-                    _notyf.Error("Personel güncellenirken bir hata oluştu. Hata mesajı: " + error.ErrorMessage);
-                }
+                _logger.LogError(e, e.Message);
             }
+            
             return PartialView("_EditCustomerPartial");
         }
         [HttpGet]
@@ -588,7 +721,9 @@ namespace Project.Controllers
             List<CustomerListClassForDefineService> customerList = new List<CustomerListClassForDefineService>();
             List<CustomerDefinedServiceListClass> customerServiceList = new List<CustomerDefinedServiceListClass>();
             List<PaymentRoutineTypesClass> paymentRoutineTypeList = new List<PaymentRoutineTypesClass>();
-            string ServiceNamesForCustomer = "";
+            try
+            {
+                string ServiceNamesForCustomer = "";
             if (CustomerID == null)
             {
                 var allCustomers = await (from user in _context.Users
@@ -665,13 +800,21 @@ namespace Project.Controllers
             customerViewModel.CustomerList = customerList;
             customerViewModel.CustomerDefinedServiceList = customerServiceList;
             customerViewModel.PaymentRoutineTypesList = paymentRoutineTypeList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(customerViewModel);
         }
         [HttpPost]
         public async Task<IActionResult> CustomerDefineServices(CustomerDefineServiceDTO customerDefineServiceData,
             IFormCollection selectedServicesIDandSelectedPackagesIDforPackages)
         {
-            if (customerDefineServiceData.selectedCustomerID == null)
+            try
+            {
+                 if (customerDefineServiceData.selectedCustomerID == null)
             {
                 _notyf.Error("Lütfen işlem yapabilmek için bir müşteri seçiniz");
                 return RedirectToAction("CustomerDefineServices", "Admin");
@@ -730,6 +873,12 @@ namespace Project.Controllers
             {
                 _notyf.Error("Müşteri hizmet tanımlanırken bir hata oluştu");
             }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+           
             return RedirectToAction("CustomerDefineServices", "Admin");
         }
         public async Task<IActionResult> CustomerCard(string CustomerID)
@@ -739,7 +888,9 @@ namespace Project.Controllers
             List<CustomerCardServiceListClass> serviceListForCustomer = new List<CustomerCardServiceListClass>();
             List<CustomerEmployeeListClass> customerEmployeeList = new List<CustomerEmployeeListClass>();
             List<PaymentHistoryClassForAdmin> paymentHistoryList = new List<PaymentHistoryClassForAdmin>();
-            double PaymentPriceSum = 0;
+            try
+            {
+                double PaymentPriceSum = 0;
             var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
             if (selectedCustomer != null)
             { 
@@ -889,61 +1040,88 @@ namespace Project.Controllers
             customerCardModel.CustomerEmployeeList = customerEmployeeList;
             customerCardModel.CustomerDefinedServiceList = serviceListForCustomer;
             customerCardModel.PaymentHistoryList = paymentHistoryList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(customerCardModel);
         }
         public IActionResult DeleteCustomerEmployee(int CustomerEmployeeID)
         {
-            var selectedCustomerEmployee = _customerEmployeeManager.GetById(CustomerEmployeeID);
-            selectedCustomerEmployee.Status = false;
-            _customerEmployeeManager.Update(selectedCustomerEmployee);
-            _notyf.Success("Müşteri çalışanı başarıyla silindi");
+            try
+            {
+                var selectedCustomerEmployee = _customerEmployeeManager.GetById(CustomerEmployeeID);
+                selectedCustomerEmployee.Status = false;
+                _customerEmployeeManager.Update(selectedCustomerEmployee);
+                _notyf.Success("Müşteri çalışanı başarıyla silindi");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+           
             return RedirectToAction("CustomerCard", "Admin", new { CustomerID = _customerEmployeeManager.GetById(CustomerEmployeeID).CustomerID });
         }
 
         [HttpGet]
         public async Task<IActionResult> DefineCustomerEmployee(string CustomerID)
         {
-            var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
             DefineCustomerEmployeeDTO defineCustomerEmployeeDTO = new DefineCustomerEmployeeDTO();
-            List<EmployeeListDefineEmployee> employeeListForSelectedItem = new List<EmployeeListDefineEmployee>();
-            if (selectedCustomer != null)
+            try
             {
-                defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
-                var employeeList = await (from user in _context.Users
-                    join userRole in _context.UserRoles
-                        on user.Id equals userRole.UserId
-                    join role in _context.Roles
-                        on userRole.RoleId equals role.Id
-                    where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
-                    select user).ToListAsync();
-                foreach (var oneEmployee in employeeList)
+                var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
+                
+                List<EmployeeListDefineEmployee> employeeListForSelectedItem = new List<EmployeeListDefineEmployee>();
+            
+                if (selectedCustomer != null)
                 {
-                    var selectedEmployeeRole = await _userManager.GetRolesAsync(oneEmployee);
-                    StringBuilder employeeName = new StringBuilder();
-                    employeeName.Append("["+ selectedEmployeeRole[0].ToUpper() + "]");
-                    employeeName.Append(" " + oneEmployee.NameSurname);
-                    employeeListForSelectedItem.Add(new EmployeeListDefineEmployee
+                    defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
+                    var employeeList = await (from user in _context.Users
+                        join userRole in _context.UserRoles
+                            on user.Id equals userRole.UserId
+                        join role in _context.Roles
+                            on userRole.RoleId equals role.Id
+                        where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
+                        select user).ToListAsync();
+                    foreach (var oneEmployee in employeeList)
                     {
-                        EmployeeID   = oneEmployee.Id,
-                        EmployeeName  = employeeName.ToString(),
-                    });
+                        var selectedEmployeeRole = await _userManager.GetRolesAsync(oneEmployee);
+                        StringBuilder employeeName = new StringBuilder();
+                        employeeName.Append("["+ selectedEmployeeRole[0].ToUpper() + "]");
+                        employeeName.Append(" " + oneEmployee.NameSurname);
+                        employeeListForSelectedItem.Add(new EmployeeListDefineEmployee
+                        {
+                            EmployeeID   = oneEmployee.Id,
+                            EmployeeName  = employeeName.ToString(),
+                        });
 
+                    }
                 }
-            }
-            else
+                else
+                {
+                    _notyf.Error("Müşteri bilgileri getirilirken bir hata oluştu, lütfen müşteri seçtiğinizden emin olun");
+                    return RedirectToAction("CreateCustomer", "Admin");
+                }
+                defineCustomerEmployeeDTO.SelectedCustomerID = CustomerID;
+                defineCustomerEmployeeDTO.EmployeeList = employeeListForSelectedItem;
+            }  catch (Exception e)
             {
-                _notyf.Error("Müşteri bilgileri getirilirken bir hata oluştu, lütfen müşteri seçtiğinizden emin olun");
-                return RedirectToAction("CreateCustomer", "Admin");
+                _logger.LogError(e, e.Message);
             }
-            defineCustomerEmployeeDTO.SelectedCustomerID = CustomerID;
-            defineCustomerEmployeeDTO.EmployeeList = employeeListForSelectedItem;
+           
             return View(defineCustomerEmployeeDTO);
         }
 
         [HttpPost]
         public async Task<IActionResult> DefineCustomerEmployee(DefineCustomerEmployeeDTO data)
         {
-            if (ModelState.IsValid)
+            
+            DefineCustomerEmployeeDTO defineCustomerEmployeeDTO = new DefineCustomerEmployeeDTO();
+            try
+            {
+                if (ModelState.IsValid)
             {
                 CustomerEmployee newCustomerEmployee = new CustomerEmployee();
                 newCustomerEmployee.Status = true;
@@ -955,7 +1133,6 @@ namespace Project.Controllers
             }
             _notyf.Error("Personel tanımlanamadı!");
             var selectedCustomer = await _userManager.FindByIdAsync( data.SelectedCustomerID);
-            DefineCustomerEmployeeDTO defineCustomerEmployeeDTO = new DefineCustomerEmployeeDTO();
             List<EmployeeListDefineEmployee> employeeListForSelectedItem = new List<EmployeeListDefineEmployee>();
             defineCustomerEmployeeDTO.CustomerName = selectedCustomer.NameSurname;
             var employeeList = await (from user in _context.Users
@@ -981,6 +1158,12 @@ namespace Project.Controllers
 
             defineCustomerEmployeeDTO.SelectedCustomerID = data.SelectedCustomerID;
             defineCustomerEmployeeDTO.EmployeeList = employeeListForSelectedItem;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(defineCustomerEmployeeDTO);
 
         }
@@ -988,31 +1171,47 @@ namespace Project.Controllers
         public IActionResult Settings()
         {
             MailSettingsDTO model = new MailSettingsDTO();
-            var defaultSettings = _mailSettingsManager.GetList().FirstOrDefault();
-            model.Mail = defaultSettings.Mail;
-            model.Password = defaultSettings.Password;
-            model.Port = defaultSettings.Port;
-            model.SmtpServer = defaultSettings.SMTPServer;
-            model.ID = defaultSettings.ID;
+            try
+            {
+                var defaultSettings = _mailSettingsManager.GetList().FirstOrDefault();
+                model.Mail = defaultSettings.Mail;
+                model.Password = defaultSettings.Password;
+                model.Port = defaultSettings.Port;
+                model.SmtpServer = defaultSettings.SMTPServer;
+                model.ID = defaultSettings.ID;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return View(model);
         }
 
         public IActionResult MailSettings(MailSettingsDTO data)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var getSelectedData = _mailSettingsManager.GetById(data.ID);
-                getSelectedData.SMTPServer = data.SmtpServer;
-                getSelectedData.Mail = data.Mail;
-                getSelectedData.Password = data.Password;
-                getSelectedData.Port = data.Port;
-                _mailSettingsManager.Update(getSelectedData);
-                _notyf.Success("Mail ayarlarınız başarıyla değiştirilmiştir.");
+                if (ModelState.IsValid)
+                {
+                    var getSelectedData = _mailSettingsManager.GetById(data.ID);
+                    getSelectedData.SMTPServer = data.SmtpServer;
+                    getSelectedData.Mail = data.Mail;
+                    getSelectedData.Password = data.Password;
+                    getSelectedData.Port = data.Port;
+                    _mailSettingsManager.Update(getSelectedData);
+                    _notyf.Success("Mail ayarlarınız başarıyla değiştirilmiştir.");
+                }
+                else
+                {
+                    _notyf.Error("Mail ayarlarınız değiştirilirken hata oluştu. Lütfen kontrol edip tekrar deneyiniz.");
+                } 
             }
-            else
+            catch (Exception e)
             {
-                _notyf.Error("Mail ayarlarınız değiştirilirken hata oluştu. Lütfen kontrol edip tekrar deneyiniz.");
+                _logger.LogError(e, e.Message);
             }
+           
             return RedirectToAction("Settings");
         }
 

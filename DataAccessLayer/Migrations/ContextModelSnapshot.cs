@@ -49,35 +49,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "8923c0f6-1750-4f84-a345-73ef6bca8e31",
+                            ConcurrencyStamp = "da95c47b-fddd-4cd0-ba73-fc220930d021",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "b7daee62-a084-4b14-b1c9-41c814d8cd20",
+                            ConcurrencyStamp = "bd668ba4-fabf-4411-b6b5-96d8a3c74144",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "de0cbd59-e993-4d9c-aca4-417a6f8c926c",
+                            ConcurrencyStamp = "c7c3f355-5522-45f9-a79d-f69825421bbc",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "fa64e748-9a1e-4e55-a75b-b782eaabc8e5",
+                            ConcurrencyStamp = "de3f4ecc-3c7f-4af9-b42f-47c403b30378",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "c9c6f2b0-d64e-497b-9e47-b67dd714209f",
+                            ConcurrencyStamp = "158894f9-d172-4ba6-9c0a-7d33631ad9de",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });

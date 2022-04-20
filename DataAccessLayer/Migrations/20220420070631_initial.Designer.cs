@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20220418124329_notificationUpdated")]
-    partial class notificationUpdated
+    [Migration("20220420070631_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,35 +51,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "9259bbd3-4f45-412f-84e4-b63903da59ed",
+                            ConcurrencyStamp = "da95c47b-fddd-4cd0-ba73-fc220930d021",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "736bfc9f-d3dd-4133-bc0f-b3f9aa1769bf",
+                            ConcurrencyStamp = "bd668ba4-fabf-4411-b6b5-96d8a3c74144",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "abd9bd90-8f5a-4713-9de8-48e14b99f740",
+                            ConcurrencyStamp = "c7c3f355-5522-45f9-a79d-f69825421bbc",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "695033e5-8b98-4035-a291-f0aa932f7677",
+                            ConcurrencyStamp = "de3f4ecc-3c7f-4af9-b42f-47c403b30378",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "7a212e22-a2d3-4ae0-bfa6-af5d510a179c",
+                            ConcurrencyStamp = "158894f9-d172-4ba6-9c0a-7d33631ad9de",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -623,6 +623,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("Header")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ReceiverUserID")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)");
 
@@ -630,6 +633,8 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ReceiverUserID");
 
                     b.ToTable("Notifications");
                 });
@@ -1083,6 +1088,15 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("EmployeeID");
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.Notification", b =>
+                {
+                    b.HasOne("EntityLayer.Concrete.ApplicationUser", "ReceiverUser")
+                        .WithMany()
+                        .HasForeignKey("ReceiverUserID");
+
+                    b.Navigation("ReceiverUser");
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.ServicePackage", b =>

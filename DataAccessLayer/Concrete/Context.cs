@@ -1,4 +1,5 @@
-﻿using EntityLayer.Concrete;
+﻿using System;
+using EntityLayer.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -68,7 +69,8 @@ namespace DataAccessLayer.Concrete
             {
                 Id = "3",
                 Name = "designer",
-                NormalizedName = "DESIGNER"
+                NormalizedName = "DESIGNER",
+                ConcurrencyStamp = Guid.NewGuid().ToString()
             });
             builder.Entity<ApplicationRole>().HasData(new ApplicationRole
             {
@@ -100,6 +102,14 @@ namespace DataAccessLayer.Concrete
             {
                 RoleId = "1",
                 UserId = "22e40406-8a9d-2d82-912c-5d6a640ee696"
+            });
+            builder.Entity<MailSettings>().HasData(new MailSettings
+            {
+                ID = 1,
+                Mail = "companypanel15@gmail.com",
+                Port = 587,
+                SMTPServer = "smtp.gmail.com",
+                Password = "123456Admin."
             });
            
         }

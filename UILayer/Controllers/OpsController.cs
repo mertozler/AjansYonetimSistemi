@@ -13,15 +13,18 @@ using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
 using EntityLayer.Concrete;
 using EntityLayer.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Project.Models;
 using Notification = EntityLayer.Concrete.Notification;
 
 namespace Project.Controllers
 {
+    [Authorize(Roles = "ops")]
     public class OpsController : Controller
     {
         private readonly INotyfService _notyf;
@@ -47,12 +50,14 @@ namespace Project.Controllers
         private CustomerEmployeeManager _customerEmployeeManager =
             new CustomerEmployeeManager(new EfCustomerEmployeeRepository());
         NotificationManager _notificationManager = new NotificationManager(new EfNotificationRepository());
-        public OpsController(INotyfService notyf,Context context,IMapper mapper, UserManager<ApplicationUser> userManager)
+        private readonly ILogger<OpsController> _logger;
+        public OpsController(INotyfService notyf,Context context,IMapper mapper, UserManager<ApplicationUser> userManager,ILogger<OpsController> logger)
         {
             _userManager = userManager;
             _mapper = mapper;
             _notyf = notyf;
             _context = context;
+            _logger = logger;
         }
         public IActionResult Index()
         {
@@ -61,47 +66,60 @@ namespace Project.Controllers
          public async Task<IActionResult> CustomerServicePlanning()
         {
             List<CustomerListWithServiceName> customerServiceList = new List<CustomerListWithServiceName>();
-            string ServiceNamesForCustomer = "";
-            var currentUser = await _userManager.GetUserAsync(User);;
-            var customerIDsForEmployee = _customerEmployeeManager.GetEmployeeListByEmployeeID(currentUser.Id);
-            foreach (var oneCustomerEmployee in customerIDsForEmployee)
+            try
             {
-                var selectedCustomer = await _userManager.FindByIdAsync(oneCustomerEmployee.CustomerID);
-                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
-                ServiceNamesForCustomer = "";
-                foreach (var customerServices in customerService)
+                string ServiceNamesForCustomer = "";
+                var currentUser = await _userManager.GetUserAsync(User);;
+                var customerIDsForEmployee = _customerEmployeeManager.GetEmployeeListByEmployeeID(currentUser.Id);
+                foreach (var oneCustomerEmployee in customerIDsForEmployee)
                 {
-                    var selectedService = _serviceManager.GetById(customerServices.ServiceID);
-                    ServiceNamesForCustomer = selectedService.Name + ", " + ServiceNamesForCustomer;
+                    var selectedCustomer = await _userManager.FindByIdAsync(oneCustomerEmployee.CustomerID);
+                    var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
+                    ServiceNamesForCustomer = "";
+                    foreach (var customerServices in customerService)
+                    {
+                        var selectedService = _serviceManager.GetById(customerServices.ServiceID);
+                        ServiceNamesForCustomer = selectedService.Name + ", " + ServiceNamesForCustomer;
+                    }
+                    customerServiceList.Add(new CustomerListWithServiceName
+                    {
+                        CustomerID = selectedCustomer.Id, CustomerName = selectedCustomer.NameSurname, CustomerMail = selectedCustomer.Email,
+                        ServiceNames = ServiceNamesForCustomer
+                    });
                 }
-
-                customerServiceList.Add(new CustomerListWithServiceName
-                {
-                    CustomerID = selectedCustomer.Id, CustomerName = selectedCustomer.NameSurname, CustomerMail = selectedCustomer.Email,
-                    ServiceNames = ServiceNamesForCustomer
-                });
             }
-
-
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(customerServiceList);
         }
         public IActionResult CustomerServicePlanningDates(string CustomerID)
         {
-            var selectedCustomerServiceCheck = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
-            if (selectedCustomerServiceCheck.Count == 0)
+            try
             {
-                _notyf.Error("Müşteriye henüz bir hizmet tanımlaması olmadığından hizmet planlaması yapılamamaktadır.");
-                return RedirectToAction("CustomerServicePlanning", "Ops");
+                var selectedCustomerServiceCheck = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
+                if (selectedCustomerServiceCheck.Count == 0)
+                {
+                    _notyf.Error("Müşteriye henüz bir hizmet tanımlaması olmadığından hizmet planlaması yapılamamaktadır.");
+                    return RedirectToAction("CustomerServicePlanning", "Ops");
+                }
+                ViewBag.CustomerID = CustomerID;
             }
-            ViewBag.CustomerID = CustomerID;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View();
         }
         public IActionResult GetAllEvents(string CustomerID)
         {
             List<Event> eventList = new List<Event>();
-            var events = _customerProductsManager.GetCustomerProductsListByCustomerID(CustomerID);
-            foreach (var item in events)
+            try
             {
+                var events = _customerProductsManager.GetCustomerProductsListByCustomerID(CustomerID);
+                foreach (var item in events)
+                {
                     Event newEvent = new Event();
                     newEvent.id = item.id;
                     newEvent.start = item.start;
@@ -111,27 +129,39 @@ namespace Project.Controllers
                     newEvent.description = item.description;
                     newEvent.end = item.end;
                     eventList.Add(newEvent);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
             }
             return new JsonResult(eventList);
         }
         public IActionResult GetAllEventsForEmployee(string EmployeeID)
         {
             List<EmployeeEvent> eventList = new List<EmployeeEvent>();
-            var events = _employeeCalendarManager.GetListbyEmployeeID(EmployeeID);
-            foreach (var item in events)
+            try
             {
-                if (item.Status == true)
+                var events = _employeeCalendarManager.GetListbyEmployeeID(EmployeeID);
+                foreach (var item in events)
                 {
-                    EmployeeEvent newEvent = new EmployeeEvent();
-                    newEvent.id = item.id;
-                    newEvent.start = item.start;
-                    newEvent.color = item.color;
-                    newEvent.title = item.title;
-                    newEvent.textColor = item.textColor;
-                    newEvent.description = item.description;
-                    newEvent.end = item.end;
-                    eventList.Add(newEvent);
+                    if (item.Status == true)
+                    {
+                        EmployeeEvent newEvent = new EmployeeEvent();
+                        newEvent.id = item.id;
+                        newEvent.start = item.start;
+                        newEvent.color = item.color;
+                        newEvent.title = item.title;
+                        newEvent.textColor = item.textColor;
+                        newEvent.description = item.description;
+                        newEvent.end = item.end;
+                        eventList.Add(newEvent);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
             }
             return new JsonResult(eventList);
         }
@@ -140,40 +170,50 @@ namespace Project.Controllers
         {
             CustomerServicePlanCreateDTO newModel = new CustomerServicePlanCreateDTO();
             List<ServiceList> ServiceListForCustomer = new List<ServiceList>();
-            if (StartDate != null)
+            try
             {
-                String format = "ddd MMM dd yyyy HH:mm:ss GMT 0300 (GMT 03:00)";
-                DateTime formattingDateTime = DateTime.ParseExact(StartDate, format, CultureInfo.InvariantCulture);
-                newModel.CustomerID = CustomerID;
-                var endTime = formattingDateTime.AddDays(2);
-                newModel.start = formattingDateTime;
-                newModel.end = DateTime.Now.AddDays(3);
-            }
-            else
-            {
-                newModel.CustomerID = CustomerID;
-                var endTime = DateTime.Now.AddDays(2);
-                newModel.start = DateTime.Now;
-                newModel.end = DateTime.Now;
-            }
-            var serviceList = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
-            foreach (var item in serviceList)
-            {
-                var selectedService = _serviceManager.GetById(item.ServiceID);
-                ServiceListForCustomer.Add(new ServiceList
+                if (StartDate != null)
                 {
-                    ServiceID = selectedService.ID,
-                    ServiceName = selectedService.Name,
-                });
+                    String format = "ddd MMM dd yyyy HH:mm:ss GMT 0300 (GMT 03:00)";
+                    DateTime formattingDateTime = DateTime.ParseExact(StartDate, format, CultureInfo.InvariantCulture);
+                    newModel.CustomerID = CustomerID;
+                    var endTime = formattingDateTime.AddDays(2);
+                    newModel.start = formattingDateTime;
+                    newModel.end = DateTime.Now.AddDays(3);
+                }
+                else
+                {
+                    newModel.CustomerID = CustomerID;
+                    var endTime = DateTime.Now.AddDays(2);
+                    newModel.start = DateTime.Now;
+                    newModel.end = DateTime.Now;
+                }
+                var serviceList = _customerServiceManager.GetCustomerServiceByCustomerID(CustomerID);
+                foreach (var item in serviceList)
+                {
+                    var selectedService = _serviceManager.GetById(item.ServiceID);
+                    ServiceListForCustomer.Add(new ServiceList
+                    {
+                        ServiceID = selectedService.ID,
+                        ServiceName = selectedService.Name,
+                    });
+                }
+                newModel.ServiceList = ServiceListForCustomer;
             }
-            newModel.ServiceList = ServiceListForCustomer;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(newModel);;
         }
         [Obsolete]
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<IActionResult> CustomerServicePlanCreate(CustomerServicePlanCreateDTO data)
         {
-            if (data.SelectedServiceID == 0)
+            CustomerServicePlanCreateDTO model = new CustomerServicePlanCreateDTO();
+            try
+            {
+                if (data.SelectedServiceID == 0)
             {
                 _notyf.Error("Hizmet seçimi boş geçilemez.");
             }
@@ -222,14 +262,13 @@ namespace Project.Controllers
                     }
                 
                 }
-
                 var dateTime = data.end;
                 dateTime = dateTime.Add(new TimeSpan(-3, 0, 0));
                 DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime);
                 _notyf.Success("Başarıyla ürün planı oluşturuldu");
                 return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = data.CustomerID});
             }
-            CustomerServicePlanCreateDTO model = new CustomerServicePlanCreateDTO();
+            
             model.CustomerID = data.CustomerID;
             List<ServiceList> ServiceListForCustomer = new List<ServiceList>();
             var serviceList = _customerServiceManager.GetCustomerServiceByCustomerID(data.CustomerID);
@@ -243,34 +282,48 @@ namespace Project.Controllers
                 });
             }
             model.ServiceList = ServiceListForCustomer;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public IActionResult CustomerPlanningServiceForADay(int EventID)
-        { 
-            var productsPlan = _customerProductsManager.GetById(EventID);
+        {
             CustomerPlanningServiceForADayDTO product = new CustomerPlanningServiceForADayDTO();
-            if (productsPlan != null)
+            try
             {
-                if (productsPlan.Status == false)
+                var productsPlan = _customerProductsManager.GetById(EventID);
+                
+                if (productsPlan != null)
                 {
-                    return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
+                    if (productsPlan.Status == false)
+                    {
+                        return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
+                    }
+                    product = _mapper.Map<CustomerPlanningServiceForADayDTO>(productsPlan);
+                    product.CustomerProductsID = EventID;
                 }
-                product = _mapper.Map<CustomerPlanningServiceForADayDTO>(productsPlan);
-                product.CustomerProductsID = EventID;
+                else
+                {
+                    _notyf.Error("Lütfen doğru bir seçim yaptığınızdan emin olunuz");
+                    return RedirectToAction("CustomerServicePlanning", "Ops");
+                }
             }
-            else
+            catch (Exception e)
             {
-                _notyf.Error("Lütfen doğru bir seçim yaptığınızdan emin olunuz");
-                return RedirectToAction("CustomerServicePlanning", "Ops");
+                _logger.LogError(e, e.Message);
             }
-            
             return View(product);
         }
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public IActionResult CustomerPlanningServiceForADay(CustomerPlanningServiceForADayDTO data)
         {
-            if (ModelState.IsValid)
+            try
+            {
+                if (ModelState.IsValid)
             {
                 if (data.CustomerProductFiles != null)
                 {
@@ -320,6 +373,11 @@ namespace Project.Controllers
             }
             var product = _mapper.Map<CustomerPlanningServiceForADayDTO>(productsPlan);
             product.CustomerProductsID = data.CustomerProductsID;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(data);
         }
         [Microsoft.AspNetCore.Mvc.HttpGet]
@@ -330,7 +388,9 @@ namespace Project.Controllers
             List<DemandAnswers> demandAnswersList = new List<DemandAnswers>();
             List<DemandFileClass> demandFileList = new List<DemandFileClass>();
             List<CustomerProductsClass> dataList = new List<CustomerProductsClass>();
-            var selectedCustomerProduct = _customerProductsManager.GetById(CustomerProductsID);
+            try
+            {
+                 var selectedCustomerProduct = _customerProductsManager.GetById(CustomerProductsID);
             if (selectedCustomerProduct != null)
             {
                 var customerUser = await _userManager.FindByIdAsync(selectedCustomerProduct.CustomerID);
@@ -393,43 +453,57 @@ namespace Project.Controllers
                 return RedirectToAction("CustomerServicePlanning", "Ops");   
             }
             model.DemandFileList = demandFileList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+           
             return View(model);
         }
         
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public IActionResult CustomerProductsDetail(CustomerDetailsDTO data)
         {
-            var selectedCustomerProductDemand = _demandManager.GetByProductID(data.CustomerProductsList[0].ProductID);
-            if (selectedCustomerProductDemand == null)
+            try
             {
-                _notyf.Error("Bir hata oluştu. Lütfen tekrar deneyiniz.");
-                return RedirectToAction("CustomerProductsDetail","Ops",new {CustomerProductsID = data.CustomerProductsList[0].ProductID});
+                var selectedCustomerProductDemand = _demandManager.GetByProductID(data.CustomerProductsList[0].ProductID);
+                if (selectedCustomerProductDemand == null)
+                {
+                    _notyf.Error("Bir hata oluştu. Lütfen tekrar deneyiniz.");
+                    return RedirectToAction("CustomerProductsDetail","Ops",new {CustomerProductsID = data.CustomerProductsList[0].ProductID});
+                }
+                DemandAnswer newDemandAnswer = new DemandAnswer();
+                newDemandAnswer.DemandID = selectedCustomerProductDemand.ID;
+                newDemandAnswer.Message = data.DemandAnswer;
+                newDemandAnswer.SenderID = selectedCustomerProductDemand.CreatorId;
+                newDemandAnswer.ReceiverID = selectedCustomerProductDemand.ReceiverId;
+                newDemandAnswer.Status = true;
+                newDemandAnswer.CreateTime = DateTime.Now;
+                newDemandAnswer.DemandAnswerType = 0;
+                if (data.RevisedFile != null)
+                {
+                    var selectedProductTitle = _customerProductsManager.GetById(data.CustomerProductsList[0].ProductID).title;
+                    newDemandAnswer.FileName = selectedProductTitle + "-Revize-Ops";
+                    var extension = Path.GetExtension(data.RevisedFile.FileName);
+                    var newFileName = Guid.NewGuid() + extension;
+                    var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DemandFiles/", newFileName);
+                    var stream = new FileStream(location, FileMode.Create);
+                    data.RevisedFile.CopyTo(stream);
+                    newDemandAnswer.AnswerFilePath = newFileName;
+                    _demandAnswerManager.Add(newDemandAnswer);
+                }
+                else
+                {
+                    _demandAnswerManager.Add(newDemandAnswer);
+                }
+                _notyf.Success("Yanıtınız başarıyla müşteriye gönderilmiştir.");
             }
-            DemandAnswer newDemandAnswer = new DemandAnswer();
-            newDemandAnswer.DemandID = selectedCustomerProductDemand.ID;
-            newDemandAnswer.Message = data.DemandAnswer;
-            newDemandAnswer.SenderID = selectedCustomerProductDemand.CreatorId;
-            newDemandAnswer.ReceiverID = selectedCustomerProductDemand.ReceiverId;
-            newDemandAnswer.Status = true;
-            newDemandAnswer.CreateTime = DateTime.Now;
-            newDemandAnswer.DemandAnswerType = 0;
-            if (data.RevisedFile != null)
+            catch (Exception e)
             {
-                var selectedProductTitle = _customerProductsManager.GetById(data.CustomerProductsList[0].ProductID).title;
-                newDemandAnswer.FileName = selectedProductTitle + "-Revize-Ops";
-                var extension = Path.GetExtension(data.RevisedFile.FileName);
-                var newFileName = Guid.NewGuid() + extension;
-                var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DemandFiles/", newFileName);
-                var stream = new FileStream(location, FileMode.Create);
-                data.RevisedFile.CopyTo(stream);
-                newDemandAnswer.AnswerFilePath = newFileName;
-                _demandAnswerManager.Add(newDemandAnswer);
+                _logger.LogError(e, e.Message);
             }
-            else
-            {
-                _demandAnswerManager.Add(newDemandAnswer);
-            }
-            _notyf.Success("Yanıtınız başarıyla müşteriye gönderilmiştir.");
+          
             return RedirectToAction("CustomerProductsDetail","Ops",new {CustomerProductsID = data.CustomerProductsList[0].ProductID});
         }
         
@@ -438,40 +512,50 @@ namespace Project.Controllers
         {
             DemandToEmployeeDTO newModel = new DemandToEmployeeDTO();
             List<ComingDemantToMe> demandList = new List<ComingDemantToMe>();
-            var employeeList = await (from user in _context.Users
-                join userRole in _context.UserRoles
-                    on user.Id equals userRole.UserId
-                join role in _context.Roles
-                    on userRole.RoleId equals role.Id
-                where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
-                select user).ToListAsync();
-            var currentUser =  _userManager.GetUserAsync(User).Result;
-            var demandListByEmployee = _demandManager.GetByEmployeeId(currentUser.Id);
-            var demandListInbox = _demandManager.GetDemandInboxByReceiverId(currentUser.Id);
-            List<Demand> demandListAll = demandListByEmployee.Concat(demandListInbox).ToList();
-            foreach (var item in demandListAll)
+            try
             {
-                var receiverUser = await _userManager.FindByIdAsync(item.ReceiverId);
-                var senderUser = await _userManager.FindByIdAsync(item.CreatorId);
-                demandList.Add(new ComingDemantToMe
+                var employeeList = await (from user in _context.Users
+                    join userRole in _context.UserRoles
+                        on user.Id equals userRole.UserId
+                    join role in _context.Roles
+                        on userRole.RoleId equals role.Id
+                    where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
+                    select user).ToListAsync();
+                var currentUser =  _userManager.GetUserAsync(User).Result;
+                var demandListByEmployee = _demandManager.GetByEmployeeId(currentUser.Id);
+                var demandListInbox = _demandManager.GetDemandInboxByReceiverId(currentUser.Id);
+                List<Demand> demandListAll = demandListByEmployee.Concat(demandListInbox).ToList();
+                foreach (var item in demandListAll)
                 {
-                    Title = item.Title,
-                    ID = item.ID,
-                    ReceiverName = receiverUser.NameSurname,
-                    productId = item.CustomerProductsID,
-                    SenderName = senderUser.NameSurname,
-                    Status = item.Status,
-                });
+                    var receiverUser = await _userManager.FindByIdAsync(item.ReceiverId);
+                    var senderUser = await _userManager.FindByIdAsync(item.CreatorId);
+                    demandList.Add(new ComingDemantToMe
+                    {
+                        Title = item.Title,
+                        ID = item.ID,
+                        ReceiverName = receiverUser.NameSurname,
+                        productId = item.CustomerProductsID,
+                        SenderName = senderUser.NameSurname,
+                        Status = item.Status,
+                    });
+                }
+                newModel.CreatorID = currentUser.Id;
+                newModel.EmployeeList = employeeList;
+                newModel.DemandListInbox = demandList;
             }
-            newModel.CreatorID = currentUser.Id;
-            newModel.EmployeeList = employeeList;
-            newModel.DemandListInbox = demandList;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(newModel);
         }
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<IActionResult> DemandToEmployee(DemandToEmployeeDTO data)
         {
-            if (ModelState.IsValid)
+            DemandToEmployeeDTO model = new DemandToEmployeeDTO();
+            try
+            {
+                if (ModelState.IsValid)
             {
                 var demand = _mapper.Map<Demand>(data);
                 demand.CreateDate = DateTime.Now;
@@ -493,8 +577,7 @@ namespace Project.Controllers
                     newFile.CreatorID = data.CreatorID;
                     newFile.Status = true;
                     newFile.FileName = "test1";
-                    _demandFileManager.Add(newFile);
-                    
+                    _demandFileManager.Add(newFile); 
                 }
                 }
                 var selectedEmployee = _userManager.FindByIdAsync(data.CreatorID).Result;
@@ -504,7 +587,8 @@ namespace Project.Controllers
                 newNotification.ReceiverUserID = data.ReceiverID;
                 newNotification.Header = "Personel Talebi";
                 newNotification.Content = data.Title +
-                                          " başlıklı talep "+ selectedEmployee.NameSurname + " tarafından size atanmıştır. Detaylar için lütfen taleplerinize bakınız ya da buraya tıklayınız.";
+                                          " başlıklı talep "+ selectedEmployee.NameSurname 
+                                          + " tarafından size atanmıştır. Detaylar için lütfen taleplerinize bakınız ya da buraya tıklayınız.";
                 var receiverEmployee = _userManager.FindByIdAsync(data.ReceiverID);
                 var kullaniciRolleri = await _userManager.GetRolesAsync(receiverEmployee.Result);
                 if (kullaniciRolleri[0] == "ops")
@@ -522,7 +606,6 @@ namespace Project.Controllers
                     newNotification.Url = @Url.Action("DemandInbox", "Marketing",
                         new {id = demand.ID});
                 }
-
                 _notificationManager.Add(newNotification);
                 _notyf.Success("Talep başarıyla oluşturuldu");
                 return RedirectToAction("DemandDetails","Ops", new { id = demand.ID });
@@ -539,9 +622,13 @@ namespace Project.Controllers
                 where((role.Name == "designer" || role.Name == "ops" || role.Name == "marketing") && user.Status == true)
                 select user).ToListAsync();
             var currentUser =  _userManager.GetUserAsync(User).Result;
-            DemandToEmployeeDTO model = new DemandToEmployeeDTO();
             model.CreatorID = currentUser.Id;
             model.EmployeeList = employeeList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         
@@ -551,40 +638,47 @@ namespace Project.Controllers
             DemandDetailsDTO model = new DemandDetailsDTO();
             List<DemandDetailClass> dataList = new List<DemandDetailClass>();
             List<DemandAnswersForEmployee> demandAnswersList = new List<DemandAnswersForEmployee>();
-            var selectedDemand = _demandManager.GetById(id);
-            var selectedDemandFile = _demandFileManager.GetByDemandID(selectedDemand.ID);
-            string demandFilePath;
-            if (selectedDemandFile.Count == 0)
+            try
             {
-                demandFilePath = null;
-            }
-            else
-            {
-                demandFilePath = selectedDemandFile[0].Path;
-            }
-            var receiverEmployee = await _userManager.FindByIdAsync(selectedDemand.ReceiverId);
-            var creatorEmployee = await _userManager.FindByIdAsync(selectedDemand.CreatorId);
-            dataList.Add(new DemandDetailClass
-            {
-                DemandContent = selectedDemand.Content, DemandCreateTime = selectedDemand.CreateDate,
-                DemandCreatorName = creatorEmployee.NameSurname,
-                DemandFilePath = demandFilePath,
-                DemandReceiverName = receiverEmployee.NameSurname, DemandTitle = selectedDemand.Title
-            });
-            var selectedDemandAnswers = _demandAnswerManager.GetByDemandId(id);
-            foreach (var item in selectedDemandAnswers)
-            {
-                var senderName = await _userManager.FindByIdAsync(item.SenderID);
-                var receiverName = await _userManager.FindByIdAsync(item.ReceiverID);
-                demandAnswersList.Add(new DemandAnswersForEmployee
+                var selectedDemand = _demandManager.GetById(id);
+                var selectedDemandFile = _demandFileManager.GetByDemandID(selectedDemand.ID);
+                string demandFilePath;
+                if (selectedDemandFile.Count == 0)
                 {
-                    Message = item.Message, AnswerType = item.DemandAnswerType,FileName = item.FileName,DemandAnswerDate = item.CreateTime,FilePath = item.AnswerFilePath,
-                    ReceiverName = receiverName.NameSurname,SenderName = senderName.NameSurname,
+                    demandFilePath = null;
+                }
+                else
+                {
+                    demandFilePath = selectedDemandFile[0].Path;
+                }
+                var receiverEmployee = await _userManager.FindByIdAsync(selectedDemand.ReceiverId);
+                var creatorEmployee = await _userManager.FindByIdAsync(selectedDemand.CreatorId);
+                dataList.Add(new DemandDetailClass
+                {
+                    DemandContent = selectedDemand.Content, DemandCreateTime = selectedDemand.CreateDate,
+                    DemandCreatorName = creatorEmployee.NameSurname,
+                    DemandFilePath = demandFilePath,
+                    DemandReceiverName = receiverEmployee.NameSurname, DemandTitle = selectedDemand.Title
                 });
+                var selectedDemandAnswers = _demandAnswerManager.GetByDemandId(id);
+                foreach (var item in selectedDemandAnswers)
+                {
+                    var senderName = await _userManager.FindByIdAsync(item.SenderID);
+                    var receiverName = await _userManager.FindByIdAsync(item.ReceiverID);
+                    demandAnswersList.Add(new DemandAnswersForEmployee
+                    {
+                        Message = item.Message, AnswerType = item.DemandAnswerType,FileName = item.FileName,DemandAnswerDate = item.CreateTime,FilePath = item.AnswerFilePath,
+                        ReceiverName = receiverName.NameSurname,SenderName = senderName.NameSurname,
+                    });
+                }
+                model.EmployeeDemandAnswers = demandAnswersList;
+                model.DemandID = selectedDemand.ID;
+                model.DemandDetailList = dataList;
             }
-            model.EmployeeDemandAnswers = demandAnswersList;
-            model.DemandID = selectedDemand.ID;
-            model.DemandDetailList = dataList;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         [Microsoft.AspNetCore.Mvc.HttpPost]
@@ -592,37 +686,46 @@ namespace Project.Controllers
         {
             DemandAnswer newDemandAnswer = new DemandAnswer();
             var selectedDemand = _demandManager.GetById(data.DemandID);
-            newDemandAnswer.Message = data.DemandAnswer;
-            newDemandAnswer.Status = true;
-            newDemandAnswer.DemandID = selectedDemand.ID;
-            newDemandAnswer.ReceiverID = selectedDemand.ReceiverId;   
-            newDemandAnswer.SenderID = selectedDemand.CreatorId;
-            newDemandAnswer.CreateTime = DateTime.Now;
-            newDemandAnswer.DemandAnswerType = 2;
-            if (data.DemandFile != null)
+            try
             {
-                var extension = Path.GetExtension(data.DemandFile.FileName);
-                var newFileName = Guid.NewGuid() + extension;
-                var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DemandFiles/", newFileName);
-                var stream = new FileStream(location, FileMode.Create);
-                data.DemandFile.CopyTo(stream);
-                newDemandAnswer.FileName = data.DemandFile.FileName;
-                newDemandAnswer.AnswerFilePath = newFileName;
+                newDemandAnswer.Message = data.DemandAnswer;
+                newDemandAnswer.Status = true;
+                newDemandAnswer.DemandID = selectedDemand.ID;
+                newDemandAnswer.ReceiverID = selectedDemand.ReceiverId;   
+                newDemandAnswer.SenderID = selectedDemand.CreatorId;
+                newDemandAnswer.CreateTime = DateTime.Now;
+                newDemandAnswer.DemandAnswerType = 2;
+                if (data.DemandFile != null)
+                {
+                    var extension = Path.GetExtension(data.DemandFile.FileName);
+                    var newFileName = Guid.NewGuid() + extension;
+                    var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DemandFiles/", newFileName);
+                    var stream = new FileStream(location, FileMode.Create);
+                    data.DemandFile.CopyTo(stream);
+                    newDemandAnswer.FileName = data.DemandFile.FileName;
+                    newDemandAnswer.AnswerFilePath = newFileName;
+                }
+                _demandAnswerManager.Add(newDemandAnswer);
+                _notyf.Success("Yanıtınız başarıyla gönderildi");
             }
-            _demandAnswerManager.Add(newDemandAnswer);
-            _notyf.Success("Yanıtınız başarıyla gönderildi");
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return RedirectToAction("DemandDetails", "Ops", new {id = selectedDemand.ID});
         }
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public async Task<IActionResult> DemandInbox(int id)
         {
-            var selectedDemand = _demandManager.GetById(id);
+            DemandDetailsDTO model = new DemandDetailsDTO();
+            try
+            {
+                var selectedDemand = _demandManager.GetById(id);
             var currentUser = await _userManager.GetUserAsync(User);
             if (selectedDemand.CreatorId == currentUser.Id)
             {
                 return RedirectToAction("DemandDetails", "Ops", new {id = selectedDemand.ID});
             }
-            DemandDetailsDTO model = new DemandDetailsDTO();
             List<DemandDetailClass> dataList = new List<DemandDetailClass>();
             List<DemandAnswersForEmployee> demandAnswersList = new List<DemandAnswersForEmployee>();
             var selectedDemandFile = _demandFileManager.GetByDemandID(selectedDemand.ID);
@@ -658,6 +761,11 @@ namespace Project.Controllers
             model.DemandDetailList = dataList;
             model.DemandID = selectedDemand.ID;
             model.EmployeeDemandAnswers = demandAnswersList;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         [Microsoft.AspNetCore.Mvc.HttpPost]
@@ -665,25 +773,32 @@ namespace Project.Controllers
         {
             DemandAnswer newDemandAnswer = new DemandAnswer();
             var selectedDemand = _demandManager.GetById(data.DemandID);
-            newDemandAnswer.Message = data.DemandAnswer;
-            newDemandAnswer.Status = true;
-            newDemandAnswer.DemandID = selectedDemand.ID;
-            newDemandAnswer.ReceiverID = selectedDemand.CreatorId;
-            newDemandAnswer.SenderID = selectedDemand.ReceiverId;
-            newDemandAnswer.CreateTime = DateTime.Now;
-            newDemandAnswer.DemandAnswerType = 1;
-            if (data.DemandFile != null)
+            try
             {
-                var extension = Path.GetExtension(data.DemandFile.FileName);
-                var newFileName = Guid.NewGuid() + extension;
-                var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DemandFiles/", newFileName);
-                var stream = new FileStream(location, FileMode.Create);
-                data.DemandFile.CopyTo(stream);
-                newDemandAnswer.FileName = data.DemandFile.FileName;
-                newDemandAnswer.AnswerFilePath = newFileName;
+                newDemandAnswer.Message = data.DemandAnswer;
+                newDemandAnswer.Status = true;
+                newDemandAnswer.DemandID = selectedDemand.ID;
+                newDemandAnswer.ReceiverID = selectedDemand.CreatorId;
+                newDemandAnswer.SenderID = selectedDemand.ReceiverId;
+                newDemandAnswer.CreateTime = DateTime.Now;
+                newDemandAnswer.DemandAnswerType = 1;
+                if (data.DemandFile != null)
+                {
+                    var extension = Path.GetExtension(data.DemandFile.FileName);
+                    var newFileName = Guid.NewGuid() + extension;
+                    var location = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/DemandFiles/", newFileName);
+                    var stream = new FileStream(location, FileMode.Create);
+                    data.DemandFile.CopyTo(stream);
+                    newDemandAnswer.FileName = data.DemandFile.FileName;
+                    newDemandAnswer.AnswerFilePath = newFileName;
+                }
+                _demandAnswerManager.Add(newDemandAnswer);
+                _notyf.Success("Yanıtınız başarıyla gönderildi");
             }
-            _demandAnswerManager.Add(newDemandAnswer);
-            _notyf.Success("Yanıtınız başarıyla gönderildi");
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return RedirectToAction("DemandInbox", "Ops", new {id = selectedDemand.ID});
         }
         public IActionResult EmployeeCalendar(string EmployeeID)
@@ -694,61 +809,88 @@ namespace Project.Controllers
         public IActionResult EmployeeCalendarPlanCreate(string EmployeeID, string StartDate)
         {
             EmployeeCalendarPlanCreateDTO newModel = new EmployeeCalendarPlanCreateDTO();
-            if (StartDate != null)
+            try
             {
-                String format = "ddd MMM dd yyyy HH:mm:ss GMT 0300 (GMT 03:00)";
-                DateTime formattingDateTime = DateTime.ParseExact(StartDate, format, CultureInfo.InvariantCulture);
-                newModel.EmployeeID = EmployeeID;
-                var endTime = formattingDateTime.AddDays(2);
-                newModel.start = formattingDateTime;
+                if (StartDate != null)
+                {
+                    String format = "ddd MMM dd yyyy HH:mm:ss GMT 0300 (GMT 03:00)";
+                    DateTime formattingDateTime = DateTime.ParseExact(StartDate, format, CultureInfo.InvariantCulture);
+                    newModel.EmployeeID = EmployeeID;
+                    var endTime = formattingDateTime.AddDays(2);
+                    newModel.start = formattingDateTime;
+                }
+                else
+                {
+                    newModel.EmployeeID = EmployeeID;
+                    var endTime = DateTime.Now.AddDays(2);
+                    newModel.start = DateTime.Now;
+                    newModel.end = endTime;
+                }
             }
-            else
+            catch (Exception e)
             {
-                newModel.EmployeeID = EmployeeID;
-                var endTime = DateTime.Now.AddDays(2);
-                newModel.start = DateTime.Now;
-                newModel.end = endTime;
+                _logger.LogError(e, e.Message);
             }
             return View(newModel);;
         }
         [HttpPost]
         public async Task<IActionResult> EmployeeCalendarPlanCreate(EmployeeCalendarPlanCreateDTO data)
         {
-            if (ModelState.IsValid)
-            {
-                var currentUser = await _userManager.GetUserAsync(User);
-                var newEmployeeCalendarPlan = _mapper.Map<EmployeeCalendar>(data);
-                newEmployeeCalendarPlan.Status = true;
-                newEmployeeCalendarPlan.color = "#f45151";
-                newEmployeeCalendarPlan.textColor = "#fff";
-                newEmployeeCalendarPlan.EmployeeID = currentUser.Id;
-                _employeeCalendarManager.Add(newEmployeeCalendarPlan);
-                _notyf.Success("Başarıyla ürün planı oluşturuldu");
-                return RedirectToAction("EmployeeCalendar", "Ops",new {EmployeeID = data.EmployeeID});
-            }
             EmployeeCalendarPlanCreateDTO model = new EmployeeCalendarPlanCreateDTO();
-            model.EmployeeID = data.EmployeeID;
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var currentUser = await _userManager.GetUserAsync(User);
+                    var newEmployeeCalendarPlan = _mapper.Map<EmployeeCalendar>(data);
+                    newEmployeeCalendarPlan.Status = true;
+                    newEmployeeCalendarPlan.color = "#f45151";
+                    newEmployeeCalendarPlan.textColor = "#fff";
+                    newEmployeeCalendarPlan.EmployeeID = currentUser.Id;
+                    _employeeCalendarManager.Add(newEmployeeCalendarPlan);
+                    _notyf.Success("Başarıyla ürün planı oluşturuldu");
+                    return RedirectToAction("EmployeeCalendar", "Ops",new {EmployeeID = data.EmployeeID});
+                }
+                model.EmployeeID = data.EmployeeID;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         [HttpGet]
         public IActionResult EmployeeCalendarPlanEdit(int EventID)
         {
-            var selectedEvent = _employeeCalendarManager.GetById(EventID);
-            var model = _mapper.Map<EmployeeCalendarPlanCreateDTO>(selectedEvent);
-            model.EventID = EventID;
+            EmployeeCalendarPlanCreateDTO model = new EmployeeCalendarPlanCreateDTO();
+            try
+            {
+                var selectedEvent = _employeeCalendarManager.GetById(EventID);
+                model = _mapper.Map<EmployeeCalendarPlanCreateDTO>(selectedEvent);
+                model.EventID = EventID;
+            }catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         [HttpPost]
         public async Task<IActionResult> EmployeeCalendarPlanEdit(EmployeeCalendarPlanCreateDTO data)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var updatedEvent = _mapper.Map<EmployeeCalendar>(data);
-            updatedEvent.id = data.EventID;
-            updatedEvent.Status = true;
-            updatedEvent.color = "#f45151";
-            updatedEvent.textColor = "#fff";
-            _employeeCalendarManager.Update(updatedEvent);
-            _notyf.Success("Etkinlik başarıyla güncellendi");
+            try
+            {
+                var updatedEvent = _mapper.Map<EmployeeCalendar>(data);
+                updatedEvent.id = data.EventID;
+                updatedEvent.Status = true;
+                updatedEvent.color = "#f45151";
+                updatedEvent.textColor = "#fff";
+                _employeeCalendarManager.Update(updatedEvent);
+                _notyf.Success("Etkinlik başarıyla güncellendi");
+            }catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return RedirectToAction("EmployeeCalendar", "Ops",new {EmployeeID = currentUser.Id});
         }
 
@@ -756,87 +898,120 @@ namespace Project.Controllers
         public async Task<IActionResult> EmployeeCalendarPlanDelete(int EventID)
         {
             var currentUser = await _userManager.GetUserAsync(User);
-            var selectedEvent = _employeeCalendarManager.GetById(EventID);
-            selectedEvent.Status = false;
-            _employeeCalendarManager.Update(selectedEvent);
-            _notyf.Success("Etkinlik başarıyla silindi");
+            try
+            {
+                var selectedEvent = _employeeCalendarManager.GetById(EventID);
+                selectedEvent.Status = false;
+                _employeeCalendarManager.Update(selectedEvent);
+                _notyf.Success("Etkinlik başarıyla silindi");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return RedirectToAction("EmployeeCalendar", "Ops",new {EmployeeID = currentUser.Id});
         }
         [HttpGet]
         public async Task<IActionResult> CustomerServicePlanDelete(int EventID)
         {
-            var currentUser = await _userManager.GetUserAsync(User);
             var selectedEvent = _customerProductsManager.GetById(EventID);
-            _customerProductsManager.Delete(selectedEvent);
-            _notyf.Success("Etkinlik başarıyla silindi");
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                selectedEvent = _customerProductsManager.GetById(EventID);
+                _customerProductsManager.Delete(selectedEvent);
+                _notyf.Success("Etkinlik başarıyla silindi");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = selectedEvent.CustomerID});
         }
 
         [HttpGet]
         public IActionResult CustomerServicePlanEdit(int EventID)
         {
-            var selectedEvent = _customerProductsManager.GetById(EventID);
-            if (selectedEvent.Status == false)
+            CustomerPlanningServiceForADayDTO product = new CustomerPlanningServiceForADayDTO();
+            try
             {
-                return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
-            }
-            var product = _mapper.Map<CustomerPlanningServiceForADayDTO>(selectedEvent);
-            var seperatorString = product.title.Split(" ");
-            var count = 0;
-            string newTitle= null;
-            foreach (var item in seperatorString)
-            {
-                if (count != 0)
+                var selectedEvent = _customerProductsManager.GetById(EventID);
+                if (selectedEvent.Status == false)
                 {
-                    newTitle += item+" ";
+                    return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
                 }
-                count += 1;
+                product = _mapper.Map<CustomerPlanningServiceForADayDTO>(selectedEvent);
+                var seperatorString = product.title.Split(" ");
+                var count = 0;
+                string newTitle= null;
+                foreach (var item in seperatorString)
+                {
+                    if (count != 0)
+                    {
+                        newTitle += item+" ";
+                    }
+                    count += 1;
+                }
+                product.title = newTitle;
+                product.CustomerProductsID = EventID;
             }
-
-            product.title = newTitle;
-            product.CustomerProductsID = EventID;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(product);
         }
 
         [HttpPost]
         public IActionResult CustomerServicePlanEdit(CustomerPlanningServiceForADayDTO data)
         {
-            var updatedEvent = _customerProductsManager.GetById(data.CustomerProductsID);
-            updatedEvent.start = data.start;
-            updatedEvent.end = data.end;
-            updatedEvent.title = data.ProductType + " " + data.title;
-            _customerProductsManager.Update(updatedEvent);
-            _notyf.Success("Etkinlik başarıyla güncellendi");
+            try
+            {
+                var updatedEvent = _customerProductsManager.GetById(data.CustomerProductsID);
+                updatedEvent.start = data.start;
+                updatedEvent.end = data.end;
+                updatedEvent.title = data.ProductType + " " + data.title;
+                _customerProductsManager.Update(updatedEvent);
+                _notyf.Success("Etkinlik başarıyla güncellendi"); 
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = data.CustomerID});
         }
 
         public async Task<IActionResult> CustomerPayments()
         {
             List<CustomerListWithPaymentRoutineName> customerPaymentList = new List<CustomerListWithPaymentRoutineName>();
-            string ServiceNamesForCustomer = "";
-            var currentUser = await _userManager.GetUserAsync(User);;
-            var customerIDsForEmployee = _customerEmployeeManager.GetEmployeeListByEmployeeID(currentUser.Id);
-            foreach (var oneCustomerEmployee in customerIDsForEmployee)
+            try
             {
-                var selectedCustomer = await _userManager.FindByIdAsync(oneCustomerEmployee.CustomerID);
-                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
-                ServiceNamesForCustomer = "";
-                PaymentRoutineType paymentRoutineType = new PaymentRoutineType();
-                foreach (var customerServices in customerService)
+                string ServiceNamesForCustomer = "";
+                var currentUser = await _userManager.GetUserAsync(User);;
+                var customerIDsForEmployee = _customerEmployeeManager.GetEmployeeListByEmployeeID(currentUser.Id);
+                foreach (var oneCustomerEmployee in customerIDsForEmployee)
                 {
-                    paymentRoutineType = _paymentRoutineTypeManager.GetById(customerServices.PaymentRoutineTypeID);
-                    var selectedService = _serviceManager.GetById(customerServices.ServiceID);
-                    ServiceNamesForCustomer = selectedService.Name + ", " + ServiceNamesForCustomer;
+                    var selectedCustomer = await _userManager.FindByIdAsync(oneCustomerEmployee.CustomerID);
+                    var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
+                    ServiceNamesForCustomer = "";
+                    PaymentRoutineType paymentRoutineType = new PaymentRoutineType();
+                    foreach (var customerServices in customerService)
+                    {
+                        paymentRoutineType = _paymentRoutineTypeManager.GetById(customerServices.PaymentRoutineTypeID);
+                        var selectedService = _serviceManager.GetById(customerServices.ServiceID);
+                        ServiceNamesForCustomer = selectedService.Name + ", " + ServiceNamesForCustomer;
+                    }
+                    customerPaymentList.Add(new CustomerListWithPaymentRoutineName
+                    {
+                        CustomerID = selectedCustomer.Id, CustomerName = selectedCustomer.NameSurname, CustomerMail = selectedCustomer.Email,
+                        ServiceNames = ServiceNamesForCustomer,PaymentRoutineName = paymentRoutineType.Name
+                    });
                 }
-
-                customerPaymentList.Add(new CustomerListWithPaymentRoutineName
-                {
-                    CustomerID = selectedCustomer.Id, CustomerName = selectedCustomer.NameSurname, CustomerMail = selectedCustomer.Email,
-                    ServiceNames = ServiceNamesForCustomer,PaymentRoutineName = paymentRoutineType.Name
-                });
             }
-
-
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(customerPaymentList);
         }
 
@@ -847,38 +1022,48 @@ namespace Project.Controllers
             List<Services> serviceList = new List<Services>();
             double PaymentPriceSum = 0;
             List<PaymentHistoryClass> paymentHistoryList = new List<PaymentHistoryClass>();
-            var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
-            model.CustomerMail = selectedCustomer.Email;
-            model.CustomerName = selectedCustomer.NameSurname;
-            model.CustomerID = selectedCustomer.Id;
-            StringBuilder sb = new StringBuilder();
-            var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
-            foreach (var service in customerService)
+            try
             {
-                var selectedService = _serviceManager.GetById(service.ServiceID);
-                serviceList.Add(selectedService);
-                sb.Append(selectedService.Name + ", ");
-            }
-            var selectedCustomerPaymentHistory = _customerPaymentsManager.GetPaymentListByCustomerID(selectedCustomer.Id);
-            foreach (var payment in selectedCustomerPaymentHistory)
-            {
-                PaymentPriceSum += payment.PaymentPrice;
-                paymentHistoryList.Add(new PaymentHistoryClass
+                var selectedCustomer = await _userManager.FindByIdAsync(CustomerID);
+                model.CustomerMail = selectedCustomer.Email;
+                model.CustomerName = selectedCustomer.NameSurname;
+                model.CustomerID = selectedCustomer.Id;
+                StringBuilder sb = new StringBuilder();
+                var customerService = _customerServiceManager.GetCustomerServiceByCustomerID(selectedCustomer.Id);
+                foreach (var service in customerService)
                 {
-                    PaymentDate = payment.PaymentDate,
-                    PaymentPrice = payment.PaymentPrice,
-                });
+                    var selectedService = _serviceManager.GetById(service.ServiceID);
+                    serviceList.Add(selectedService);
+                    sb.Append(selectedService.Name + ", ");
+                }
+                var selectedCustomerPaymentHistory = _customerPaymentsManager.GetPaymentListByCustomerID(selectedCustomer.Id);
+                foreach (var payment in selectedCustomerPaymentHistory)
+                {
+                    PaymentPriceSum += payment.PaymentPrice;
+                    paymentHistoryList.Add(new PaymentHistoryClass
+                    {
+                        PaymentDate = payment.PaymentDate,
+                        PaymentPrice = payment.PaymentPrice,
+                    });
+                }
+                model.CustomerServices = sb.ToString();
+                model.serviceList = serviceList;
+                model.PaymentHistoryList = paymentHistoryList;
+                model.PaymentPriceSum = PaymentPriceSum;
             }
-            model.CustomerServices = sb.ToString();
-            model.serviceList = serviceList;
-            model.PaymentHistoryList = paymentHistoryList;
-            model.PaymentPriceSum = PaymentPriceSum;
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         
         [HttpPost]
         public async Task<IActionResult> CustomerPaymentTracking(CustomerPaymentTrackingDTO data, IFormCollection collection)
         {
+            CustomerPaymentTrackingDTO model = new CustomerPaymentTrackingDTO();        
+            try
+            {
             var selectedCustomer = await _userManager.FindByIdAsync(data.CustomerID);
             if (data.SelectedServiceID == 0)
             {
@@ -893,7 +1078,8 @@ namespace Project.Controllers
             if (ModelState.IsValid)
             {
                
-                var customerServiceData = _customerServiceManager.GetCustomerServiceByCustomerIDandCustomerService(data.CustomerID,
+                var customerServiceData = _customerServiceManager
+                    .GetCustomerServiceByCustomerIDandCustomerService(data.CustomerID,
                     data.SelectedServiceID);
                 CustomerPayment newCustomerPayment = new CustomerPayment();
                 newCustomerPayment.CustomerID = selectedCustomer.Id;
@@ -906,8 +1092,6 @@ namespace Project.Controllers
                 _notyf.Success("Müşteri ödeme kaydı tamamlandı");
                 return RedirectToAction("CustomerPaymentTracking", new { CustomerID = selectedCustomer.Id });
             }
-            
-            CustomerPaymentTrackingDTO model = new CustomerPaymentTrackingDTO();
             List<Services> serviceList = new List<Services>();
             model.CustomerMail = selectedCustomer.Email;
             model.CustomerName = selectedCustomer.NameSurname;
@@ -923,26 +1107,46 @@ namespace Project.Controllers
             model.CustomerServices = sb.ToString();
             model.serviceList = serviceList;
             _notyf.Error("Müşteri ödeme kaydı yapılırken bir hata oluştu.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return View(model);
         }
         
         [HttpGet]
         public IActionResult CloseDemand(int CustomerProductsID)
         {
-            var demand = _demandManager.GetByProductID(CustomerProductsID);
-            demand.Status = false;
-            _demandManager.Update(demand);
-            _notyf.Success("Müşteri talebi başarıyla kapatıldı");
+            try
+            {
+                var demand = _demandManager.GetByProductID(CustomerProductsID);
+                demand.Status = false;
+                _demandManager.Update(demand);
+                _notyf.Success("Müşteri talebi başarıyla kapatıldı");  
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
             return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = CustomerProductsID});
         }
         
         [HttpGet]
         public IActionResult CloseDemandForInbox(int DemandID)
         {
-            var demand = _demandManager.GetById(DemandID);
-            demand.Status = false;
-            _demandManager.Update(demand);
-            _notyf.Success("Müşteri talebi başarıyla kapatıldı");
+            try
+            {
+                var demand = _demandManager.GetById(DemandID);
+                demand.Status = false;
+                _demandManager.Update(demand);
+                _notyf.Success("Müşteri talebi başarıyla kapatıldı");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            
             return RedirectToAction("DemandDetails", "Ops",new {id = DemandID});
         }
         
