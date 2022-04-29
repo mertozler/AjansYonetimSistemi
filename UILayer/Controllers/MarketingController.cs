@@ -8,6 +8,7 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
 using BackgroundJobs.Schedules;
 using BusinessLayer.Concrete;
+using BusinessLayer.Utils;
 using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
 using EntityLayer.Concrete;
@@ -250,7 +251,8 @@ namespace Project.Controllers
 
                 var dateTime = data.end;
                 dateTime = dateTime.Add(new TimeSpan(-3, 0, 0));
-                DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime);
+                var selectedEmployeePhoneNumber = selectedEmployee.PhoneNumber;
+                DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime,selectedEmployeePhoneNumber);
                 _notyf.Success("Başarıyla ürün planı oluşturuldu");
                 return RedirectToAction("CustomerServicePlanningDates", "Marketing",new {CustomerID = data.CustomerID});
             }
@@ -1003,7 +1005,7 @@ namespace Project.Controllers
                 var selectedEvent = _customerProductsManager.GetById(EventID);
                 if (selectedEvent.Status == false)
                 {
-                    return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
+                    return RedirectToAction("CustomerProductsDetail", "Marketing",new {CustomerProductsID = EventID});
                 }
                 product = _mapper.Map<CustomerPlanningServiceForADayDTO>(selectedEvent);
                 var seperatorString = product.title.Split(" ");
@@ -1047,7 +1049,7 @@ namespace Project.Controllers
             }
 
            
-            return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = data.CustomerID});
+            return RedirectToAction("CustomerServicePlanningDates", "Marketing",new {CustomerID = data.CustomerID});
         }
         
         
@@ -1067,6 +1069,61 @@ namespace Project.Controllers
             
            
             return RedirectToAction("CustomerProductsDetail", "Marketing",new {CustomerProductsID = CustomerProductsID});
+        }
+        
+         [HttpGet]
+        public IActionResult Profile()
+        {
+            UserProfileDTO model = new UserProfileDTO();
+            try
+            {
+                var currentUser = _userManager.GetUserAsync(HttpContext.User);
+                model.Mail = currentUser.Result.Email;
+                model.Name = currentUser.Result.NameSurname;
+                model.UserId = currentUser.Result.Id;
+                var selectedUserRole = _userManager.GetRolesAsync(currentUser.Result).Result;
+                model.RoleName = selectedUserRole[0].ToUpper();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Profile(UserProfileDTO data)
+        {
+            try
+            {
+                if (data.Password == data.PasswordConfirm)
+                {
+                    var selectedUser = await _userManager.FindByIdAsync(data.UserId);
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(selectedUser); 
+                    var result = await _userManager.ResetPasswordAsync(selectedUser, token, data.Password);
+                    if (result.Succeeded)
+                    {
+                        MailService mailService = new MailService();
+                        mailService.SendMailWithReceiverMailContextAndSubject(selectedUser.Email, "Şifre Güncelleme", "Şifreniz başarıyla değiştirilmiştir.");
+                        _notyf.Success("Şifreniz başarıyla değiştirilmiştir.");
+                    }
+
+                    foreach (var item in result.Errors)
+                    {
+                        _notyf.Error("Şifre Değiştirilirken Hata Oluştu: " + item.Description);
+                    }
+                }
+                else
+                {
+                    _notyf.Error("Şifreleriniz uyuşmuyor. Lütfen tekrar deneyiniz.");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            return RedirectToAction("Profile", "Marketing");
         }
         
     }

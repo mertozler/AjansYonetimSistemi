@@ -11,7 +11,9 @@
           "AutoMapper": "11.0.1",
           "DataAccessLayer": "1.0.0",
           "EntityLayer": "1.0.0",
-          "FluentValidation": "10.4.0"
+          "FluentValidation": "10.4.0",
+          "SmsApiNodeCore": "1.0.0.0",
+          "System.Web.Extensions": "4.0.0.0"
         },
         "runtime": {
           "BusinessLayer.dll": {}
@@ -1514,6 +1516,22 @@
         "runtime": {
           "EntityLayer.dll": {}
         }
+      },
+      "SmsApiNodeCore/1.0.0.0": {
+        "runtime": {
+          "SmsApiNodeCore.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "System.Web.Extensions/4.0.0.0": {
+        "runtime": {
+          "System.Web.Extensions.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.8.4494.0"
+          }
+        }
       }
     }
   },
@@ -2454,6 +2472,16 @@
     },
     "EntityLayer/1.0.0": {
       "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SmsApiNodeCore/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Web.Extensions/4.0.0.0": {
+      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }

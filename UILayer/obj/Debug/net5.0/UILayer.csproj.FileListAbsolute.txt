@@ -586,3 +586,13 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\Serilog.En
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\Serilog.Exceptions.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\Serilog.Formatting.Elasticsearch.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\Serilog.Sinks.Elasticsearch.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Admin\Profile.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Designer\Profile.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Marketing\Profile.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Ops\Profile.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Customer\Profile.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Account\ForgotPassword.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Account\ResetPassword.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\System.Web.Extensions.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\SmsApiNodeCore.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\SmsApiNodeCore.pdb

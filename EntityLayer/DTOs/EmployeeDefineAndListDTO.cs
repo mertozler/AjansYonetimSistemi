@@ -11,10 +11,16 @@ namespace EntityLayer.DTOs
         [Display(Prompt ="İsim Soyisim")]
         public string Name { get; set; }
         [Required(ErrorMessage = "Email boş geçilemez.")]
-        [StringLength(100, MinimumLength = 3, ErrorMessage = "Email 3 ile 100 karkater arasında olmak zorundadır.")]
+        [StringLength(100, MinimumLength = 3, ErrorMessage = "Email 3 ile 100 karakater arasında olmak zorundadır.")]
         [DataType(DataType.EmailAddress)]
         [Display(Prompt = "Mail")]
         public string Email { get; set; }
+        
+        [Required(ErrorMessage = "Telefon Numarası boş geçilemez.")]
+        [StringLength(10, MinimumLength = 10, ErrorMessage = "Telefon Numarası 10 karakater arasında olmak zorundadır.")]
+        [DataType(DataType.PhoneNumber)]
+        [Display(Prompt = "Telefon Numarası")]
+        public string PhoneNumber { get; set; }
         
         [Required(ErrorMessage = "Şifre boş geçilemez.")]
         [StringLength(100, MinimumLength = 3, ErrorMessage = "Şifre 3 ile 100 karkater arasında olmak zorundadır.")]

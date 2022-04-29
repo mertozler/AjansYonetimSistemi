@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using BusinessLayer.Utils;
 using EntityLayer.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Project.Models.LoginViewModel;
+using Project.Models.ResetPasswordViewModel;
 
 namespace Project.Controllers
 {
@@ -13,11 +16,13 @@ namespace Project.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly INotyfService _notyf;
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,INotyfService notyf)
+        private readonly ILogger<CustomerController> _logger;
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,INotyfService notyf,ILogger<CustomerController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _notyf = notyf;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -103,6 +108,85 @@ namespace Project.Controllers
         public IActionResult AccesDenied()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ForgotPassword(string email)
+        {
+            try
+            {
+                var user = _userManager.FindByEmailAsync(email).Result;
+
+                if (user == null || !(_userManager.
+                        IsEmailConfirmedAsync(user).Result))
+                {
+                    ViewBag.Message = "Şifrenizi sıfırlarken bir sorun oluştu! Mail adresinizi kontrol edip tekrardan deneyiniz";
+                    return View("ForgotPassword");
+                }
+
+                var token = _userManager.
+                    GeneratePasswordResetTokenAsync(user).Result;
+
+                var resetLink = Url.Action("ResetPassword", 
+                    "Account", new { token = token }, 
+                    protocol: HttpContext.Request.Scheme);
+
+                MailService sendMail = new MailService();
+                sendMail.SendMailWithReceiverMailContextAndSubject(email,"Şifrenizi sıfırlamak için linke <a href=" +
+                                                                         resetLink + ">tıklayınız</a>","Şifre Sıfırlama Talebiniz Alınmıştır");
+
+                // code to email the above link
+                // see the earlier article
+
+                ViewBag.Message = "Şifre sıfırlama linkiniz mail adresinize gönderilmiştir!";
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e,e.Message);
+            }
+            
+            return View("ForgotPassword");
+        }
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(ResetPasswordViewModel data)
+        {
+            IdentityResult result = new IdentityResult();
+            try
+            {
+                var user = _userManager.
+                    FindByEmailAsync(data.Email).Result;
+
+                result = _userManager.ResetPasswordAsync
+                    (user, data.Token,data.Password).Result;
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e,e.Message);
+            }
+            if (result.Succeeded)
+            {
+                ViewBag.Message = "Şifreniz başarıyla sıfırlanmıştır.! Lütfen yeni şifrenizle giriş yapınız.";
+                return View("ResetPassword");
+            }
+            else
+            {
+                ViewBag.Message = "Şifreniz sıfırlanırken bir sorun yaşandı!";
+                return View("ResetPassword");
+            }
+            
         }
     }
 }

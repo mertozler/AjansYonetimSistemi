@@ -1,4 +1,21 @@
 ﻿@using Project.ViewComponents
+@using EntityLayer.Concrete
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject UserManager<ApplicationUser> UserManager
+
+@inject SignInManager<ApplicationUser> SignInManager
+
+
+@{
+    var girisYapanKullanici = await UserManager.GetUserAsync(User);
+    IList<string> kullaniciRolleri = null;
+    if(girisYapanKullanici!=null)
+    {
+        kullaniciRolleri = await UserManager.GetRolesAsync(girisYapanKullanici);
+    }
+    
+}
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
@@ -6,10 +23,10 @@
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="/Home/" class="nav-link">Home</a>
+        <a href="/Home/" class="nav-link">Anasayfa</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="#" class="nav-link">Contact</a>
+        <a href="#" class="nav-link">İletişim</a>
       </li>
     </ul>
 
@@ -39,21 +56,50 @@
       
       @await Component.InvokeAsync("NavbarNotification")
       
+       <li class="nav-item">
+               @if (kullaniciRolleri[0] == "admin")
+                       {
+                          <a class="nav-link" href="/Admin/Profile">
+                              <i class="fas fa-user-cog">Profilim</i>
+                          </a>
+                       }
+                else if (kullaniciRolleri[0] == "designer")
+                                      {
+                                         <a class="nav-link" href="/Designer/Profile">
+                                             <i class="fas fa-user-cog">Profilim</i>
+                                         </a>
+                                      }
+                else if (kullaniciRolleri[0] == "marketing")
+                                                     {
+                                                        <a class="nav-link" href="/Marketing/Profile">
+                                                            <i class="fas fa-user-cog">Profilim</i>
+                                                        </a>
+                                                     }
+                else if (kullaniciRolleri[0] == "ops")
+                                                                    {
+                                                                       <a class="nav-link" href="/Ops/Profile">
+                                                                           <i class="fas fa-user-cog">Profilim</i>
+                                                                       </a>
+                                                                    }
+                else if (kullaniciRolleri[0] == "customer")
+                                                                    {
+                                                                       <a class="nav-link" href="/Customer/Profile">
+                                                                           <i class="fas fa-user-cog">Profilim</i>
+                                                                       </a>
+                                                                    }
+            </li>
    
       
       <li class="nav-item">
-               
-                 <a href="/Account/Logout" class="nav-link">
-                 <i class="fas fa-sign-out-alt">Logout</i>
-                            </a>
-                
-              
-           
-            </li>
+        <a href="/Account/Logout" class="nav-link">
+          <i class="fas fa-sign-out-alt">Çıkış</i>
+        </a>
+
+
+
+      </li>
       
-      <li class="nav-item">
-             
-            </li>
+     
      
     </ul>
   </nav>

@@ -14,4 +14,13 @@
       <PackageReference Include="FluentValidation" Version="10.4.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="SmsApiNodeCore">
+        <HintPath>C:\Users\Acer\Downloads\SmsApi\Net-Core\netcoreapp2.1\SmsApiNodeCore.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Web.Extensions">
+        <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\System.Web.Extensions\v4.0_4.0.0.0__31bf3856ad364e35\System.Web.Extensions.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

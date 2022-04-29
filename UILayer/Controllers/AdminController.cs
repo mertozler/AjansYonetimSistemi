@@ -21,6 +21,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SmsApiNode;
+using SmsApiNode.Operations;
 
 namespace Project.Controllers
 {
@@ -145,6 +147,7 @@ namespace Project.Controllers
                 {
                     var EmployeeUser = _mapper.Map<ApplicationUser>(employeeData);
                     EmployeeUser.Status = true;
+                    EmployeeUser.PhoneNumber = "90" + employeeData.PhoneNumber;
                     EmployeeUser.Id = Guid.NewGuid().ToString();
                     var result = await _userManager.CreateAsync(EmployeeUser, employeeData.Password);
                     if (result.Succeeded)
@@ -189,7 +192,9 @@ namespace Project.Controllers
             
             EmployeeList employeeList = new EmployeeList(_context, _userManager);
             List<RoleListClass> roleList = new List<RoleListClass>();
-            var roles = _context.Roles.Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops").ToList();
+            var roles = _context.Roles
+                .Where(x=> x.Name == "designer" || x.Name == "marketing" || x.Name == "ops")
+                .ToList();
             foreach (var item in roles)
             {
                 roleList.Add(new RoleListClass
@@ -575,6 +580,7 @@ namespace Project.Controllers
                 {
                     var CustomerUser = _mapper.Map<ApplicationUser>(customerData);
                     CustomerUser.Status = true;
+                    CustomerUser.PhoneNumber = "90" + customerData.PhoneNumber;
                     CustomerUser.Id = Guid.NewGuid().ToString();
                     var result = await _userManager.CreateAsync(CustomerUser, customerData.Password);
                     if (result.Succeeded)
@@ -1213,6 +1219,61 @@ namespace Project.Controllers
             }
            
             return RedirectToAction("Settings");
+        }
+
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            UserProfileDTO model = new UserProfileDTO();
+            try
+            {
+                var currentUser = _userManager.GetUserAsync(HttpContext.User);
+                model.Mail = currentUser.Result.Email;
+                model.Name = currentUser.Result.NameSurname;
+                model.UserId = currentUser.Result.Id;
+                var selectedUserRole = _userManager.GetRolesAsync(currentUser.Result).Result;
+                model.RoleName = selectedUserRole[0].ToUpper();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Profile(UserProfileDTO data)
+        {
+            try
+            {
+                if (data.Password == data.PasswordConfirm)
+                {
+                    var selectedUser = await _userManager.FindByIdAsync(data.UserId);
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(selectedUser); 
+                    var result = await _userManager.ResetPasswordAsync(selectedUser, token, data.Password);
+                    if (result.Succeeded)
+                    {
+                        MailService mailService = new MailService();
+                        mailService.SendMailWithReceiverMailContextAndSubject(selectedUser.Email, "Şifre Güncelleme", "Şifreniz başarıyla değiştirilmiştir.");
+                        _notyf.Success("Şifreniz başarıyla değiştirilmiştir.");
+                    }
+
+                    foreach (var item in result.Errors)
+                    {
+                        _notyf.Error("Şifre Değiştirilirken Hata Oluştu: " + item.Description);
+                    }
+                }
+                else
+                {
+                    _notyf.Error("Şifreleriniz uyuşmuyor. Lütfen tekrar deneyiniz.");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            return RedirectToAction("Profile", "Admin");
         }
 
 

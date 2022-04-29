@@ -49,3 +49,6 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BusinessLayer\obj\Debug\net5.0\Busi
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BusinessLayer\obj\Debug\net5.0\BusinessLayer.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BusinessLayer\obj\Debug\net5.0\ref\BusinessLayer.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BusinessLayer\obj\Debug\net5.0\BusinessLayer.pdb
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BusinessLayer\bin\Debug\net5.0\System.Web.Extensions.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BusinessLayer\bin\Debug\net5.0\SmsApiNodeCore.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BusinessLayer\bin\Debug\net5.0\SmsApiNodeCore.pdb

@@ -38,7 +38,7 @@ namespace Project
                     ModifyConnectionSettings = c => c.ServerCertificateValidationCallback(
                         (o, certificate, arg3, arg4) => { return true; }),
                     AutoRegisterTemplate = true,
-                    IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace(".", "-")}-{environment?.ToLower().Replace(".", "-")}-{DateTime.UtcNow:yyyy-MM}"
+                    IndexFormat = $"{"ajansyonetimsistemi"}-{environment?.ToLower().Replace(".", "-")}-{DateTime.UtcNow:yyyy-MM}"
                 })
                 .Enrich.WithProperty("Environment", environment)
                 .ReadFrom.Configuration(configuration)

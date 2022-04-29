@@ -62,6 +62,10 @@
 								<a href="~/CustomerProductsFile/@Model.ProductFilePath" download><span class="badge bg-danger">Raporu İndir</span></a>
 								<p><small>@Model.ProductTitle-Revize-Raporu.v1</small></p>
 							}
+							@if (fileExtension == ".mp4" || fileExtension == ".mkv" || fileExtension == ".avi")
+							{
+								<a href="~/CustomerProductsFile/@Model.ProductFilePath" download><span class="badge bg-danger">Videoyu İndir</span></a>
+							}
 						}
 						<div class="font-weight-normal mb-1">@Model.ProductContent</div>                                   
 					</div>

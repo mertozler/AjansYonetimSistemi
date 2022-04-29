@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLayer", "BusinessLa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackgroundJobs", "BackgroundJobs\BackgroundJobs.csproj", "{6AF0DA6A-798C-4C7B-A50D-FE030C65DBFE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsApiNodeCoreTest", "C:\Users\Acer\Downloads\SmsApi\Net-Core\SmsApiNodeCoreTest\SmsApiNodeCoreTest.csproj", "{D5A6469B-3B8B-41B3-A726-D3BA9AFE6FC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{6AF0DA6A-798C-4C7B-A50D-FE030C65DBFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AF0DA6A-798C-4C7B-A50D-FE030C65DBFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AF0DA6A-798C-4C7B-A50D-FE030C65DBFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5A6469B-3B8B-41B3-A726-D3BA9AFE6FC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5A6469B-3B8B-41B3-A726-D3BA9AFE6FC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5A6469B-3B8B-41B3-A726-D3BA9AFE6FC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5A6469B-3B8B-41B3-A726-D3BA9AFE6FC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

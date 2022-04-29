@@ -29,3 +29,5 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BackgroundJobs\obj\Debug\net5.0\Bac
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BackgroundJobs\obj\Debug\net5.0\ref\BackgroundJobs.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BackgroundJobs\obj\Debug\net5.0\BackgroundJobs.pdb
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BackgroundJobs\bin\Debug\net5.0\SmsApiNodeCore.dll
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\BackgroundJobs\bin\Debug\net5.0\SmsApiNodeCore.pdb

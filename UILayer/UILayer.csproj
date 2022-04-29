@@ -30,6 +30,7 @@
       <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
       <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="8.5.0-alpha0003" />
       <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.7.1-dev-00014" />
+      <PackageReference Include="System.Net.Security" Version="4.3.2" />
       <PackageReference Include="X.PagedList" Version="8.1.0" />
       <PackageReference Include="X.PagedList.Mvc.Core" Version="8.1.0" />
     </ItemGroup>
@@ -46,6 +47,15 @@
 
     <ItemGroup>
       <Folder Include="wwwroot\CustomerProductsFile" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="SmsApiNodeCore">
+        <HintPath>C:\Users\Acer\Downloads\SmsApi\Net-Core\netcoreapp2.1\SmsApiNodeCore.dll</HintPath>
+      </Reference>
+      <Reference Include="System.Web.Extensions">
+        <HintPath>C:\Users\Acer\Desktop\System.Web.Extensions.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

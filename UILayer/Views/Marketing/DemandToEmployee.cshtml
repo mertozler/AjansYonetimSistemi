@@ -60,15 +60,15 @@
 <section>
     <div id="accordion" style="margin: 20px;">
         <div class="card shadow mt-5">
-            <div class="card-header bg-info">
-                <a href="#collapseCompanyCreate" class="card-link p-1">
-                    Personele Talep Aç
-                </a>
-            </div>
+            <div class="card-header bg-gradient-gray-dark">
+                                    <h3 class="card-title">
+                                       Personele Talep Aç
+                                   </h3>
+                                </div>
             <div id="collapseCompanyCreate">
-                <form asp-controller="Marketing" asp-action="DemandToEmployee"  enctype="multipart/form-data" method="post">
+                <form asp-controller="Marketing" asp-action="DemandToEmployee" enctype="multipart/form-data" method="post">
                     <div class="card-body shadow">
-                
+
                         <div class="row">
                             <div class="col-md-12">
                                 <div asp-validation-summary="All" class="text-danger"></div>
@@ -82,7 +82,7 @@
                                     {
                                         <option class="form-control" value="@item.Id">@item.NameSurname</option>
                                     }
-                                
+
                                 </select>
                                 <span asp-validation-for="ReceiverID" class="text-danger"></span>
                             </div>
@@ -91,17 +91,17 @@
                         <div class="form-group row">
                             <label asp-for="Title" class="col-sm-1 col-form-label">Başlık:</label>
                             <div class="col-sm-4">
-                                <input class="form-control" asp-for="Title" />
+                                <input class="form-control" asp-for="Title"/>
                                 <span asp-validation-for="Title" class="text-danger"></span>
                             </div>
                         </div>
-                        
+
                         <div class="form-group row">
                             <label asp-for="Content" class="col-sm-1 col-form-label">İçerik:</label>
                             <div class="col-sm-4">
                                 <textarea class="form-control" id="Content" name="Content"  asp-for="Content" rows="2" cols="50">
                             </textarea>
-                                
+
                                 <span asp-validation-for="Content" class="text-danger"></span>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                                 <input type="file" name="DemandFiles" id="DemandFiles" asp-for="DemandFiles" multiple/>
                             </div>
                         </div>
-                                                
+
                         <input type="hidden" asp-for="CreatorID" value="@Model.CreatorID"/>
 
                         <div class="form-group row">
@@ -119,7 +119,7 @@
                                 <button type="submit" class="btn btn-success">Talep Gönder</button>
                             </div>
                         </div>
-                
+
 
                     </div>
                 </form>
@@ -131,11 +131,12 @@
 <section>
 <div id="accordion" style="margin: 20px;">
 <div class="card shadow mt-5">
-    <div class="card-header bg-info">
-        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
-            Talepler
-        </a>
-    </div>
+ <div class="card-header bg-gradient-gray-dark">
+                                    <h3 class="card-title">
+                                     Talepler
+                                   </h3>
+                                </div>
+    
     <div id="collapseCompanyList" class="collapse show">
         <div class="card-body">
             <div class="row table-responsive-sm">

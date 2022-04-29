@@ -9,10 +9,12 @@ using AspNetCoreHero.ToastNotification.Abstractions;
 using AutoMapper;
 using BackgroundJobs.Schedules;
 using BusinessLayer.Concrete;
+using BusinessLayer.Utils;
 using DataAccessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
 using EntityLayer.Concrete;
 using EntityLayer.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +26,7 @@ using Notification = EntityLayer.Concrete.Notification;
 
 namespace Project.Controllers
 {
+    [Authorize(Roles = "designer")]
     public class DesignerController : Controller
     {
         private readonly INotyfService _notyf;
@@ -64,7 +67,6 @@ namespace Project.Controllers
         [Authorize(Roles = "designer")]
         public async Task<IActionResult> Index()
         {
-            
             return View();
         }
         [Microsoft.AspNetCore.Mvc.HttpGet]
@@ -361,8 +363,9 @@ namespace Project.Controllers
                     }
                 }
                 var dateTime = data.end;
+                var selectedEmployeePhoneNumber = selectedEmployee.PhoneNumber;
                 dateTime = dateTime.Add(new TimeSpan(-3, 0, 0));
-                DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime);
+                DelayedJobs.SendMailForSharingScudele(userMail,data.title,dateTime,selectedEmployeePhoneNumber);
                 _notyf.Success("Başarıyla ürün planı oluşturuldu");
                 return RedirectToAction("CustomerServicePlanningDates", "Designer",new {CustomerID = data.CustomerID});
             }
@@ -865,7 +868,7 @@ namespace Project.Controllers
                 var selectedEvent = _customerProductsManager.GetById(EventID);
                 if (selectedEvent.Status == false)
                 {
-                    return RedirectToAction("CustomerProductsDetail", "Ops",new {CustomerProductsID = EventID});
+                    return RedirectToAction("CustomerProductsDetail", "Designer",new {CustomerProductsID = EventID});
                 }
                 product = _mapper.Map<CustomerPlanningServiceForADayDTO>(selectedEvent);
                 var seperatorString = product.title.Split(" ");
@@ -907,7 +910,7 @@ namespace Project.Controllers
                 _logger.LogError(e, e.Message);
             }
             
-            return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = data.CustomerID});
+            return RedirectToAction("CustomerServicePlanningDates", "Designer",new {CustomerID = data.CustomerID});
         }
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public async Task<IActionResult> CustomerServicePlanDelete(int EventID)
@@ -925,7 +928,7 @@ namespace Project.Controllers
                 _logger.LogError(e, e.Message);
             }
             
-            return RedirectToAction("CustomerServicePlanningDates", "Ops",new {CustomerID = selectedEvent.CustomerID});
+            return RedirectToAction("CustomerServicePlanningDates", "Designer",new {CustomerID = selectedEvent.CustomerID});
         }
         public IActionResult CloseDemand(int ProductID)
         {
@@ -1025,7 +1028,7 @@ namespace Project.Controllers
                 _logger.LogError(e, e.Message);
             }
             
-            return RedirectToAction("EmployeeCalendar", "Ops",new {EmployeeID = currentUser.Id});
+            return RedirectToAction("EmployeeCalendar", "Designer",new {EmployeeID = currentUser.Id});
         }
         [Microsoft.AspNetCore.Mvc.HttpGet]
         public async Task<IActionResult> EmployeeCalendarPlanDelete(int EventID)
@@ -1044,7 +1047,7 @@ namespace Project.Controllers
                 _logger.LogError(e, e.Message);
             }
             
-            return RedirectToAction("EmployeeCalendar", "Ops",new {EmployeeID = currentUser.Id});
+            return RedirectToAction("EmployeeCalendar", "Designer",new {EmployeeID = currentUser.Id});
         }
         
         [Microsoft.AspNetCore.Mvc.HttpGet]
@@ -1093,7 +1096,7 @@ namespace Project.Controllers
                     newEmployeeCalendarPlan.EmployeeID = currentUser.Id;
                     _employeeCalendarManager.Add(newEmployeeCalendarPlan);
                     _notyf.Success("Başarıyla ürün planı oluşturuldu");
-                    return RedirectToAction("EmployeeCalendar", "Ops",new {EmployeeID = data.EmployeeID});
+                    return RedirectToAction("EmployeeCalendar", "Designer",new {EmployeeID = data.EmployeeID});
                 }
                
                 model.EmployeeID = data.EmployeeID;
@@ -1122,6 +1125,63 @@ namespace Project.Controllers
             return RedirectToAction("DemandToEmployee", "Designer");
            
         }
+        
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        public IActionResult Profile()
+        {
+            UserProfileDTO model = new UserProfileDTO();
+            try
+            {
+                var currentUser = _userManager.GetUserAsync(HttpContext.User);
+                model.Mail = currentUser.Result.Email;
+                model.Name = currentUser.Result.NameSurname;
+                model.UserId = currentUser.Result.Id;
+                var selectedUserRole = _userManager.GetRolesAsync(currentUser.Result).Result;
+                model.RoleName = selectedUserRole[0].ToUpper();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+
+            return View(model);
+        }
+
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        public async Task<IActionResult> Profile(UserProfileDTO data)
+        {
+            try
+            {
+                if (data.Password == data.PasswordConfirm)
+                {
+                    var selectedUser = await _userManager.FindByIdAsync(data.UserId);
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(selectedUser); 
+                    var result = await _userManager.ResetPasswordAsync(selectedUser, token, data.Password);
+                    if (result.Succeeded)
+                    {
+                        MailService mailService = new MailService();
+                        mailService.SendMailWithReceiverMailContextAndSubject(selectedUser.Email, "Şifre Güncelleme", "Şifreniz başarıyla değiştirilmiştir.");
+                        _notyf.Success("Şifreniz başarıyla değiştirilmiştir.");
+                    }
+
+                    foreach (var item in result.Errors)
+                    {
+                        _notyf.Error("Şifre Değiştirilirken Hata Oluştu: " + item.Description);
+                    }
+                }
+                else
+                {
+                    _notyf.Error("Şifreleriniz uyuşmuyor. Lütfen tekrar deneyiniz.");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            return RedirectToAction("Profile", "Designer");
+        }
+        
+        
     }
     
     

@@ -82,11 +82,11 @@
 <section>
     <div id="accordion" style="margin: 20px;">
         <div class="card shadow mt-5">
-                    <div class="card-header bg-info">
-                        <a href="#collapseCompanyCreate" class="card-link p-1">
-                            Müşteri Bilgileri
-                        </a>
-                    </div>
+                    <div class="card-header bg-gradient-gray-dark">
+                                                            <h3 class="card-title">
+                                                                Müşteri Bilgileri
+                                                            </h3>
+                                                        </div>
             <div id="collapseCompanyCreate">
                 <div class="card-body shadow">
                     <div class="form-group">
@@ -116,13 +116,14 @@
 <section>
     <div id="accordion" style="margin: 20px;">
         <div class="card shadow mt-5">
-            <div class="card-header bg-info">
-                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            <div class="card-header bg-gradient-gray-dark">
+                <h3 class="card-title">
                     Müşterinin Satın Aldığı Hizmetler
-                </a>
-                 <a href="@Url.Action("CustomerDefineServices", "Admin", new {CustomerID = Model.CustomerID})" class="btn pull-right bg-gradient-warning">Hizmet Tanımla</a>
-                                   
-            </div>
+                </h3>
+                <a href="@Url.Action("CustomerDefineServices", "Admin", new {CustomerID = Model.CustomerID})" class="btn pull-right bg-gradient-success">Hizmet Tanımla</a>
+
+                                                </div>
+            
             <div id="collapseCompanyList" class="collapse show">
                 <div class="card-body">
                     <div class="row table-responsive-sm">
@@ -145,13 +146,13 @@
                                         <td>@item.ServiceName</td>
                                         <td>@item.ServiceDescription</td>
                                         <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
-                                          
+
                                         <td>@item.ServiceStartDate.ToString("MM/dd/yyyy")</td>
                                     </tr>
                                 }
                                 </tbody>
                             </table>
-    
+
                         </div>
                     </div>
                 </div>
@@ -163,11 +164,12 @@
 <section>
     <div id="accordion" style="margin: 20px;">
         <div class="card shadow mt-5">
-            <div class="card-header bg-info">
-                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
-                    Müşteri Ödeme Geçmişi
-                </a>
-            </div>
+            <div class="card-header bg-gradient-gray-dark">
+                            <h3 class="card-title">
+                                Müşteri Ödeme Geçmişi
+                            </h3>
+                            
+                                                            </div>
             <div id="collapseCompanyList" class="collapse show">
                 <div class="card-body">
                     <div class="row table-responsive-sm">
@@ -203,13 +205,15 @@
 <section>
     <div id="accordion" style="margin: 20px;">
         <div class="card shadow mt-5">
-            <div class="card-header bg-info">
-                <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
+            <div class="card-header bg-gradient-gray-dark">
+                <h3 class="card-title">
                     Müşteriyle İlgilenen Personeller
-                </a>
-                <a href="@Url.Action("DefineCustomerEmployee", "Admin", new {CustomerID = Model.CustomerID})" class="btn pull-right bg-success">Personel Tanımla</a>
-                    
-            </div>
+                </h3>
+                 <a href="@Url.Action("DefineCustomerEmployee", "Admin", new {CustomerID = Model.CustomerID})" class="btn pull-right bg-success">Personel Tanımla</a>
+
+                                        
+                                                                        </div>
+            
             <div id="collapseCompanyList" class="collapse show">
                 <div class="card-body">
                     <div class="row table-responsive-sm">
@@ -217,7 +221,7 @@
                             <table id="CustomerEmployeeDataTable" class="display" style="width:100%">
                                 <thead>
                                 <tr>
-                                       
+
                                     <th>Personel Adı</th>
                                     <th>Personel Rolü</th>
                                     <th>Ayarlar</th>
@@ -229,15 +233,15 @@
                                     <tr>
                                         <td>@item.EmployeeName</td>
                                         <td>@item.EmployeeRole</td>
-                                        <td><a href="@Url.Action("DeleteCustomerEmployee","Admin",new {CustomerEmployeeID = item.CustomerEmployeeID})" class="btn btn-warning btn-sm"><i class="fas fa-trash"></i></a></td>
-                                                    
+                                        <td><a href="@Url.Action("DeleteCustomerEmployee", "Admin", new {CustomerEmployeeID = item.CustomerEmployeeID})" class="btn btn-warning btn-sm"><i class="fas fa-trash"></i></a></td>
+
                                     </tr>
                                 }
-                                       
-                                    
+
+
                                 </tbody>
                             </table>
-    
+
                         </div>
                     </div>
                 </div>
@@ -249,11 +253,13 @@
 <section>
 <div id="accordion" style="margin: 20px;">
 <div class="card shadow mt-5">
-    <div class="card-header bg-info">
-        <a href="#collapseCompanyList" class="card-link p-1" data-toggle="collapse">
-            Müşteri Raporları
-        </a>
-    </div>
+    <div class="card-header bg-gradient-gray-dark">
+                    <h3 class="card-title">
+                        Müşteri Raporları
+                    </h3>
+                    
+                                            
+                                                                            </div>
     <div id="collapseCompanyList" class="collapse show">
         <div class="card-body">
             <div class="row table-responsive-sm">
