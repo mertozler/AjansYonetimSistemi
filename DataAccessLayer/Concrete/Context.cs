@@ -107,10 +107,10 @@ namespace DataAccessLayer.Concrete
             builder.Entity<MailSettings>().HasData(new MailSettings
             {
                 ID = 1,
-                Mail = "companypanel15@gmail.com",
+                Mail = "ajansyonetim@mygrafeg.com",
                 Port = 587,
-                SMTPServer = "smtp.gmail.com",
-                Password = "123456Admin."
+                SMTPServer = "mail.mygrafeg.com",
+                Password = "Ef#bpu^}V!7^"
             });
             builder.Entity<PeakcellSMSSettings>().HasData(new PeakcellSMSSettings
             {
@@ -127,6 +127,20 @@ namespace DataAccessLayer.Concrete
                 isActive = true,
                 Password = "170c7a13d50048c4497146b0f2c9e0dd",
                 Username = "egebarkod"
+            });
+            builder.Entity<Settings>().HasData(new Settings
+            {
+                ID = 1,
+                Status = true,
+                SettingField = "ShouldCustomerBeAbleToSeePaymentHistory",
+                SettingIsActive = true
+            });
+            builder.Entity<Settings>().HasData(new Settings
+            {
+                ID = 2,
+                Status = true,
+                SettingField = "ShouldCustomerBeAbleToSeeRelevantPersonel",
+                SettingIsActive = true
             });
 
         }

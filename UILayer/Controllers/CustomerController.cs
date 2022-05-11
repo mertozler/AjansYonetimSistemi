@@ -57,6 +57,7 @@ namespace Project.Controllers
         private CustomerPaymentsManager _customerPaymentsManager =
             new CustomerPaymentsManager(new EfCustomerPaymentsRepository());
         NotificationManager _notificationManager = new NotificationManager(new EfNotificationRepository());
+        private SettingsManager _settingsManager = new SettingsManager(new EfSettingsRepository());
         private readonly ILogger<CustomerController> _logger;
 
         public CustomerController(INotyfService notyf, Context context, IMapper mapper,
@@ -535,6 +536,14 @@ namespace Project.Controllers
                     PaymentPrice = payment.PaymentPrice,
                 });
             }
+            var defaultShouldCustomerBeAbleToSeePaymentHistorySettings = _settingsManager
+                .GetBySettingField("ShouldCustomerBeAbleToSeePaymentHistory");
+            model.ShouldCustomerBeAbleTooSeePaymentHistoryIsActive = defaultShouldCustomerBeAbleToSeePaymentHistorySettings
+                .SettingIsActive;
+            var defaultShouldCustomerBeAbleToSeeRelevantPersonelSettings = _settingsManager
+                .GetBySettingField("ShouldCustomerBeAbleToSeeRelevantPersonel");
+            model.ShouldCustomerBeAbleTooSeeRelevantPersonelIsActive = defaultShouldCustomerBeAbleToSeeRelevantPersonelSettings
+                .SettingIsActive;
             model.CustomerEmployeeList = customerEmployeeList;
             model.CustomerServiceList = serviceListForCustomer;
             model.CustomerPaymentHistory = paymentHistoryList;

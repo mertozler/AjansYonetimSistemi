@@ -9,6 +9,9 @@ namespace EntityLayer.DTOs
         public List<CustomerEmployeeListClassForCustomer> CustomerEmployeeList { get; set; }
         public List<PaymentHistoryClassForCustomer> CustomerPaymentHistory { get; set; }
         public double PaymentPriceSum { get; set; }
+        public bool ShouldCustomerBeAbleTooSeePaymentHistoryIsActive { get; set; }
+        public bool ShouldCustomerBeAbleTooSeeRelevantPersonelIsActive { get; set; }
+    
     }
     
     public class CustomerCardServiceListClassForCustomer

@@ -8,7 +8,7 @@ namespace EntityLayer.Concrete
         public int ID { get; set; }
 
         public string SettingField { get; set; }
-        public string SettingValue { get; set; }
+        public bool SettingIsActive { get; set; }
         public bool Status { get; set; }
     }
 }

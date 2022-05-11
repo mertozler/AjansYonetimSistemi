@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BusinessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
 using EntityLayer.Concrete;
@@ -23,7 +24,7 @@ namespace Project.ViewComponents
             List<Announcement> announcements = new List<Announcement>();
             try
             {
-                announcements = _announcementManager.GetList();
+                announcements = _announcementManager.GetList().OrderByDescending(x=> x.Date).ToList();
             }
             catch (Exception e)
             {

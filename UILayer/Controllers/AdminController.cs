@@ -59,6 +59,7 @@ namespace Project.Controllers
 
         private CustomerProductsFileManager _customerProductsFileManager =
             new CustomerProductsFileManager(new EfCustomerProductsFileRepository());
+        SettingsManager _settingsManager = new SettingsManager(new EfSettingsRepository());
 
         private MailSettingsManager _mailSettingsManager = new MailSettingsManager(new EfMailSettingsRepository());
 
@@ -1258,6 +1259,14 @@ namespace Project.Controllers
                 model.DigicellUserName = defaultDigicellSMSSettings.Username;
                 model.DigicellHeader = defaultDigicellSMSSettings.Header;
                 model.DigicellPassword = defaultDigicellSMSSettings.Password;
+                var defaultShouldCustomerBeAbleToSeePaymentHistorySettings = _settingsManager
+                    .GetBySettingField("ShouldCustomerBeAbleToSeePaymentHistory");
+                model.ShouldCustomerBeAbleTooSeePaymentHistoryIsActive =
+                    defaultShouldCustomerBeAbleToSeePaymentHistorySettings.SettingIsActive;
+                var defaultShouldCustomerBeAbleToSeeRelevantPersonelSettings = _settingsManager
+                    .GetBySettingField("ShouldCustomerBeAbleToSeeRelevantPersonel");
+                model.ShouldCustomerBeAbleTooSeeRelevantPersonelIsActive =
+                    defaultShouldCustomerBeAbleToSeeRelevantPersonelSettings.SettingIsActive;
             }
             catch (Exception e)
             {
@@ -1266,6 +1275,40 @@ namespace Project.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        public IActionResult ShouldCustomerBeAbleToSeePaymentHistorySettings(MailSettingsDTO data)
+        {
+            try
+            {
+                var selectedSettings = _settingsManager.GetBySettingField("ShouldCustomerBeAbleToSeePaymentHistory");
+                selectedSettings.SettingIsActive = data.ShouldCustomerBeAbleTooSeePaymentHistoryIsActive;
+                _settingsManager.Update(selectedSettings);
+                _notyf.Success("Ayar başarıyla değiştirildi.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            return RedirectToAction("Settings", "Admin");
+        }
+        
+        public IActionResult ShouldCustomerBeAbleTooSeeRelevantPersonelIsActiveSettings(MailSettingsDTO data)
+        {
+            try
+            {
+                var selectedSettings = _settingsManager.GetBySettingField("ShouldCustomerBeAbleToSeeRelevantPersonel");
+                selectedSettings.SettingIsActive = data.ShouldCustomerBeAbleTooSeeRelevantPersonelIsActive;
+                _settingsManager.Update(selectedSettings);
+                _notyf.Success("Ayar başarıyla değiştirildi.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+            return RedirectToAction("Settings", "Admin");
+        }
+
 
         public IActionResult MailSettings(MailSettingsDTO data)
         {

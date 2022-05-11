@@ -57,6 +57,9 @@ namespace EntityLayer.DTOs
                         
                         
                         public bool DigicellIsActive { get; set; }
+                        
+                        public bool ShouldCustomerBeAbleTooSeePaymentHistoryIsActive { get; set; }
+                        public bool ShouldCustomerBeAbleTooSeeRelevantPersonelIsActive { get; set; }
     }
     
  

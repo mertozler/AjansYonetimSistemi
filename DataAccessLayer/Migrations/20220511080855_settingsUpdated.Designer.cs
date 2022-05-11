@@ -4,14 +4,16 @@ using DataAccessLayer.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20220511080855_settingsUpdated")]
+    partial class settingsUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,35 +72,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "74f434d0-9703-4859-b644-4a23dddd8a48",
+                            ConcurrencyStamp = "58d41b2c-29e9-493a-b638-04defed7c5f1",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "2307f070-9758-4654-a003-63ef7996f3bc",
+                            ConcurrencyStamp = "ef45ecc1-d077-46f7-bb54-8e1bed0af24c",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "4e69a4b6-a574-4115-a8be-075ef28e3410",
+                            ConcurrencyStamp = "ded1c9a4-c1ea-4ca2-ac47-9b8d3f5cf7f7",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "4555ea99-e2e9-4fd9-a00d-ae9ce7851223",
+                            ConcurrencyStamp = "37561ab4-ad59-4a0d-8498-8888193b09d8",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "89b2237d-3332-4101-956b-ff5236d1a9f5",
+                            ConcurrencyStamp = "06f52576-167a-4f3d-9d05-5c399d528bc8",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -870,22 +872,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Settings");
-
-                    b.HasData(
-                        new
-                        {
-                            ID = 1,
-                            SettingField = "ShouldCustomerBeAbleToSeePaymentHistory",
-                            SettingIsActive = true,
-                            Status = true
-                        },
-                        new
-                        {
-                            ID = 2,
-                            SettingField = "ShouldCustomerBeAbleToSeeRelevantPersonel",
-                            SettingIsActive = true,
-                            Status = true
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

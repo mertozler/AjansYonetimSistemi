@@ -94,81 +94,40 @@
         </div>
     </div>
 </section>
-
-<section>
-    <div id="accordion" style="margin: 20px;">
-        <div class="card shadow mt-5">
-             <div class="card-header bg-gradient-gray-dark">
-                                                                    <h3 class="card-title">
-                                                                        Ödeme Geçmişim
-                                                                    </h3>
-                                                                </div>
-            <div id="collapseCompanyList" class="collapse show">
-                <div class="card-body">
-                    <div class="row table-responsive-sm">
-                        <div class="col-md-12 ">
-                            <table id="employeePaymentList" class="display" style="width:100%">
-                                <thead>
-                                <tr>
-                                    <th>Ödeme Tarihi</th>
-                                    <th>Ödeme Tutarı</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                       @foreach (var item in Model.CustomerPaymentHistory)
-                                                           {
-                                <tr>
-                                        <td>@item.PaymentDate</td>
-                                        <td>@item.PaymentPrice ₺</td>
-                                </tr>
-                                                               
-                                                           }
-                       
-                                </tbody>
-                            </table>
-                            <label>Toplam Ödeme Tutarı: @Model.PaymentPriceSum ₺</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section>
+@if (Model.ShouldCustomerBeAbleTooSeePaymentHistoryIsActive)
+{
+    <section>
         <div id="accordion" style="margin: 20px;">
             <div class="card shadow mt-5">
-                 <div class="card-header bg-gradient-gray-dark">
-                                                                        <h3 class="card-title">
-                                                                            İlgilenen Personeller
-                                                                        </h3>
-                                                                    </div>
+                <div class="card-header bg-gradient-gray-dark">
+                    <h3 class="card-title">
+                        Ödeme Geçmişim
+                    </h3>
+                </div>
                 <div id="collapseCompanyList" class="collapse show">
                     <div class="card-body">
                         <div class="row table-responsive-sm">
                             <div class="col-md-12 ">
-                                <table id="CustomerEmployeeDataTable" class="display" style="width:100%">
+                                <table id="employeePaymentList" class="display" style="width:100%">
                                     <thead>
                                     <tr>
-                                       
-                                        <th>Personel Adı</th>
-                                        <th>Personel Rolü</th>
+                                        <th>Ödeme Tarihi</th>
+                                        <th>Ödeme Tutarı</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                            @foreach (var item in Model.CustomerEmployeeList)
-                                            {
-                                                <tr>
-                                                    <td>@item.EmployeeName</td>
-                                                    <td>@item.EmployeeRole</td>
-                                                    
-                                                </tr>
-                                            }
-                                       
-                                    
+                                    @foreach (var item in Model.CustomerPaymentHistory)
+                                    {
+                                        <tr>
+                                            <td>@item.PaymentDate</td>
+                                            <td>@item.PaymentPrice ₺</td>
+                                        </tr>
+                                                               
+                                    }
+                       
                                     </tbody>
                                 </table>
-    
+                                <label>Toplam Ödeme Tutarı: @Model.PaymentPriceSum ₺</label>
                             </div>
                         </div>
                     </div>
@@ -176,3 +135,49 @@
             </div>
         </div>
     </section>
+}
+
+@if (Model.ShouldCustomerBeAbleTooSeeRelevantPersonelIsActive)
+{
+    <section>
+        <div id="accordion" style="margin: 20px;">
+            <div class="card shadow mt-5">
+                <div class="card-header bg-gradient-gray-dark">
+                    <h3 class="card-title">
+                        İlgilenen Personeller
+                    </h3>
+                </div>
+                <div id="collapseCompanyList" class="collapse show">
+                    <div class="card-body">
+                        <div class="row table-responsive-sm">
+                            <div class="col-md-12 ">
+                                <table id="CustomerEmployeeDataTable" class="display" style="width:100%">
+                                    <thead>
+                                    <tr>
+
+                                        <th>Personel Adı</th>
+                                        <th>Personel Rolü</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var item in Model.CustomerEmployeeList)
+                                    {
+                                        <tr>
+                                            <td>@item.EmployeeName</td>
+                                            <td>@item.EmployeeRole</td>
+
+                                        </tr>
+                                    }
+
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
