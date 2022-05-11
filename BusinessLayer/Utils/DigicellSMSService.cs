@@ -3,17 +3,21 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Xml;
+using BusinessLayer.Concrete;
+using DataAccessLayer.EntityFramework;
 
 namespace BusinessLayer.Utils
 {
     public class DigicellSMSService
     {
-        string sUserID = "egebarkod";
-        string sPwd = "170c7a13d50048c4497146b0f2c9e0dd";
+        private DigicellSMSSettingsManager _digicellSmsSettingsManager =
+            new DigicellSMSSettingsManager(new EfDigicellSMSSettingsRepository());
+        
+        
         public string GetCredit()
         {
-            
-            string sURL ="http://api.sms.digicell.com.tr:8080/api/credit/v1?username="+ sUserID + "&password=" + sPwd;
+            var settings = _digicellSmsSettingsManager.GetSettings();
+            string sURL ="http://api.sms.digicell.com.tr:8080/api/credit/v1?username="+ settings.Username + "&password=" + settings.Password;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(sURL);
             request.MaximumAutomaticRedirections = 4;
             request.Credentials = CredentialCache.DefaultCredentials;
@@ -38,7 +42,7 @@ namespace BusinessLayer.Utils
         {
             try
             {
-
+                
                 HttpWebRequest request = WebRequest.Create(new Uri("http://api.sms.digicell.com.tr:8080/api/smspost/v1")) as HttpWebRequest; 
                 request.Method = "POST";
 
@@ -65,7 +69,7 @@ namespace BusinessLayer.Utils
 
         public string NumberParams(string phonenumber, string message)
         {
-
+            var SMSsettings = _digicellSmsSettingsManager.GetSettings();
             StringBuilder sb = new StringBuilder();
             XmlWriterSettings settings = new XmlWriterSettings(); 
             settings.Encoding = Encoding.Unicode;
@@ -76,9 +80,9 @@ namespace BusinessLayer.Utils
             using (XmlWriter writer = XmlWriter.Create(sb, settings))
             {
                 writer.WriteStartElement("sms");
-                writer.WriteElementString("username", "egebarkod");
-                writer.WriteElementString("password", "170c7a13d50048c4497146b0f2c9e0dd");
-                writer.WriteElementString("header", "EGEBARKOD");
+                writer.WriteElementString("username", SMSsettings.Username);
+                writer.WriteElementString("password", SMSsettings.Password);
+                writer.WriteElementString("header", SMSsettings.Header);
                 writer.WriteElementString("validity", "2880");
                 writer.WriteStartElement("message");
                 writer.WriteStartElement("gsm");

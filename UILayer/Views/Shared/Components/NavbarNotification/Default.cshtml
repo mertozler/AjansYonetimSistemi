@@ -6,7 +6,7 @@
     <span class="badge badge-danger navbar-badge">@Model.Count</span>
   </a>
   <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px; overflow: clip;">
-    @foreach (var item in Model)
+    @foreach (var item in Model.Take(5))
     {
       <a href="@item.Url" class="dropdown-item" onclick="changeReadedValue(@item.Id)">
 
@@ -19,7 +19,7 @@
             </h3>
             <p class="text-sm">@item.Content</p>
             <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>@item.Date</p>
-          
+
 
           </div>
         </div>
@@ -28,7 +28,7 @@
       <div class="dropdown-divider"></div>
     }
     <a href="#" class="dropdown-item">
-    <a href="/Home/SeeAllNotification" class="dropdown-item dropdown-footer">Bütün Bildirimleri Gör</a>
+      <a href="/Home/SeeAllNotification" class="dropdown-item dropdown-footer">Bütün Bildirimleri Gör</a>
 
     </a>
     <div class="dropdown-divider"></div>

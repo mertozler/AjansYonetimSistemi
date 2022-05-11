@@ -156,9 +156,9 @@
                                 <td>@item.CustomerName</td>
                                 <td>@item.CustomerMail</td>
                                          <td>
-                                          <a href="@Url.Action("CustomerCard","Admin",new {CustomerID = item.CustomerID})" class="btn btn-warning btn-sm"><i class="fas fa-address-card"></i></a>
+                                          <a href="@Url.Action("CustomerCard","Admin",new {CustomerID = item.CustomerID})" class="btn btn-info btn-sm"><i class="fas fa-address-card"></i></a>
                                          <button type="button" class="btn btn-warning btn-sm" data-toggle="ajax-modal" data-target="#editCustomer" data-url="@Url.Action("EditCustomer", "Admin", new {CustomerID = item.CustomerID})"><i class="fas fa-edit"></i></button> 
-                                         <a href="@Url.Action("DeleteCustomer","Admin",new {CustomerID = item.CustomerID})" class="btn btn-warning btn-sm"><i class="fas fa-trash"></i></a>   
+                                         <a href="@Url.Action("DeleteCustomer","Admin",new {CustomerID = item.CustomerID})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>   
                                         </td>   
                             </tr>
                         }

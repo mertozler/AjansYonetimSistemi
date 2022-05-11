@@ -22,6 +22,7 @@ namespace Project.Controllers
         private readonly INotyfService _notyf;
         NotificationManager _notificationManager = new NotificationManager(new EfNotificationRepository());
         private readonly UserManager<ApplicationUser> _userManager;
+        private AnnouncementManager _announcementManager = new AnnouncementManager(new EfAnnouncementRepository());
         public HomeController(ILogger<HomeController> logger,INotyfService notyf,UserManager<ApplicationUser> userManager)
         {
             _notyf = notyf;
@@ -55,6 +56,12 @@ namespace Project.Controllers
             var currentUser = _userManager.GetUserAsync((ClaimsPrincipal) User).Result;
             var notificationList = _notificationManager.GetListByCurrentUserIdAll(currentUser.Id);
             return View(notificationList);
+        }
+
+        public IActionResult SeeAllAnnouncements()
+        {
+            var announcementList = _announcementManager.GetList();
+            return View(announcementList);
         }
     }
 }

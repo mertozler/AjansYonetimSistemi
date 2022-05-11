@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using BusinessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
@@ -27,7 +28,7 @@ namespace Project.ViewComponents
             try
             {
                 var currentUser = _userManager.GetUserAsync((ClaimsPrincipal) User).Result;
-                notificationList = _notificationManager.GetListByCurrentUserId(currentUser.Id);
+                notificationList = _notificationManager.GetListByCurrentUserId(currentUser.Id).OrderBy(x => x.Date).ToList();
 
             }
             catch (Exception e)

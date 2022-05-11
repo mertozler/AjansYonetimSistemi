@@ -596,3 +596,6 @@ D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\View
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\System.Web.Extensions.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\SmsApiNodeCore.dll
 D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\bin\Debug\net5.0\SmsApiNodeCore.pdb
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Admin\MakeAnAnnouncement.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Shared\Components\NavbarAnnouncement\Default.cshtml.g.cs
+D:\MERT\Coding\.NET CORE\AjansYonetimSistemi\UILayer\obj\Debug\net5.0\Razor\Views\Home\SeeAllAnnouncements.cshtml.g.cs

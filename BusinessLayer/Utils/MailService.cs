@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Threading.Tasks;
 using BusinessLayer.Concrete;
 using DataAccessLayer.EntityFramework;
 
@@ -11,6 +13,7 @@ namespace BusinessLayer.Utils
         MailSettingsManager _mailSettingsManager = new MailSettingsManager(new EfMailSettingsRepository());
         public void SendMailWithReceiverMailContextAndSubject(string toMail, string mailContext, string mailSubject)
         {
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(RemoteServerCertificateValidationCallback);
             var getMailSettingsData = _mailSettingsManager.GetList().FirstOrDefault();
             string to = toMail; //To address    
             string from = getMailSettingsData.Mail; //From address    
@@ -27,6 +30,11 @@ namespace BusinessLayer.Utils
             client.UseDefaultCredentials = false;
             client.Credentials = basicCredential1;
             client.Send(message);
+        }
+        private bool RemoteServerCertificateValidationCallback(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate, System.Security.Cryptography.X509Certificates.X509Chain chain, System.Net.Security.SslPolicyErrors sslPolicyErrors)
+        {
+            //Console.WriteLine(certificate);
+            return true;
         }
     }
 }

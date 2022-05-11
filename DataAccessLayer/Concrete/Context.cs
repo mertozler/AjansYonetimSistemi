@@ -95,7 +95,8 @@ namespace DataAccessLayer.Concrete
                 NameSurname = "Sistem Yöneticisi",
                 PasswordHash = "AQAAAAEAACcQAAAAEBnB8oXphFdmCsywKjHsM1T0Rqoy+MUE/X6BTKXc92U7kCDqn3k8JwfkAyO3GjGfuA==",
                 SecurityStamp = "G4UWDNIBHRMGKMISDT73JLS7P3EBZMRV",
-                ConcurrencyStamp = "15142b86-2dd6-4e0a-8731-0af709f5c26b"
+                ConcurrencyStamp = "15142b86-2dd6-4e0a-8731-0af709f5c26b",
+                Status = true,
             });
             // Add the user to the admin role
             builder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
@@ -111,7 +112,23 @@ namespace DataAccessLayer.Concrete
                 SMTPServer = "smtp.gmail.com",
                 Password = "123456Admin."
             });
-           
+            builder.Entity<PeakcellSMSSettings>().HasData(new PeakcellSMSSettings
+            {
+                ID = 1,
+                Header = "EGEBARKOD",
+                isActive = true,
+                Password = "password",
+                Username = "username"
+            });
+            builder.Entity<DigicellSMSSettings>().HasData(new DigicellSMSSettings
+            {
+                ID = 1,
+                Header = "EGEBARKOD",
+                isActive = true,
+                Password = "170c7a13d50048c4497146b0f2c9e0dd",
+                Username = "egebarkod"
+            });
+
         }
         
         public DbSet<CustomerPayment> CustomerPayments { get; set; }
@@ -133,5 +150,8 @@ namespace DataAccessLayer.Concrete
         public DbSet<CustomerEmployee> CustomerEmployees { get; set; }
         public DbSet<MailSettings> MailSettings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
+        public DbSet<DigicellSMSSettings> DigicellSMSSettings { get; set; }
+        public DbSet<PeakcellSMSSettings> PeakcellSMSSettings { get; set; }
     }
 }

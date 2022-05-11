@@ -19,6 +19,27 @@ namespace DataAccessLayer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.0");
 
+            modelBuilder.Entity("EntityLayer.Concrete.Announcement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Header")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("EntityLayer.Concrete.ApplicationRole", b =>
                 {
                     b.Property<string>("Id")
@@ -49,35 +70,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "da95c47b-fddd-4cd0-ba73-fc220930d021",
+                            ConcurrencyStamp = "a2335c01-4859-4dcb-90d9-eb6de1d30e33",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "bd668ba4-fabf-4411-b6b5-96d8a3c74144",
+                            ConcurrencyStamp = "e9d2c2c5-0191-4292-ae4d-e6e1e1dc1f03",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "c7c3f355-5522-45f9-a79d-f69825421bbc",
+                            ConcurrencyStamp = "86d257e5-0c55-4339-b66b-74108930123f",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "de3f4ecc-3c7f-4af9-b42f-47c403b30378",
+                            ConcurrencyStamp = "ed706e6b-b942-4a6e-9817-e25753c50adb",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "158894f9-d172-4ba6-9c0a-7d33631ad9de",
+                            ConcurrencyStamp = "fc1923d2-4d31-4901-8d17-55e34e62a187",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -517,6 +538,30 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("DemandFiles");
                 });
 
+            modelBuilder.Entity("EntityLayer.Concrete.DigicellSMSSettings", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Header")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("DigicellSMSSettings");
+                });
+
             modelBuilder.Entity("EntityLayer.Concrete.EmployeeCalendar", b =>
                 {
                     b.Property<int>("id")
@@ -603,6 +648,16 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("MailSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Mail = "companypanel15@gmail.com",
+                            Password = "123456Admin.",
+                            Port = 587,
+                            SMTPServer = "smtp.gmail.com"
+                        });
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.Notification", b =>
@@ -707,6 +762,30 @@ namespace DataAccessLayer.Migrations
                             Name = "Yıllık",
                             Status = true
                         });
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.PeakcellSMSSettings", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Header")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("PeakcellSMSSettings");
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.ServicePackage", b =>

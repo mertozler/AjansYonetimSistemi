@@ -3,10 +3,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataAccessLayer.Migrations
 {
-    public partial class initial : Migration
+    public partial class AnnouncementAdded : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Announcements",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Header = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Announcements", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -650,17 +665,22 @@ namespace DataAccessLayer.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "1", "da95c47b-fddd-4cd0-ba73-fc220930d021", "admin", "ADMIN" },
-                    { "2", "bd668ba4-fabf-4411-b6b5-96d8a3c74144", "customer", "CUSTOMER" },
-                    { "3", "c7c3f355-5522-45f9-a79d-f69825421bbc", "designer", "DESIGNER" },
-                    { "4", "de3f4ecc-3c7f-4af9-b42f-47c403b30378", "ops", "OPS" },
-                    { "5", "158894f9-d172-4ba6-9c0a-7d33631ad9de", "marketing", "MARKETING" }
+                    { "1", "a47cfba0-9cee-4b39-8e94-02dfdb637c6c", "admin", "ADMIN" },
+                    { "2", "e050be84-e5af-4b99-9639-945237edf07e", "customer", "CUSTOMER" },
+                    { "3", "803730a0-7cbb-4d8d-ad1b-86e5c2991097", "designer", "DESIGNER" },
+                    { "4", "8d5f2754-a3ae-47fa-9971-f4a0c5df1ae1", "ops", "OPS" },
+                    { "5", "9d4b68ef-a912-41e1-a4a8-f4b8c48dfc05", "marketing", "MARKETING" }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NameSurname", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "Status", "TwoFactorEnabled", "UserName" },
                 values: new object[] { "22e40406-8a9d-2d82-912c-5d6a640ee696", 0, "15142b86-2dd6-4e0a-8731-0af709f5c26b", "admin@gmail.com", true, false, null, "Sistem Yöneticisi", "ADMIN@GMAIL.COM", "ADMIN@GMAIL.COM", "AQAAAAEAACcQAAAAEBnB8oXphFdmCsywKjHsM1T0Rqoy+MUE/X6BTKXc92U7kCDqn3k8JwfkAyO3GjGfuA==", null, false, "G4UWDNIBHRMGKMISDT73JLS7P3EBZMRV", false, false, "admin@gmail.com" });
+
+            migrationBuilder.InsertData(
+                table: "MailSettings",
+                columns: new[] { "ID", "Mail", "Password", "Port", "SMTPServer" },
+                values: new object[] { 1, "companypanel15@gmail.com", "123456Admin.", 587, "smtp.gmail.com" });
 
             migrationBuilder.InsertData(
                 table: "PaymentRoutineTypes",
@@ -860,6 +880,9 @@ namespace DataAccessLayer.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Announcements");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 

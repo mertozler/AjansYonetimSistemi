@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20220420070631_initial")]
-    partial class initial
+    [Migration("20220509070429_AnnouncementAdded")]
+    partial class AnnouncementAdded
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,6 +20,27 @@ namespace DataAccessLayer.Migrations
                 .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.0");
+
+            modelBuilder.Entity("EntityLayer.Concrete.Announcement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Header")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Announcements");
+                });
 
             modelBuilder.Entity("EntityLayer.Concrete.ApplicationRole", b =>
                 {
@@ -51,35 +72,35 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "da95c47b-fddd-4cd0-ba73-fc220930d021",
+                            ConcurrencyStamp = "a47cfba0-9cee-4b39-8e94-02dfdb637c6c",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "bd668ba4-fabf-4411-b6b5-96d8a3c74144",
+                            ConcurrencyStamp = "e050be84-e5af-4b99-9639-945237edf07e",
                             Name = "customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "c7c3f355-5522-45f9-a79d-f69825421bbc",
+                            ConcurrencyStamp = "803730a0-7cbb-4d8d-ad1b-86e5c2991097",
                             Name = "designer",
                             NormalizedName = "DESIGNER"
                         },
                         new
                         {
                             Id = "4",
-                            ConcurrencyStamp = "de3f4ecc-3c7f-4af9-b42f-47c403b30378",
+                            ConcurrencyStamp = "8d5f2754-a3ae-47fa-9971-f4a0c5df1ae1",
                             Name = "ops",
                             NormalizedName = "OPS"
                         },
                         new
                         {
                             Id = "5",
-                            ConcurrencyStamp = "158894f9-d172-4ba6-9c0a-7d33631ad9de",
+                            ConcurrencyStamp = "9d4b68ef-a912-41e1-a4a8-f4b8c48dfc05",
                             Name = "marketing",
                             NormalizedName = "MARKETING"
                         });
@@ -605,6 +626,16 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("MailSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Mail = "companypanel15@gmail.com",
+                            Password = "123456Admin.",
+                            Port = 587,
+                            SMTPServer = "smtp.gmail.com"
+                        });
                 });
 
             modelBuilder.Entity("EntityLayer.Concrete.Notification", b =>

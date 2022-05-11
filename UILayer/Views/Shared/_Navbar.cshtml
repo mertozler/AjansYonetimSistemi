@@ -22,12 +22,51 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
+      @if (kullaniciRolleri[0] == "admin")
+      {
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="/Home/" class="nav-link">Anasayfa</a>
+        <a href="/Admin/" class="nav-link">Anasayfa</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
         <a href="#" class="nav-link">İletişim</a>
       </li>
+      }
+      else if (kullaniciRolleri[0] == "ops")
+      {
+        <li class="nav-item d-none d-sm-inline-block">
+          <a href="/Ops/" class="nav-link">Anasayfa</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+          <a href="#" class="nav-link">İletişim</a>
+        </li>
+      }
+      else if (kullaniciRolleri[0] == "marketing")
+            {
+              <li class="nav-item d-none d-sm-inline-block">
+                <a href="/Marketing/" class="nav-link">Anasayfa</a>
+              </li>
+              <li class="nav-item d-none d-sm-inline-block">
+                <a href="#" class="nav-link">İletişim</a>
+              </li>
+            }
+      else if (kullaniciRolleri[0] == "designer")
+            {
+              <li class="nav-item d-none d-sm-inline-block">
+                <a href="/Designer/" class="nav-link">Anasayfa</a>
+              </li>
+              <li class="nav-item d-none d-sm-inline-block">
+                <a href="#" class="nav-link">İletişim</a>
+              </li>
+            }
+      else if (kullaniciRolleri[0] == "customer")
+            {
+              <li class="nav-item d-none d-sm-inline-block">
+                <a href="/Customer/" class="nav-link">Anasayfa</a>
+              </li>
+              <li class="nav-item d-none d-sm-inline-block">
+                <a href="#" class="nav-link">İletişim</a>
+              </li>
+            }
     </ul>
 
     <!-- Right navbar links -->
@@ -53,7 +92,7 @@
           </form>
         </div>
       </li>
-      
+      @await Component.InvokeAsync("NavbarAnnouncement")
       @await Component.InvokeAsync("NavbarNotification")
       
        <li class="nav-item">
