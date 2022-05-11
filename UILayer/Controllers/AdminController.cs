@@ -1193,6 +1193,18 @@ namespace Project.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    var selectedCustomerEmployeeList =
+                        _customerEmployeeManager.GetEmployeeListByCustomerID(data.SelectedCustomerID);
+                    if (selectedCustomerEmployeeList.Count > 0)
+                    {
+                        var isThereAnyCustomerEmployeeData = selectedCustomerEmployeeList
+                            .Where(x => x.EmployeeID == data.SelectedEmployeeID).ToList();
+                        if (isThereAnyCustomerEmployeeData.Count >= 1)
+                        {
+                            _notyf.Error("Bu personel müşteriye hali hazırda tanımlanmıştır");
+                            return  RedirectToAction("DefineCustomerEmployee","Admin", new {CustomerID = data.SelectedCustomerID});
+                        }
+                    }
                     CustomerEmployee newCustomerEmployee = new CustomerEmployee();
                     newCustomerEmployee.Status = true;
                     newCustomerEmployee.CustomerID = data.SelectedCustomerID;
